@@ -1,5 +1,6 @@
 package com.example.courseWork.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
@@ -29,9 +30,10 @@ public class Person {
     /*@Size(min = 3, max = 50, message = "Поле пароль должно быть от 3 до 50 символов в длину!")*/
     @Column(name = "password")
     private String password;
-
-    @Column(name = "role")
-    private String role;
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name ="fk_role",referencedColumnName = "id")
+    private Role role;
 
     public Person() {
     }
@@ -72,6 +74,8 @@ public class Person {
         return email;
     }
 
+
+
     public void setEmail(String email) {
         this.email = email;
     }
@@ -84,11 +88,11 @@ public class Person {
         this.password = password;
     }
 
-    public String getRole() {
+    public Role getRole() {
         return role;
     }
 
-    public void setRole(String role){
+    public void setRole(Role role){
         this.role = role;
     }
 }

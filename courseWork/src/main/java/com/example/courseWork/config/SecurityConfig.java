@@ -5,7 +5,9 @@ import com.example.courseWork.services.PersonDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -47,13 +49,12 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         //Конфигурируем сам Spring Security
         //Конфигурируем саму авторизацию.
-        http.csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests(
+        return http.csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests(
                         authorize -> authorize
-                                .requestMatchers("/auth/login","/auth/registration","/error")
-                                .permitAll()
+                                .requestMatchers("/auth/login","/error","/auth/recover-password").permitAll()
+                                .requestMatchers(HttpMethod.POST,"/auth/registration").permitAll()
                                 .anyRequest().hasAnyRole("USER","ADMIN")
-                )
-                .formLogin(
+                ).build();/*.formLogin(
                         form -> form
                                 .loginPage("/auth/login")
                                 .loginProcessingUrl("/process_login")
@@ -63,9 +64,11 @@ public class SecurityConfig {
                 ).logout(
                         logout ->logout
                         .logoutUrl("/logout")
-                        .logoutSuccessUrl("/auth/login"));
-        return http.build();
+                        .logoutSuccessUrl("/auth/login"))*/
+
     }
+
+
 
     @Bean
     public PasswordEncoder getPasswordEncoder(){
