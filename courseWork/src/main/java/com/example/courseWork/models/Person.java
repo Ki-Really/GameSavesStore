@@ -1,6 +1,7 @@
 package com.example.courseWork.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
@@ -30,7 +31,7 @@ public class Person {
     /*@Size(min = 3, max = 50, message = "Поле пароль должно быть от 3 до 50 символов в длину!")*/
     @Column(name = "password")
     private String password;
-    @JsonIgnore
+
     @ManyToOne
     @JoinColumn(name ="fk_role",referencedColumnName = "id")
     private Role role;

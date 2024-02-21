@@ -56,4 +56,9 @@ public class PeopleService {
         Optional<Person> person = peopleRepository.findById(id);
         return person.orElseThrow(PersonNotFoundException::new);
     }
+
+    public Person findOne(String username) {
+        Optional<Person> person = peopleRepository.findByUsername(username);
+        return person.orElseThrow(PersonNotFoundException::new);
+    }
 }
