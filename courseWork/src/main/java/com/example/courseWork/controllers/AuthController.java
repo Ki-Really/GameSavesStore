@@ -4,19 +4,27 @@ import com.example.courseWork.DTO.PersonLoginDTO;
 import com.example.courseWork.DTO.PersonPasswordRecoveryDTO;
 import com.example.courseWork.models.MailStructure;
 import com.example.courseWork.models.Person;
+import com.example.courseWork.security.PersonDetails;
 import com.example.courseWork.services.MailService;
 import com.example.courseWork.services.PeopleService;
 import com.example.courseWork.util.PersonErrorResponse;
 import com.example.courseWork.util.PersonNotCreatedException;
 import com.example.courseWork.util.PersonNotFoundException;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.parameters.P;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
 
@@ -65,7 +73,7 @@ public class AuthController {
 
     @PostMapping("/login")
     private ResponseEntity<Person> login(@RequestBody @Valid PersonLoginDTO personLoginDTO,
-                                              BindingResult bindingResult){
+                                              BindingResult bindingResult, HttpServletRequest request) throws ServletException {
         if(bindingResult.hasErrors()){
 
             StringBuilder errorMsg = new StringBuilder();
@@ -78,10 +86,19 @@ public class AuthController {
             }
             throw new PersonNotCreatedException(errorMsg.toString());
         }
-        Person person = peopleService.checkCredentials(personLoginDTO.getUsername(), personLoginDTO.getPassword());
+
+        request.login(personLoginDTO.getUsername(), personLoginDTO.getPassword());
+        Person person = peopleService.findOne(personLoginDTO.getUsername());
         System.out.println(person);
         return ResponseEntity.ok(person);
 
+    }
+
+    @GetMapping("/me")
+    @ResponseBody
+    public ResponseEntity<Person> currentUser(Principal principal) {
+        Person person = peopleService.findOne(principal.getName());
+        return ResponseEntity.ok(person);
     }
 
     @PostMapping("/recover-password")
@@ -92,7 +109,8 @@ public class AuthController {
         String generatedToken = uuid.toString();
         String emailText = "<a>cloud-saves://reset-password?token="+ generatedToken + "</a>";
         System.out.println(emailText);
-        MailStructure mailStructure = new MailStructure("Password Recovery",emailText);
+        MailStructure mailStructure = new MailStructure("Password Recovery", "<a href="+emailText+">" + emailText + "</a>");
+
         mailService.sendMail(email,mailStructure);
         return ResponseEntity.ok(HttpStatus.OK);
     }
