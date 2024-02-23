@@ -90,7 +90,7 @@ public class AuthController {
         System.out.println(email);
         UUID uuid = UUID.randomUUID();
         String generatedToken = uuid.toString();
-        String emailText = "cloud-saves://reset-password?token="+ generatedToken;
+        String emailText = "<a>cloud-saves://reset-password?token="+ generatedToken + "</a>";
         System.out.println(emailText);
         MailStructure mailStructure = new MailStructure("Password Recovery",emailText);
         mailService.sendMail(email,mailStructure);
