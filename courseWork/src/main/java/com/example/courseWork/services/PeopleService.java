@@ -45,6 +45,25 @@ public class PeopleService {
         return null;
     }
 
+    public Person findPersonByEmail(String email){
+        Optional<Person> person = peopleRepository.findByEmail(email);
+        return person.orElse(null);
+    }
+
+    public Person findPersonById(int id){
+        Optional<Person> person = peopleRepository.findById(id);
+        return person.orElse(null);
+    }
+    @Transactional
+    public void updatePassword(int id,String password){
+        Optional<Person> person = peopleRepository.findById(id);
+        person.ifPresent(value -> {
+            String encodedPassword = passwordEncoder.encode(password);
+            value.setPassword(encodedPassword);
+            peopleRepository.save(person.get());
+        });
+    }
+
     public List<Person> findAll()
     {
         List<Person> people = peopleRepository.findAll();

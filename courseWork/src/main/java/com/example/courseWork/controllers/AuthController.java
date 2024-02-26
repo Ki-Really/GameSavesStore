@@ -1,11 +1,14 @@
 package com.example.courseWork.controllers;
 
+import com.example.courseWork.DTO.PersonChangePasswordDTO;
 import com.example.courseWork.DTO.PersonLoginDTO;
 import com.example.courseWork.DTO.PersonPasswordRecoveryDTO;
+import com.example.courseWork.DTO.SendPersonFromLoginDTO;
 import com.example.courseWork.models.MailStructure;
+import com.example.courseWork.models.PasswordRecoveryTokenEntity;
 import com.example.courseWork.models.Person;
-import com.example.courseWork.security.PersonDetails;
 import com.example.courseWork.services.MailService;
+import com.example.courseWork.services.PasswordRecoveryTokenService;
 import com.example.courseWork.services.PeopleService;
 import com.example.courseWork.util.PersonErrorResponse;
 import com.example.courseWork.util.PersonNotCreatedException;
@@ -16,10 +19,6 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.parameters.P;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -34,22 +33,14 @@ public class AuthController {
 
     private final PeopleService peopleService;
     private final MailService mailService;
+    private final PasswordRecoveryTokenService passwordRecoveryTokenService;
 
     @Autowired
-    public AuthController(PeopleService peopleService, MailService mailService) {
+    public AuthController(PeopleService peopleService, MailService mailService, PasswordRecoveryTokenService passwordRecoveryTokenService) {
         this.peopleService = peopleService;
         this.mailService = mailService;
+        this.passwordRecoveryTokenService = passwordRecoveryTokenService;
     }
-
-    /*@GetMapping
-    private List<Person> getPeople(){
-        return peopleService.findAll();
-    }
-
-    @GetMapping("/{id}")
-    private Person getPerson(@PathVariable int id){
-        return peopleService.findOne(id);
-    }*/
 
     @PostMapping("/registration")
     private ResponseEntity<HttpStatus> create(@RequestBody @Valid Person person,
@@ -72,7 +63,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    private ResponseEntity<Person> login(@RequestBody @Valid PersonLoginDTO personLoginDTO,
+    private ResponseEntity<SendPersonFromLoginDTO> login(@RequestBody @Valid PersonLoginDTO personLoginDTO,
                                               BindingResult bindingResult, HttpServletRequest request) throws ServletException {
         if(bindingResult.hasErrors()){
 
@@ -89,9 +80,9 @@ public class AuthController {
 
         request.login(personLoginDTO.getUsername(), personLoginDTO.getPassword());
         Person person = peopleService.findOne(personLoginDTO.getUsername());
-        System.out.println(person);
-        return ResponseEntity.ok(person);
-
+        SendPersonFromLoginDTO sendPersonFromLoginDTO = new SendPersonFromLoginDTO(person.getUsername(),
+                person.getEmail(),person.getPassword(),person.getRole().getName());
+        return ResponseEntity.ok(sendPersonFromLoginDTO);
     }
 
     @GetMapping("/me")
@@ -104,16 +95,40 @@ public class AuthController {
     @PostMapping("/recover-password")
     private ResponseEntity<HttpStatus> recoverPassword(@RequestBody @Valid PersonPasswordRecoveryDTO personPasswordRecoveryDTO){
         String email = personPasswordRecoveryDTO.getEmail();
-        System.out.println(email);
         UUID uuid = UUID.randomUUID();
-        String generatedToken = uuid.toString();
-        String emailText = "<a>cloud-saves://reset-password?token="+ generatedToken + "</a>";
-        System.out.println(emailText);
-        MailStructure mailStructure = new MailStructure("Password Recovery", "<a href="+emailText+">" + emailText + "</a>");
 
+        String generatedToken = uuid.toString();
+        String emailText = "cloud-saves://reset-password?token="+ generatedToken;
+        MailStructure mailStructure = new MailStructure("Password Recovery", emailText);
         mailService.sendMail(email,mailStructure);
+
+        Person person = peopleService.findPersonByEmail(email);
+        PasswordRecoveryTokenEntity passwordRecoveryTokenEntity = new PasswordRecoveryTokenEntity();
+        passwordRecoveryTokenEntity.setToken(generatedToken);
+        passwordRecoveryTokenEntity.setPerson(person);
+        passwordRecoveryTokenService.save(passwordRecoveryTokenEntity);
+
         return ResponseEntity.ok(HttpStatus.OK);
     }
+
+    @PostMapping("/change-password")
+    private ResponseEntity<HttpStatus> changePassword(@RequestBody @Valid PersonChangePasswordDTO personChangePasswordDTO){
+
+        System.out.println(personChangePasswordDTO.getToken());
+        if(passwordRecoveryTokenService.findByToken(personChangePasswordDTO.getToken())!= null){
+            PasswordRecoveryTokenEntity passwordRecoveryTokenEntity = passwordRecoveryTokenService.findByToken(personChangePasswordDTO.getToken());
+            Person personToChangePassword = peopleService.findPersonById(passwordRecoveryTokenEntity.getPerson().getId());
+            if(personChangePasswordDTO.getPassword().equals(personChangePasswordDTO.getRepeatedPassword())){
+                peopleService.updatePassword(personToChangePassword.getId(), personChangePasswordDTO.getPassword());
+                passwordRecoveryTokenService.remove(passwordRecoveryTokenEntity);
+                return ResponseEntity.ok(HttpStatus.OK);
+            }else{
+                return ResponseEntity.badRequest().build();
+            }
+        }
+        return ResponseEntity.badRequest().build();
+    }
+
 
 
     @ExceptionHandler

@@ -35,6 +35,8 @@ public class Person {
     @ManyToOne
     @JoinColumn(name ="fk_role",referencedColumnName = "id")
     private Role role;
+    @OneToOne(mappedBy = "person")
+    private PasswordRecoveryTokenEntity passwordRecoveryTokenEntity;
 
     public Person() {
     }

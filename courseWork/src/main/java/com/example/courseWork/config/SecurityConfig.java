@@ -53,12 +53,14 @@ public class SecurityConfig {
         //Конфигурируем саму авторизацию.
         return http.csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests(
                         authorize -> authorize
-                                .requestMatchers("/auth/login","/error","/auth/recover-password").permitAll()
+                                .requestMatchers("/auth/login","/error","/auth/recover-password","/auth/change-password").permitAll()
                                 .requestMatchers(HttpMethod.POST,"/auth/registration").permitAll()
                                 .requestMatchers("/auth/me").authenticated()
                                 .anyRequest().hasAnyRole("USER","ADMIN")
-                ).exceptionHandling(customizer -> customizer
-            .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))).build();/*.formLogin(
+                ).logout(logout->logout.logoutUrl("/logout"))
+                .exceptionHandling(customizer -> customizer
+                    .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
+                    .build();/*.formLogin(
                         form -> form
                                 .loginPage("/auth/login")
                                 .loginProcessingUrl("/process_login")
