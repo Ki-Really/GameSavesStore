@@ -1,9 +1,6 @@
 package com.example.courseWork.controllers;
 
-import com.example.courseWork.DTO.PersonChangePasswordDTO;
-import com.example.courseWork.DTO.PersonLoginDTO;
-import com.example.courseWork.DTO.PersonPasswordRecoveryDTO;
-import com.example.courseWork.DTO.SendPersonFromLoginDTO;
+import com.example.courseWork.DTO.*;
 import com.example.courseWork.models.MailStructure;
 import com.example.courseWork.models.PasswordRecoveryTokenEntity;
 import com.example.courseWork.models.Person;
@@ -87,9 +84,11 @@ public class AuthController {
 
     @GetMapping("/me")
     @ResponseBody
-    public ResponseEntity<Person> currentUser(Principal principal) {
+    public ResponseEntity<SendPersonFromLoginDTO> currentUser(Principal principal) {
         Person person = peopleService.findOne(principal.getName());
-        return ResponseEntity.ok(person);
+        SendPersonFromLoginDTO sendPersonFromLoginDTO = new SendPersonFromLoginDTO(person.getUsername(),
+                person.getEmail(), person.getPassword(), person.getRole().getName());
+        return ResponseEntity.ok(sendPersonFromLoginDTO);
     }
 
     @PostMapping("/recover-password")
@@ -99,7 +98,12 @@ public class AuthController {
 
         String generatedToken = uuid.toString();
         String emailText = "cloud-saves://reset-password?token="+ generatedToken;
-        MailStructure mailStructure = new MailStructure("Password Recovery", emailText);
+        String emailHtmlContent = "<html><body>"
+                + "<h1>Password Recovery</h1>"
+                + "<p>You should paste this link to the search bar!</p>"
+                + "<p>" + emailText + "</p>"
+                + "</body></html>";
+        MailStructure mailStructure = new MailStructure("Password Recovery", emailHtmlContent);
         mailService.sendMail(email,mailStructure);
 
         Person person = peopleService.findPersonByEmail(email);
@@ -113,8 +117,6 @@ public class AuthController {
 
     @PostMapping("/change-password")
     private ResponseEntity<HttpStatus> changePassword(@RequestBody @Valid PersonChangePasswordDTO personChangePasswordDTO){
-
-        System.out.println(personChangePasswordDTO.getToken());
         if(passwordRecoveryTokenService.findByToken(personChangePasswordDTO.getToken())!= null){
             PasswordRecoveryTokenEntity passwordRecoveryTokenEntity = passwordRecoveryTokenService.findByToken(personChangePasswordDTO.getToken());
             Person personToChangePassword = peopleService.findPersonById(passwordRecoveryTokenEntity.getPerson().getId());
@@ -127,6 +129,17 @@ public class AuthController {
             }
         }
         return ResponseEntity.badRequest().build();
+    }
+
+    @PostMapping("/auth-change-password")
+    private ResponseEntity<HttpStatus> changePasswordAuth(@RequestBody @Valid PersonAuthChangePasswordDTO personAuthChangePasswordDTO,Principal principal){
+        Person person = peopleService.findOne(principal.getName());
+        if(personAuthChangePasswordDTO.getPassword().equals(personAuthChangePasswordDTO.getRepeatedPassword())){
+            peopleService.updatePassword(person.getId(), personAuthChangePasswordDTO.getPassword());
+            return ResponseEntity.ok(HttpStatus.OK);
+        }else{
+            return ResponseEntity.badRequest().build();
+        }
     }
 
 

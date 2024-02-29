@@ -17,6 +17,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
+import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 
 
 @Configuration
@@ -53,14 +54,15 @@ public class SecurityConfig {
         //Конфигурируем саму авторизацию.
         return http.csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests(
                         authorize -> authorize
-                                .requestMatchers("/auth/login","/error","/auth/recover-password","/auth/change-password").permitAll()
+                                .requestMatchers("/auth/login","/error","/auth/recover-password","/auth/change-password","/games").permitAll()
                                 .requestMatchers(HttpMethod.POST,"/auth/registration").permitAll()
                                 .requestMatchers("/auth/me").authenticated()
                                 .anyRequest().hasAnyRole("USER","ADMIN")
-                ).logout(logout->logout.logoutUrl("/logout"))
+                ).logout(logout->logout.logoutUrl("/auth/logout").logoutSuccessHandler((new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK))))
                 .exceptionHandling(customizer -> customizer
                     .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
-                    .build();/*.formLogin(
+                    .build();
+        /*.formLogin(
                         form -> form
                                 .loginPage("/auth/login")
                                 .loginProcessingUrl("/process_login")

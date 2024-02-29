@@ -6,6 +6,9 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
+import org.hibernate.validator.constraints.UniqueElements;
+
+import java.util.ArrayList;
 
 @Entity
 @Table(name = "Person")
@@ -37,6 +40,7 @@ public class Person {
     private Role role;
     @OneToOne(mappedBy = "person")
     private PasswordRecoveryTokenEntity passwordRecoveryTokenEntity;
+
 
     public Person() {
     }
