@@ -29,7 +29,7 @@ public class Game {
     @OneToOne(mappedBy = "game", cascade = CascadeType.ALL)
     private Scheme scheme;
 
-    @OneToOne(mappedBy="game")
+    @OneToOne(mappedBy="game", cascade = CascadeType.ALL)
     private Image image;
 
 
@@ -98,5 +98,13 @@ public class Game {
 
     public void addSchemesToGame(Scheme scheme){
         scheme.setGame(this);
+    }
+
+    public Image getImage() {
+        return image;
+    }
+
+    public void setImage(Image image) {
+        this.image = image;
     }
 }

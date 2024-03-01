@@ -10,15 +10,15 @@ public class Image {
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    @Column(name="image",columnDefinition="bytea")
+    @Column(name="bytes",columnDefinition="bytes")
     /*@Lob*/
-    private byte[] image;
+    private byte[] bytes;
     @OneToOne
     @JoinColumn(name ="fk_game_id",referencedColumnName = "id")
     private Game game;
 
-    public Image(byte[] image) {
-        this.image = image;
+    public Image(byte[] bytes) {
+        this.bytes = bytes;
     }
 
     public Image() {
@@ -36,12 +36,12 @@ public class Image {
         this.id = id;
     }
 
-    public byte[] getImage() {
-        return image;
+    public byte[] getBytes() {
+        return bytes;
     }
 
-    public void setImage(byte[] image) {
-        this.image = image;
+    public void setBytes(byte[] image) {
+        this.bytes = image;
     }
 
     public Game getGame() {

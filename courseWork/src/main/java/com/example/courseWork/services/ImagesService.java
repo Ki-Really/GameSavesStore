@@ -30,7 +30,7 @@ public class ImagesService {
 
     private Image toImageEntity(MultipartFile file) throws IOException {
         Image image = new Image();
-        image.setImage(file.getBytes());
+        image.setBytes(file.getBytes());
         return image;
     }
 

@@ -5,6 +5,9 @@ import com.example.courseWork.models.*;
 import com.example.courseWork.repositories.GamesRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -32,8 +35,31 @@ public class GamesService {
         Optional<Game> game = gamesRepository.findById(id);
         return game.orElse(null);
     }
-    public GameAddRequestDTO constructGame(Game game){
-        GameAddRequestDTO gameAddRequestDTO = new GameAddRequestDTO();
+
+    public GamesResponseDTO findAll(GamesRequestDTO gamesRequestDTO){
+        Page<Game> page = gamesRepository.findAll(PageRequest.of(
+            gamesRequestDTO.getPageNumber() - 1,
+            gamesRequestDTO.getPageSize(),
+            Sort.by(Sort.Direction.DESC, "id")
+        ));
+        GamesResponseDTO gamesResponseDTO = new GamesResponseDTO();
+
+        gamesResponseDTO.setItems(page.getContent().stream().map(
+            this::constructGame
+        ).toList());
+        gamesResponseDTO.setTotalCount(page.getTotalElements());
+
+        return gamesResponseDTO;
+    }
+
+    public void deleteById(int id) {
+        gamesRepository.deleteById(id);
+    }
+
+
+    public GameResponseDTO constructGame(Game game){
+        GameResponseDTO gameAddRequestDTO = new GameResponseDTO();
+        gameAddRequestDTO.setId(game.getId());
         gameAddRequestDTO.setName(game.getName());
         gameAddRequestDTO.setDescription(game.getDescription());
 
@@ -48,6 +74,7 @@ public class GamesService {
         schemeDTO.setFields(fieldsDTO);
 
         gameAddRequestDTO.setSchema(schemeDTO);
+        gameAddRequestDTO.setImageId(game.getImage().getId());
         return gameAddRequestDTO;
     }
     @Transactional

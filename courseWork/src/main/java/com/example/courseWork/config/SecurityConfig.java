@@ -55,9 +55,13 @@ public class SecurityConfig {
         //Конфигурируем саму авторизацию.
         return http.csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests(
                         authorize -> authorize
-                                .requestMatchers("/auth/login","/error","/auth/recover-password","/auth/change-password","/games","/games/**").permitAll()
+                                .requestMatchers("/auth/login","/error","/auth/recover-password","/auth/change-password").permitAll()
                                 .requestMatchers(HttpMethod.POST,"/auth/registration").permitAll()
                                 .requestMatchers("/auth/me").authenticated()
+                                .requestMatchers(HttpMethod.GET, "/games").hasAnyRole("USER","ADMIN")
+                                .requestMatchers(HttpMethod.GET, "/games/{id}").hasAnyRole("USER","ADMIN")
+                                .requestMatchers(HttpMethod.GET, "/games/image/{id}").hasAnyRole("USER","ADMIN")
+                                .requestMatchers("/games/**").hasRole("ADMIN")
                                 .anyRequest().hasAnyRole("USER","ADMIN")
                 ).logout(logout->logout.logoutUrl("/auth/logout").logoutSuccessHandler((new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK))))
                 .exceptionHandling(customizer -> customizer
