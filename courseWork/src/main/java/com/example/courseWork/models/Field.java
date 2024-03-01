@@ -24,7 +24,7 @@ public class Field {
     @Column(name = "description")
     private String description;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name ="fk_scheme_id",referencedColumnName = "id")
     private Scheme scheme;
 

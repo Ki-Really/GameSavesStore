@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 
 @Entity
-@Table(name ="ExtractionPipeline")
+@Table(name ="extractionpipeline")
 public class ExtractionPipeline {
     @Id
     @Column(name = "id")
@@ -70,4 +70,5 @@ public class ExtractionPipeline {
     public void setGame(Game game) {
         this.game = game;
     }
+
 }

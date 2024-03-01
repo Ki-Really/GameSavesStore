@@ -2,6 +2,7 @@ package com.example.courseWork.config;
 
 
 import com.example.courseWork.services.PersonDetailsService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -54,7 +55,7 @@ public class SecurityConfig {
         //Конфигурируем саму авторизацию.
         return http.csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests(
                         authorize -> authorize
-                                .requestMatchers("/auth/login","/error","/auth/recover-password","/auth/change-password","/games").permitAll()
+                                .requestMatchers("/auth/login","/error","/auth/recover-password","/auth/change-password","/games","/games/**").permitAll()
                                 .requestMatchers(HttpMethod.POST,"/auth/registration").permitAll()
                                 .requestMatchers("/auth/me").authenticated()
                                 .anyRequest().hasAnyRole("USER","ADMIN")
@@ -81,5 +82,10 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder getPasswordEncoder(){
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public ObjectMapper objectMapper() {
+        return new ObjectMapper();
     }
 }

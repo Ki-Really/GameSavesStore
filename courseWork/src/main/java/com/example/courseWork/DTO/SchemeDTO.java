@@ -16,6 +16,10 @@ public class SchemeDTO {
         this.fields = fields;
     }
 
+    public SchemeDTO(String filename) {
+        this.filename = filename;
+    }
+
     public SchemeDTO() {
     }
 

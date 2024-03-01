@@ -1,30 +1,31 @@
 package com.example.courseWork.models;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotEmpty;
 
 @Entity
-@Table(name="Path")
-public class Path {
+@Table(name="Image")
+public class Image {
+
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    @NotEmpty(message ="Путь не должен быть пустым!")
-    @Column(name = "name")
-    private String path;
-
-    @ManyToOne(cascade = CascadeType.ALL)
+    @Column(name="image",columnDefinition="bytea")
+    /*@Lob*/
+    private byte[] image;
+    @OneToOne
     @JoinColumn(name ="fk_game_id",referencedColumnName = "id")
     private Game game;
 
-
-
-    public Path() {
+    public Image(byte[] image) {
+        this.image = image;
     }
 
-    public Path(String path) {
-        this.path = path;
+    public Image() {
+    }
+
+    private void addGameToImage(){
+
     }
 
     public int getId() {
@@ -35,13 +36,14 @@ public class Path {
         this.id = id;
     }
 
-    public String getPath() {
-        return path;
+    public byte[] getImage() {
+        return image;
     }
 
-    public void setPath(String name) {
-        this.path = name;
+    public void setImage(byte[] image) {
+        this.image = image;
     }
+
     public Game getGame() {
         return game;
     }
@@ -49,4 +51,5 @@ public class Path {
     public void setGame(Game game) {
         this.game = game;
     }
+
 }

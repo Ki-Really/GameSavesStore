@@ -20,14 +20,17 @@ public class Game {
     @Column(name = "description")
     private String description;
 
-    @OneToMany(mappedBy = "game")
+    @OneToMany(mappedBy = "game", cascade = CascadeType.ALL)
     private List<Path> paths;
 
-    @OneToMany(mappedBy = "game")
-    private ArrayList<ExtractionPipeline> extractionPipelines;
+    @OneToMany(mappedBy = "game", cascade = CascadeType.ALL)
+    private List<ExtractionPipeline> extractionPipelines;
 
-    @OneToOne(mappedBy = "game")
+    @OneToOne(mappedBy = "game", cascade = CascadeType.ALL)
     private Scheme scheme;
+
+    @OneToOne(mappedBy="game")
+    private Image image;
 
 
     public Game(String name, String description) {
@@ -70,11 +73,11 @@ public class Game {
         this.paths = paths;
     }
 
-    public ArrayList<ExtractionPipeline> getExtractionPipelines() {
+    public List<ExtractionPipeline> getExtractionPipelines() {
         return extractionPipelines;
     }
 
-    public void setExtractionPipelines(ArrayList<ExtractionPipeline> extractionPipelines) {
+    public void setExtractionPipelines(List<ExtractionPipeline> extractionPipelines) {
         this.extractionPipelines = extractionPipelines;
     }
 
@@ -84,5 +87,16 @@ public class Game {
 
     public void setScheme(Scheme scheme) {
         this.scheme = scheme;
+    }
+
+    public void addPathsToGame(List<Path> paths){
+        paths.forEach(path -> path.setGame(this));
+    }
+    public void addExtractionPipelinesToGame(List<ExtractionPipeline> pipelines){
+        pipelines.forEach(pipeline -> pipeline.setGame(this));
+    }
+
+    public void addSchemesToGame(Scheme scheme){
+        scheme.setGame(this);
     }
 }

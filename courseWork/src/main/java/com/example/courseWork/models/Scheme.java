@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "Scheme")
@@ -16,12 +17,12 @@ public class Scheme {
     @Column(name = "filename")
     private String filename;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name ="fk_game_id",referencedColumnName = "id")
     private Game game;
 
-    @OneToMany(mappedBy="scheme")
-    private ArrayList<Field> fields;
+    @OneToMany(mappedBy="scheme", cascade = CascadeType.ALL)
+    private List<Field> fields;
 
 
     public Scheme(String filename) {
@@ -55,11 +56,11 @@ public class Scheme {
         this.game = game;
     }
 
-    public ArrayList<Field> getFields() {
+    public List<Field> getFields() {
         return fields;
     }
 
-    public void setFields(ArrayList<Field> fields) {
+    public void setFields(List<Field> fields) {
         this.fields = fields;
     }
 }

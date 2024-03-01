@@ -5,23 +5,23 @@ import com.example.courseWork.models.Path;
 import jakarta.persistence.Lob;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class GameAddRequestDTO {
     private String name;
     private String description;
-    private ArrayList<PathDTO> paths;
-    private ArrayList<ExtractionPipelineDTO> extractionPipelines;
+    private List<PathDTO> paths;
+    private List<ExtractionPipelineDTO> extractionPipeline;
     private SchemeDTO schema;
 
 
 
-    public GameAddRequestDTO(String name, String description, ArrayList<PathDTO> paths, ArrayList<ExtractionPipelineDTO> extractionPipelines, SchemeDTO schema) {
+    public GameAddRequestDTO(String name, String description) {
         this.name = name;
         this.description = description;
-        this.paths = paths;
-        this.extractionPipelines = extractionPipelines;
-        this.schema = schema;
+    }
 
+    public GameAddRequestDTO() {
     }
 
     public String getName() {
@@ -40,30 +40,29 @@ public class GameAddRequestDTO {
         this.description = description;
     }
 
-    public ArrayList<PathDTO> getPaths() {
+    public List<PathDTO> getPaths() {
         return paths;
     }
 
-    public void setPaths(ArrayList<PathDTO> paths) {
+    public void setPaths(List<PathDTO> paths) {
         this.paths = paths;
     }
 
-    public ArrayList<ExtractionPipelineDTO> getExtractionPipelines() {
-        return extractionPipelines;
+    public List<ExtractionPipelineDTO> getExtractionPipeline() {
+        return extractionPipeline;
     }
 
-    public void setExtractionPipelines(ArrayList<ExtractionPipelineDTO> extractionPipelines) {
-        this.extractionPipelines = extractionPipelines;
+    public void setExtractionPipeline(List<ExtractionPipelineDTO> extractionPipeline) {
+        this.extractionPipeline = extractionPipeline;
     }
 
-    public SchemeDTO getScheme() {
+    public SchemeDTO getSchema() {
         return schema;
     }
 
-    public void setScheme(SchemeDTO schema) {
+    public void setSchema(SchemeDTO schema) {
         this.schema = schema;
     }
-
 }
 
 
