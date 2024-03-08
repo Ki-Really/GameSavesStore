@@ -1,7 +1,6 @@
 package com.example.courseWork.security;
 
-import com.example.courseWork.models.Person;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.courseWork.models.authModel.Person;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -51,7 +50,7 @@ public class PersonDetails implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
-    //Нужно чтобы получать данные аыутентифицированного пользователя.
+    //Нужно чтобы получать данные аутентифицированного пользователя.
     public Person getPerson(){
         return this.person;
     }

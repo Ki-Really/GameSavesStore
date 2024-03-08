@@ -1,7 +1,7 @@
 package com.example.courseWork.util;
 
-import com.example.courseWork.models.Person;
-import com.example.courseWork.services.PersonDetailsService;
+import com.example.courseWork.models.authModel.Person;
+import com.example.courseWork.services.authServices.PersonDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;

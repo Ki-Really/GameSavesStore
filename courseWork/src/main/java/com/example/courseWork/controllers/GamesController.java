@@ -1,9 +1,10 @@
 package com.example.courseWork.controllers;
 
-import com.example.courseWork.DTO.*;
-import com.example.courseWork.models.*;
-import com.example.courseWork.services.GamesService;
+import com.example.courseWork.DTO.gameDTO.*;
+import com.example.courseWork.models.gameModel.Game;
+import com.example.courseWork.services.gameServices.GamesService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.minio.errors.*;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
@@ -11,6 +12,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 
 @RestController
 @RequestMapping("/games")
@@ -25,7 +28,7 @@ public class GamesController {
 
     @PostMapping
     private ResponseEntity<GameDTO> addGame(@RequestPart("image") MultipartFile file,
-                                            @RequestParam("gameData") String gameData) throws IOException {
+                                            @RequestParam("gameData") String gameData) throws IOException, ServerException, InsufficientDataException, ErrorResponseException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
         GameAddRequestDTO gameAddRequestDTO = objectMapper.readValue(gameData, GameAddRequestDTO.class);
         gamesService.save(gameAddRequestDTO,file);
         Game game = gamesService.findByName(gameAddRequestDTO.getName());
@@ -37,6 +40,12 @@ public class GamesController {
     @DeleteMapping("/{id}")
     private ResponseEntity<HttpStatus> deleteGame(@PathVariable(name ="id") int id) throws IOException {
         gamesService.deleteById(id);
+
+        return ResponseEntity.ok(HttpStatus.OK);
+    }
+
+    @PatchMapping("/{id}")
+    private ResponseEntity<HttpStatus> updateGame(@PathVariable(name ="id") int id) throws IOException {
 
         return ResponseEntity.ok(HttpStatus.OK);
     }
@@ -57,7 +66,6 @@ public class GamesController {
 
     @GetMapping("/{id}")
     private ResponseEntity<GameResponseDTO> findGameById(@PathVariable(name ="id") int id){
-        System.out.println("Here");
         Game game = gamesService.findOne(id);
 
         GameResponseDTO gameResponseDTO = gamesService.constructGame(game);
@@ -82,6 +90,7 @@ public class GamesController {
             HttpStatus.CREATED
         );
     }
+
 }
 
 

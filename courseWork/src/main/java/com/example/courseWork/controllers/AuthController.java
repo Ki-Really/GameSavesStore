@@ -1,12 +1,12 @@
 package com.example.courseWork.controllers;
 
-import com.example.courseWork.DTO.*;
-import com.example.courseWork.models.MailStructure;
-import com.example.courseWork.models.PasswordRecoveryTokenEntity;
-import com.example.courseWork.models.Person;
-import com.example.courseWork.services.MailService;
-import com.example.courseWork.services.PasswordRecoveryTokenService;
-import com.example.courseWork.services.PeopleService;
+import com.example.courseWork.DTO.authDTO.*;
+import com.example.courseWork.models.authModel.MailStructure;
+import com.example.courseWork.models.authModel.PasswordRecoveryTokenEntity;
+import com.example.courseWork.models.authModel.Person;
+import com.example.courseWork.services.authServices.MailService;
+import com.example.courseWork.services.authServices.PasswordRecoveryTokenService;
+import com.example.courseWork.services.authServices.PeopleService;
 import com.example.courseWork.util.PersonErrorResponse;
 import com.example.courseWork.util.PersonNotCreatedException;
 import com.example.courseWork.util.PersonNotFoundException;
@@ -61,7 +61,7 @@ public class AuthController {
 
     @PostMapping("/login")
     private ResponseEntity<SendPersonFromLoginDTO> login(@RequestBody @Valid PersonLoginDTO personLoginDTO,
-                                              BindingResult bindingResult, HttpServletRequest request) throws ServletException {
+                                                         BindingResult bindingResult, HttpServletRequest request) throws ServletException {
         if(bindingResult.hasErrors()){
 
             StringBuilder errorMsg = new StringBuilder();
@@ -78,7 +78,7 @@ public class AuthController {
         request.login(personLoginDTO.getUsername(), personLoginDTO.getPassword());
         Person person = peopleService.findOne(personLoginDTO.getUsername());
         SendPersonFromLoginDTO sendPersonFromLoginDTO = new SendPersonFromLoginDTO(person.getUsername(),
-                person.getEmail(),person.getPassword(),person.getRole().getName());
+                person.getEmail(),person.getRole().getName());
         return ResponseEntity.ok(sendPersonFromLoginDTO);
     }
 
@@ -87,7 +87,7 @@ public class AuthController {
     public ResponseEntity<SendPersonFromLoginDTO> currentUser(Principal principal) {
         Person person = peopleService.findOne(principal.getName());
         SendPersonFromLoginDTO sendPersonFromLoginDTO = new SendPersonFromLoginDTO(person.getUsername(),
-                person.getEmail(), person.getPassword(), person.getRole().getName());
+                person.getEmail(), person.getRole().getName());
         return ResponseEntity.ok(sendPersonFromLoginDTO);
     }
 
@@ -97,11 +97,11 @@ public class AuthController {
         UUID uuid = UUID.randomUUID();
 
         String generatedToken = uuid.toString();
-        String emailText = "cloud-saves://reset-password?token="+ generatedToken;
+        String emailText = "https://cloud-saves://reset-password?token="+ generatedToken;
         String emailHtmlContent = "<html><body>"
                 + "<h1>Password Recovery</h1>"
-                + "<p>You should paste this link to the search bar!</p>"
-                + "<p>" + emailText + "</p>"
+                + "<p>You can paste this link to the search bar!</p>"
+                + "<p><a href=\"" + emailText + "\">" + emailText + "</a></p>"
                 + "</body></html>";
         MailStructure mailStructure = new MailStructure("Password Recovery", emailHtmlContent);
         mailService.sendMail(email,mailStructure);
@@ -132,7 +132,7 @@ public class AuthController {
     }
 
     @PostMapping("/auth-change-password")
-    private ResponseEntity<HttpStatus> changePasswordAuth(@RequestBody @Valid PersonAuthChangePasswordDTO personAuthChangePasswordDTO,Principal principal){
+    private ResponseEntity<HttpStatus> changePasswordAuth(@RequestBody @Valid PersonAuthChangePasswordDTO personAuthChangePasswordDTO, Principal principal){
         Person person = peopleService.findOne(principal.getName());
         if(personAuthChangePasswordDTO.getPassword().equals(personAuthChangePasswordDTO.getRepeatedPassword())){
             peopleService.updatePassword(person.getId(), personAuthChangePasswordDTO.getPassword());
@@ -142,13 +142,10 @@ public class AuthController {
         }
     }
 
-
-
     @ExceptionHandler
     private ResponseEntity<PersonErrorResponse> handleException(PersonNotFoundException e){
         PersonErrorResponse response = new PersonErrorResponse("Person with this id was not found!",
                 System.currentTimeMillis());
-
         return new ResponseEntity<>(response,HttpStatus.NOT_FOUND);
     }
 
@@ -156,7 +153,6 @@ public class AuthController {
     private ResponseEntity<PersonErrorResponse> handleException(PersonNotCreatedException e){
         PersonErrorResponse response = new PersonErrorResponse(e.getMessage(),
                 System.currentTimeMillis());
-
         return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
     }
 
