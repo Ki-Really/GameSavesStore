@@ -19,19 +19,19 @@ public class Game {
     @Column(name = "description")
     private String description;
 
-    @OneToMany(mappedBy = "game", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "game", cascade = {CascadeType.PERSIST,CascadeType.MERGE,CascadeType.REMOVE,CascadeType.DETACH}, orphanRemoval = true)
     private List<Path> paths;
 
-    @OneToMany(mappedBy = "game", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "game", cascade = {CascadeType.PERSIST,CascadeType.MERGE,CascadeType.REMOVE,CascadeType.DETACH}, orphanRemoval = true)
     private List<ExtractionPipeline> extractionPipelines;
 
-    @OneToOne(mappedBy = "game", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "game", cascade = {CascadeType.PERSIST,CascadeType.MERGE,CascadeType.REMOVE,CascadeType.DETACH}, orphanRemoval = true)
     private Scheme scheme;
 
-    @OneToOne(mappedBy="game", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy="game", cascade = {CascadeType.PERSIST,CascadeType.MERGE,CascadeType.REMOVE,CascadeType.DETACH})
     private Image image;
 
-    @OneToMany(mappedBy = "game")
+    @OneToMany(mappedBy = "game", cascade = {CascadeType.PERSIST,CascadeType.MERGE,CascadeType.REMOVE,CascadeType.DETACH})
     private List<GameSave> gameSaves;
 
 

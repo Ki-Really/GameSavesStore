@@ -14,7 +14,7 @@ public class Path {
     @Column(name = "name")
     private String path;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name ="fk_game_id",referencedColumnName = "id")
     private Game game;
 

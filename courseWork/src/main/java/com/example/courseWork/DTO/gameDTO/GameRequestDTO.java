@@ -2,7 +2,7 @@ package com.example.courseWork.DTO.gameDTO;
 
 import java.util.List;
 
-public class GameAddRequestDTO {
+public class GameRequestDTO {
     private String name;
     private String description;
     private List<PathDTO> paths;
@@ -11,12 +11,12 @@ public class GameAddRequestDTO {
 
 
 
-    public GameAddRequestDTO(String name, String description) {
+    public GameRequestDTO(String name, String description) {
         this.name = name;
         this.description = description;
     }
 
-    public GameAddRequestDTO() {
+    public GameRequestDTO() {
     }
 
     public String getName() {

@@ -3,7 +3,7 @@ package com.example.courseWork.services.gameServices;
 import com.example.courseWork.DTO.gameDTO.*;
 import com.example.courseWork.models.gameModel.*;
 import com.example.courseWork.repositories.gameRepositories.GamesRepository;
-import io.minio.errors.*;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -11,23 +11,31 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
+/*
+delete from path;
+        delete from extractionpipeline;
+        delete from image;
+        delete from field;
+        delete from scheme;
+        delete from game;*/
 
 @Service
 @Transactional
 public class GamesService {
     private final GamesRepository gamesRepository;
     private final ImagesService imagesService;
+    private final PathsService pathsService;
+    private final ExtractionPipelinesService extractionPipelinesService;
     @Autowired
-    public GamesService(GamesRepository gamesRepository, ImagesService imagesService) {
+    public GamesService(GamesRepository gamesRepository, ImagesService imagesService, PathsService pathsService, ExtractionPipelinesService extractionPipelinesService) {
         this.gamesRepository = gamesRepository;
         this.imagesService = imagesService;
+        this.pathsService = pathsService;
+        this.extractionPipelinesService = extractionPipelinesService;
     }
 
     public Game findByName(String name){
@@ -55,19 +63,29 @@ public class GamesService {
         return gamesResponseDTO;
     }
 
+    @Transactional
     public void deleteById(int id) {
-        gamesRepository.deleteById(id);
+        Optional<Game> optionalGame = gamesRepository.findById(id);
+
+        if(optionalGame.isPresent()){
+            Game game = optionalGame.get();
+            if(game.getImage() != null){
+                imagesService.removeFile(game.getImage());
+            }
+
+            gamesRepository.delete(game);
+        }
     }
 
 
     public GameResponseDTO constructGame(Game game){
-        GameResponseDTO gameAddRequestDTO = new GameResponseDTO();
-        gameAddRequestDTO.setId(game.getId());
-        gameAddRequestDTO.setName(game.getName());
-        gameAddRequestDTO.setDescription(game.getDescription());
-
-        gameAddRequestDTO.setPaths(convertToPathDTO(game.getPaths()));
-        gameAddRequestDTO.setExtractionPipeline(convertToExtractionPipelineDTO(game.getExtractionPipelines()));
+        GameResponseDTO gameResponseDTO = new GameResponseDTO();
+        gameResponseDTO.setId(game.getId());
+        gameResponseDTO.setName(game.getName());
+        gameResponseDTO.setDescription(game.getDescription());
+        ;
+        gameResponseDTO.setPaths(convertToPathDTO(game.getPaths()));
+        gameResponseDTO.setExtractionPipeline(convertToExtractionPipelineDTO(game.getExtractionPipelines()));
 
         Scheme scheme = game.getScheme();
 
@@ -76,67 +94,110 @@ public class GamesService {
         SchemeDTO schemeDTO = convertToSchemeDTO(scheme);
         schemeDTO.setFields(fieldsDTO);
 
-        gameAddRequestDTO.setSchema(schemeDTO);
-        gameAddRequestDTO.setImageId(game.getImage().getId());
-        return gameAddRequestDTO;
+        gameResponseDTO.setSchema(schemeDTO);
+        String url = imagesService.getFileUrl(game.getImage().getId());
+        gameResponseDTO.setImageUrl(url);
+        return gameResponseDTO;
     }
     @Transactional
-    public void save(GameAddRequestDTO gameAddRequestDTO, MultipartFile file) throws IOException, ServerException, InsufficientDataException, ErrorResponseException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
-        Game game = new Game(gameAddRequestDTO.getName(),gameAddRequestDTO.getDescription());
-        List<Path> paths = convertToPath(gameAddRequestDTO.getPaths());
-
-        for (Path path : paths) {
-            path.setGame(game);
-        }
-        game.setPaths(paths);
-
-        List<ExtractionPipeline> extractionPipelines= convertToExtractionPipeline(gameAddRequestDTO.getExtractionPipeline());
-        for (ExtractionPipeline extractionPipeline : extractionPipelines) {
-            extractionPipeline.setGame(game);
-        }
-        game.setExtractionPipelines(extractionPipelines);
-
-        Scheme scheme = convertToScheme(gameAddRequestDTO.getSchema());
-        scheme.setGame(game);
-
-        List<Field> fields = convertToField(gameAddRequestDTO.getSchema().getFields());
-        for (Field field : fields) {
-            field.setScheme(scheme);
-        }
-        scheme.setFields(fields);
-        game.setScheme(scheme);
-
-        imagesService.upload(file,game);
+    public void save(GameRequestDTO gameRequestDTO, MultipartFile file) {
+        Game game = convertGame(gameRequestDTO,file);
+        imagesService.upload(file, game.getImage().getName());
         gamesRepository.save(game);
     }
 
+    @Transactional
+    public void update(GameRequestDTO gameRequestDTO, MultipartFile file, int id){
+        Optional<Game> optionalGame = gamesRepository.findById(id);
+        if (optionalGame.isPresent()) {
+            Game game = optionalGame.get();
 
-    private List<Path> convertToPath(List<PathDTO> pathDTO){
+            Game updatedGame = convertGame(gameRequestDTO,file);
+
+            updatedGame.getImage().setId(game.getImage().getId());
+            updatedGame.getScheme().setId(game.getScheme().getId());
+            updatedGame.getImage().setName(game.getImage().getName());
+
+            updatedGame.setId(game.getId());
+            gamesRepository.save(updatedGame);
+
+            imagesService.update(file,updatedGame);
+
+        } else {
+            throw new EntityNotFoundException("Game with id " + id + " not found");
+        }
+    }
+
+    private Game convertGame(GameRequestDTO gameRequestDTO,MultipartFile file){
+        Game game = new Game(gameRequestDTO.getName(),gameRequestDTO.getDescription());
+
+        List<Path> paths = convertToPath(gameRequestDTO.getPaths(),game);
+
+        game.setPaths(paths);
+
+        List<ExtractionPipeline> extractionPipelines= convertToExtractionPipeline(gameRequestDTO.getExtractionPipeline(),game);
+        game.setExtractionPipelines(extractionPipelines);
+
+        Scheme scheme = convertToScheme(gameRequestDTO.getSchema());
+        scheme.setGame(game);
+
+        List<Field> fields = convertToField(gameRequestDTO.getSchema().getFields(),scheme);
+        scheme.setFields(fields);
+        game.setScheme(scheme);
+
+        String filename = generateFilename(file);
+        Image image = new Image(filename);
+
+        game.setImage(image);
+        image.setGame(game);
+        return game;
+    }
+    private String generateFilename(MultipartFile file){
+        String extension = getExtension(file);
+        return UUID.randomUUID() + "." + extension;
+    }
+    private String getExtension(MultipartFile file){
+        return file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf(".")+1);
+    }
+
+
+    private List<Path> convertToPath(List<PathDTO> pathDTO,Game game){
         List<Path> listToReturn = new LinkedList<>();
         for(int i = 0; i<pathDTO.size(); i++){
             Path path = new Path(pathDTO.get(i).getPath());
+            if(pathDTO.get(i).getId() != 0){
+                path.setId(pathDTO.get(i).getId());
+            }
+            path.setGame(game);
             listToReturn.add(path);
         }
         return listToReturn;
     }
 
-    private List<ExtractionPipeline> convertToExtractionPipeline(List<ExtractionPipelineDTO> pipelineDTO){
+    private List<ExtractionPipeline> convertToExtractionPipeline(List<ExtractionPipelineDTO> pipelineDTO,Game game){
         List<ExtractionPipeline> listToReturn = new LinkedList<>();
         for(int i = 0; i<pipelineDTO.size(); i++){
             ExtractionPipeline pipeline = new ExtractionPipeline(pipelineDTO.get(i).getType(),
                     pipelineDTO.get(i).getInputFilename(),
                     pipelineDTO.get(i).getOutputFilename());
+            if(pipelineDTO.get(i).getId() != 0){
+                pipeline.setId(pipelineDTO.get(i).getId());
+            }
+            pipeline.setGame(game);
             listToReturn.add(pipeline);
-
         }
         return listToReturn;
     }
 
-    private List<Field> convertToField(List<FieldDTO> fieldsDTO){
+    private List<Field> convertToField(List<FieldDTO> fieldsDTO,Scheme scheme){
         List<Field> listToReturn = new LinkedList<>();
         for(int i = 0; i<fieldsDTO.size(); i++){
             Field field = new Field(fieldsDTO.get(i).getKey(),fieldsDTO.get(i).getType(),
                     fieldsDTO.get(i).getLabel(),fieldsDTO.get(i).getDescription());
+            if(fieldsDTO.get(i).getId() != 0){
+                field.setId(fieldsDTO.get(i).getId());
+            }
+            field.setScheme(scheme);
             listToReturn.add(field);
         }
         return listToReturn;
@@ -147,6 +208,7 @@ public class GamesService {
         for(int i = 0; i<fields.size(); i++){
             FieldDTO fieldDTO = new FieldDTO(fields.get(i).getKey(),fields.get(i).getType(),
                     fields.get(i).getLabel(),fields.get(i).getDescription());
+            fieldDTO.setId(fields.get(i).getId());
             listToReturn.add(fieldDTO);
         }
         return listToReturn;
@@ -166,6 +228,7 @@ public class GamesService {
         List<PathDTO> listToReturn = new LinkedList<>();
         for(int i = 0; i<paths.size(); i++){
             PathDTO pathDTO = new PathDTO(paths.get(i).getPath());
+            pathDTO.setId(paths.get(i).getId());
             listToReturn.add(pathDTO);
         }
         return listToReturn;
@@ -177,8 +240,77 @@ public class GamesService {
                     extractionPipelines.get(i).getType(),
                     extractionPipelines.get(i).getInputFilename(),
                     extractionPipelines.get(i).getOutputFilename());
+            extractionPipelineDTO.setId(extractionPipelines.get(i).getId());
             listToReturn.add(extractionPipelineDTO);
         }
         return listToReturn;
     }
 }
+
+
+/*
+{
+        "name":"name999999",
+        "description":"description1212121",
+        "paths":[{
+        "id":59,
+        "path":"path99"
+        }],
+        "extractionPipeline": [{
+        "id":84,
+        "type":"sav-to-json99",
+        "inputFilename":"i99",
+        "outputFilename":"outpu121t"
+        }],
+        "schema": {
+        "id":46,
+        "filename":"filena3123me",
+        "fields":[{
+        "id":45,
+        "key":"ke123y",
+        "type":"ty124pe",
+        "label":"la42bel",
+        "description":"des124cription"
+        }]
+        }
+        }
+        */
+
+
+
+
+
+
+
+   /* @Transactional
+    public void update(GameAddRequestDTO gameAddRequestDTO,MultipartFile file,int id){
+        Game game = findOne(id);
+
+        game.setName(gameAddRequestDTO.getName());
+        game.setDescription(gameAddRequestDTO.getDescription());
+        List<Path> paths = convertToPath(gameAddRequestDTO.getPaths());
+
+        for (Path path : paths) {
+            path.setGame(game);
+        }
+        game.setPaths(convertToPath(gameAddRequestDTO.getPaths()));
+
+        game.setExtractionPipelines(convertToExtractionPipeline(gameAddRequestDTO.getExtractionPipeline()));
+        List<ExtractionPipeline> extractionPipelines= convertToExtractionPipeline(gameAddRequestDTO.getExtractionPipeline());
+        for (ExtractionPipeline extractionPipeline : extractionPipelines) {
+            extractionPipeline.setGame(game);
+        }
+
+        Scheme scheme = convertToScheme(gameAddRequestDTO.getSchema());
+        scheme.setGame(game);
+
+        List<Field> fields = convertToField(gameAddRequestDTO.getSchema().getFields());
+        for (Field field : fields) {
+            field.setScheme(scheme);
+        }
+        scheme.setFields(fields);
+
+        game.addSchemesToGame(scheme);
+
+        gamesRepository.save(game);
+    }*/

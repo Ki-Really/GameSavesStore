@@ -4,6 +4,7 @@ import java.util.List;
 
 public class SchemeDTO {
     /*@NotEmpty(message ="Путь не должен быть пустым!")*/
+    private int id;
     private String filename;
     private List<FieldDTO> fields;
 
@@ -33,5 +34,13 @@ public class SchemeDTO {
 
     public void setFields(List<FieldDTO> fields) {
         this.fields = fields;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 }

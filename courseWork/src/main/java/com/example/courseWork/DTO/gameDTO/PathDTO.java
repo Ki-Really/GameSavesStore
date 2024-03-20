@@ -4,6 +4,8 @@ import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotEmpty;
 
 public class PathDTO {
+    private int id;
+
     private String path;
 
     public PathDTO() {
@@ -19,5 +21,12 @@ public class PathDTO {
 
     public void setPath(String path) {
         this.path = path;
+    }
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 }

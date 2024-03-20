@@ -9,9 +9,9 @@ public class GameResponseDTO {
     private List<PathDTO> paths;
     private List<ExtractionPipelineDTO> extractionPipeline;
     private SchemeDTO schema;
+    private String imageUrl;
 
 
-    private int imageId;
 
     public GameResponseDTO(String name, String description) {
         this.name = name;
@@ -68,12 +68,13 @@ public class GameResponseDTO {
     public void setSchema(SchemeDTO schema) {
         this.schema = schema;
     }
-    public int getImageId() {
-        return imageId;
+
+    public String getImageUrl() {
+        return imageUrl;
     }
 
-    public void setImageId(int imageId) {
-        this.imageId = imageId;
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 }
 

@@ -13,6 +13,7 @@ public class MinioProperties {
     private String accessKey;
     private String secretKey;
 
+
     public MinioProperties(String bucket, String url, String accessKey, String secretKey) {
         this.bucket = bucket;
         this.url = url;

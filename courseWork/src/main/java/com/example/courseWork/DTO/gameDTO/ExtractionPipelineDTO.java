@@ -3,6 +3,15 @@ package com.example.courseWork.DTO.gameDTO;
 import jakarta.persistence.Column;
 
 public class ExtractionPipelineDTO {
+    private int id;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
 
     private String type;
     private String inputFilename;

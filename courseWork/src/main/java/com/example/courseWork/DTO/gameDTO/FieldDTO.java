@@ -4,6 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotEmpty;
 
 public class FieldDTO {
+    private int id;
 
     private String key;
 
@@ -18,6 +19,14 @@ public class FieldDTO {
         this.type = type;
         this.label = label;
         this.description = description;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public FieldDTO() {

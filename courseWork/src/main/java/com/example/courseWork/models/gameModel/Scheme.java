@@ -1,6 +1,7 @@
 package com.example.courseWork.models.gameModel;
 
 import jakarta.persistence.*;
+import org.checkerframework.common.aliasing.qual.Unique;
 
 import java.util.List;
 
@@ -15,11 +16,12 @@ public class Scheme {
     @Column(name = "filename")
     private String filename;
 
+    @Unique
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name ="fk_game_id",referencedColumnName = "id")
     private Game game;
 
-    @OneToMany(mappedBy="scheme", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy="scheme", cascade = {CascadeType.PERSIST,CascadeType.MERGE,CascadeType.REMOVE,CascadeType.DETACH}, orphanRemoval = true)
     private List<Field> fields;
 
 

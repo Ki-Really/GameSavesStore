@@ -1,12 +1,11 @@
 package com.example.courseWork.repositories.gameRepositories;
 
 import com.example.courseWork.models.gameModel.Image;
+import com.example.courseWork.models.gameModel.Path;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
-
 @Repository
-public interface ImageRepository extends JpaRepository<Image,Integer> {
-    Optional<Image> findById(int id);
+public interface PathsRepository extends JpaRepository<Path,Integer> {
+
 }

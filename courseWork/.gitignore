@@ -16,6 +16,8 @@ target/
 ### IntelliJ IDEA ###
 .idea
 src/main/resources/application.properties
+docker-compose.yaml
+Dockerfile
 *.iws
 *.iml
 *.ipr

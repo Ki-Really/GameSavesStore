@@ -7,9 +7,11 @@ public class GameDTO {
     private int id;
     private String gameName;
 
+
     public GameDTO(int id, String gameName) {
         this.id = id;
         this.gameName = gameName;
+
     }
 
     public GameDTO() {
@@ -30,4 +32,6 @@ public class GameDTO {
     public void setGameName(String gameName) {
         this.gameName = gameName;
     }
+
+
 }

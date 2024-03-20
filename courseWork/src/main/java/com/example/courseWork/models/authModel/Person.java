@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
+import org.checkerframework.common.aliasing.qual.Unique;
 
 import java.util.List;
 
@@ -16,16 +17,17 @@ public class Person {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+
     @NotEmpty(message ="Имя пользователя не должно быть пустым!")
     @Size(min = 2, max = 50,message = "Имя пользователя должно быть от 2 до 50 символов в длину!")
-    @Column(name = "username")
+    @Column(name = "username", unique = true)
     private String username;
 
 
     @NotEmpty(message ="Поле Email не должно быть пустым!")
     @Size(min = 2, max = 50,message = "Поле Email должно быть от 2 до 50 символов в длину!")
     @Email
-    @Column(name = "email")
+    @Column(name = "email", unique = true)
     private String email;
 
     @NotEmpty(message ="Поле пароль не должно быть пустым!")

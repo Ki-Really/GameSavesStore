@@ -10,7 +10,6 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
-import jakarta.persistence.criteria.CriteriaBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,7 +25,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+
 
 
 @Configuration
@@ -71,10 +70,6 @@ public class SecurityConfig {
                 );
     }
 
-   /* protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        //Настраивает аутентификацию.
-        auth.userDetailsService(personDetailsService);
-    }*/
 
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
