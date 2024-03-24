@@ -39,7 +39,7 @@ public class GamesController {
     }
 
     @PatchMapping("/{id}")
-    private ResponseEntity<GameDTO> updateGame(@RequestPart("image") MultipartFile file,
+    private ResponseEntity<GameDTO> updateGame(@RequestPart(value = "image", required = false) MultipartFile file,
                                                @RequestParam("gameData") String gameData,
                                                @PathVariable(name ="id") int id) throws IOException {
         GameRequestDTO gameRequestDTO = objectMapper.readValue(gameData, GameRequestDTO.class);

@@ -33,7 +33,7 @@ public class GameStatesController {
 
     @PostMapping
     private ResponseEntity<GameStateDTO> addGameState(@RequestPart("archive") MultipartFile file,
-                                                     @RequestParam String gameStatesData, Principal principal) throws JsonProcessingException {
+                                                     @RequestParam("gameStateData") String gameStatesData, Principal principal) throws JsonProcessingException {
         GameStateRequestDTO addGameStateDTO = objectMapper.readValue(gameStatesData, GameStateRequestDTO.class);
         gameStatesService.save(addGameStateDTO,file,principal);
 

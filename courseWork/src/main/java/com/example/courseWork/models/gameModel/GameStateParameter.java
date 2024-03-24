@@ -27,7 +27,7 @@ public class GameStateParameter {
     @Column(name = "description")
     private String description;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name ="fk_scheme_id",referencedColumnName = "id")
     private Scheme scheme;
 

@@ -17,7 +17,7 @@ public class Scheme {
     private String filename;
 
     @Unique
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne
     @JoinColumn(name ="fk_game_id",referencedColumnName = "id")
     private Game game;
 

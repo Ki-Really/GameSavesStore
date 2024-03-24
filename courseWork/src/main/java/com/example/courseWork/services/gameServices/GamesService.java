@@ -108,15 +108,16 @@ public class GamesService {
 
             Game updatedGame = convertGame(gameRequestDTO,file);
 
-            updatedGame.getImage().setId(game.getImage().getId());
             updatedGame.getScheme().setId(game.getScheme().getId());
+            updatedGame.getImage().setId(game.getImage().getId());
             updatedGame.getImage().setName(game.getImage().getName());
 
             updatedGame.setId(game.getId());
             gamesRepository.save(updatedGame);
 
-            imagesService.update(file,updatedGame);
-
+            if (file != null) {
+                imagesService.update(file,updatedGame);
+            }
         } else {
             throw new EntityNotFoundException("Game with id " + id + " not found");
         }
@@ -147,6 +148,10 @@ public class GamesService {
         return game;
     }
     private String generateFilename(MultipartFile file){
+        if (file == null) {
+            return  "";
+        }
+
         String extension = getExtension(file);
         return UUID.randomUUID() + "." + extension;
     }
