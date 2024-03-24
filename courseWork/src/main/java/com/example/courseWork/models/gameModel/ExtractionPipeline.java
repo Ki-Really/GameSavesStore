@@ -3,7 +3,7 @@ package com.example.courseWork.models.gameModel;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name ="extractionpipeline")
+@Table(name ="extraction_pipeline")
 public class ExtractionPipeline {
     @Id
     @Column(name = "id")

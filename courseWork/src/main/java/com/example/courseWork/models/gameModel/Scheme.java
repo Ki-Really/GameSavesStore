@@ -22,7 +22,7 @@ public class Scheme {
     private Game game;
 
     @OneToMany(mappedBy="scheme", cascade = {CascadeType.PERSIST,CascadeType.MERGE,CascadeType.REMOVE,CascadeType.DETACH}, orphanRemoval = true)
-    private List<Field> fields;
+    private List<GameStateParameter> gameStateParameters;
 
 
     public Scheme(String filename) {
@@ -56,11 +56,11 @@ public class Scheme {
         this.game = game;
     }
 
-    public List<Field> getFields() {
-        return fields;
+    public List<GameStateParameter> getGameStateParameters() {
+        return gameStateParameters;
     }
 
-    public void setFields(List<Field> fields) {
-        this.fields = fields;
+    public void setGameStateParameters(List<GameStateParameter> gameStateParameters) {
+        this.gameStateParameters = gameStateParameters;
     }
 }

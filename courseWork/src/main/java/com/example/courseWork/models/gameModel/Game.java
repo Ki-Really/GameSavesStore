@@ -1,6 +1,6 @@
 package com.example.courseWork.models.gameModel;
 
-import com.example.courseWork.models.gameSaveModel.GameSave;
+import com.example.courseWork.models.gameSaveModel.GameState;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 
@@ -32,7 +32,7 @@ public class Game {
     private Image image;
 
     @OneToMany(mappedBy = "game", cascade = {CascadeType.PERSIST,CascadeType.MERGE,CascadeType.REMOVE,CascadeType.DETACH})
-    private List<GameSave> gameSaves;
+    private List<GameState> gameStates;
 
 
     public Game(String name, String description) {
@@ -105,19 +105,12 @@ public class Game {
         this.image = image;
     }
 
-    public List<GameSave> getGameSaves() {
-        return gameSaves;
+    public List<GameState> getGameStates() {
+        return gameStates;
     }
 
-    public void setGameSaves(List<GameSave> gameSaves) {
-        this.gameSaves = gameSaves;
+    public void setGameStates(List<GameState> gameStates) {
+        this.gameStates = gameStates;
     }
-
-    /* public void addPathsToGame(List<Path> paths){
-        paths.forEach(path -> path.setGame(this));
-    }
-    public void addExtractionPipelinesToGame(List<ExtractionPipeline> pipelines){
-        pipelines.forEach(pipeline -> pipeline.setGame(this));
-    }*/
 
 }

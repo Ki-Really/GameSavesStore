@@ -2,19 +2,21 @@ package com.example.courseWork.DTO.gameSaveDTO;
 
 import java.util.List;
 
-public class AddGameSaveDTO {
+public class GameStateRequestDTO {
     private String name;
     private int gameId;
     private String localPath;
-    private List<MetadataDTO> metadata;
+    private boolean isPublic;
+    private List<GameStateValueDTO> gameStateValues;
 
-    public AddGameSaveDTO(String name, int gameId, String localPath) {
+    public GameStateRequestDTO(String name, int gameId, String localPath, boolean isPublic) {
         this.name = name;
         this.gameId = gameId;
         this.localPath = localPath;
+        this.isPublic = isPublic;
     }
 
-    public AddGameSaveDTO() {
+    public GameStateRequestDTO() {
     }
 
     public String getName() {
@@ -41,11 +43,20 @@ public class AddGameSaveDTO {
         this.localPath = localPath;
     }
 
-    public List<MetadataDTO> getMetadata() {
-        return metadata;
+
+    public boolean isPublic() {
+        return isPublic;
     }
 
-    public void setMetadata(List<MetadataDTO> metadata) {
-        this.metadata = metadata;
+    public void setPublic(boolean aPublic) {
+        isPublic = aPublic;
+    }
+
+    public List<GameStateValueDTO> getGameStateValues() {
+        return gameStateValues;
+    }
+
+    public void setGameStateValues(List<GameStateValueDTO> gameStateValues) {
+        this.gameStateValues = gameStateValues;
     }
 }

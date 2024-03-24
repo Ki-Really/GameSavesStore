@@ -1,9 +1,6 @@
 package com.example.courseWork.DTO.gameDTO;
 
-import jakarta.persistence.Column;
-import jakarta.validation.constraints.NotEmpty;
-
-public class FieldDTO {
+public class GameStateParameterDTO {
     private int id;
 
     private String key;
@@ -14,7 +11,7 @@ public class FieldDTO {
 
     private String description;
 
-    public FieldDTO(String key, String type, String label, String description) {
+    public GameStateParameterDTO(String key, String type, String label, String description) {
         this.key = key;
         this.type = type;
         this.label = label;
@@ -29,7 +26,7 @@ public class FieldDTO {
         this.id = id;
     }
 
-    public FieldDTO() {
+    public GameStateParameterDTO() {
     }
 
     public String getKey() {

@@ -1,11 +1,14 @@
 package com.example.courseWork.models.gameModel;
 
+import com.example.courseWork.models.gameSaveModel.GameStateValue;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 
+import java.util.List;
+
 @Entity
-@Table(name ="Field")
-public class Field {
+@Table(name ="game_state_parameter")
+public class GameStateParameter {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,15 +31,17 @@ public class Field {
     @JoinColumn(name ="fk_scheme_id",referencedColumnName = "id")
     private Scheme scheme;
 
+    @OneToMany(mappedBy = "gameStateParameter")
+    private List<GameStateValue> gameStateValues;
 
-    public Field(String key, String type, String label, String description) {
+    public GameStateParameter(String key, String type, String label, String description) {
         this.key = key;
         this.type = type;
         this.label = label;
         this.description = description;
     }
 
-    public Field() {
+    public GameStateParameter() {
     }
 
     public int getId() {

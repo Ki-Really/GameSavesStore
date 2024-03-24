@@ -36,7 +36,7 @@ public class ImagesService {
     public void removeFile(Image image) {
         try {
 
-            String bucketName = minioProperties.getBucket();
+            String bucketName = minioProperties.getPictureBucket();
             minioClient.removeObject(RemoveObjectArgs.builder()
                     .bucket(bucketName)
                     .object(image.getName())
@@ -54,11 +54,7 @@ public class ImagesService {
     @Transactional
     public void update(MultipartFile file,Game game){
         try {
-            // Удаляем старое изображение
-            System.out.println("1");
             removeFile(game.getImage());
-            System.out.println("2");
-            // Загружаем новое изображение, если передан файл
             if (file != null && !file.isEmpty()) {
                 upload(file,game.getImage().getName());
             }
@@ -89,11 +85,11 @@ public class ImagesService {
     private void createBucket(){
         try{
             boolean found = minioClient.bucketExists(BucketExistsArgs.builder()
-                    .bucket(minioProperties.getBucket())
+                    .bucket(minioProperties.getPictureBucket())
                     .build());
             if(!found){
                 minioClient.makeBucket(MakeBucketArgs.builder()
-                        .bucket(minioProperties.getBucket())
+                        .bucket(minioProperties.getPictureBucket())
                         .build());
             }
         }
@@ -106,7 +102,7 @@ public class ImagesService {
        try{
            minioClient.putObject(PutObjectArgs.builder()
                    .stream(inputStream,inputStream.available(),-1)
-                   .bucket(minioProperties.getBucket())
+                   .bucket(minioProperties.getPictureBucket())
                    .object(fileName)
                    .build());
        }catch (Exception e){
@@ -116,7 +112,7 @@ public class ImagesService {
 
     public String getFileUrl(int id) {
         try {
-            String bucketName = minioProperties.getBucket();
+            String bucketName = minioProperties.getPictureBucket();
             Optional<Image> image = imageRepository.findById(id);
 
             String presignedUrl = minioClient.getPresignedObjectUrl(GetPresignedObjectUrlArgs.builder()
@@ -131,24 +127,5 @@ public class ImagesService {
             return "Error occurred while getting the file URL";
         }
     }
-
-
-
-
-    /*@Transactional
-    public void save(MultipartFile file, Game game) throws IOException {
-        Image image;
-        if(file.getSize()!=0){
-            image = toImageEntity(file);
-            image.setGame(game);
-            imageRepository.save(image);
-        }
-    }
-
-    private Image toImageEntity(MultipartFile file) throws IOException {
-        Image image = new Image();
-        image.setBytes(file.getBytes());
-        return image;
-    }*/
 
 }

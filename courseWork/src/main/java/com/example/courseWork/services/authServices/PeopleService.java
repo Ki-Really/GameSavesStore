@@ -1,6 +1,7 @@
 package com.example.courseWork.services.authServices;
 
 import com.example.courseWork.models.authModel.Person;
+import com.example.courseWork.models.gameModel.Game;
 import com.example.courseWork.repositories.authRepositories.PeopleRepository;
 import com.example.courseWork.util.PersonNotFoundException;
 import jakarta.transaction.Transactional;
@@ -32,6 +33,15 @@ public class PeopleService {
         person.setRole(rolesService.assignRole("ROLE_USER"));
         peopleRepository.save(person);
     }
+    @Transactional
+    public void block(int id){
+        Optional<Person> optionalPerson = peopleRepository.findById(id);
+        if (optionalPerson.isPresent()) {
+            Person person = optionalPerson.get();
+            peopleRepository.delete(person);
+        }
+    }
+
 
     public Person checkCredentials(String username,String password){
         Optional<Person> person = peopleRepository.findByUsername(username);

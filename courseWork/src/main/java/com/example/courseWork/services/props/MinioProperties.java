@@ -8,14 +8,16 @@ import org.springframework.stereotype.Component;
 @Component
 @ConfigurationProperties(prefix = "minio")
 public class MinioProperties {
-    private String bucket;
+    private String pictureBucket;
+    private String archiveBucket;
     private String url;
     private String accessKey;
     private String secretKey;
 
 
-    public MinioProperties(String bucket, String url, String accessKey, String secretKey) {
-        this.bucket = bucket;
+    public MinioProperties(String pictureBucket,String archiveBucket, String url, String accessKey, String secretKey) {
+        this.pictureBucket = pictureBucket;
+        this.archiveBucket = archiveBucket;
         this.url = url;
         this.accessKey = accessKey;
         this.secretKey = secretKey;
@@ -24,12 +26,20 @@ public class MinioProperties {
     public MinioProperties() {
     }
 
-    public String getBucket() {
-        return bucket;
+    public String getPictureBucket() {
+        return pictureBucket;
     }
 
-    public void setBucket(String bucket) {
-        this.bucket = bucket;
+    public void setPictureBucket(String pictureBucket) {
+        this.pictureBucket = pictureBucket;
+    }
+
+    public String getArchiveBucket() {
+        return archiveBucket;
+    }
+
+    public void setArchiveBucket(String archiveBucket) {
+        this.archiveBucket = archiveBucket;
     }
 
     public String getUrl() {

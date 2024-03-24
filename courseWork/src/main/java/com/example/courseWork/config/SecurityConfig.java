@@ -83,8 +83,6 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        //Конфигурируем сам Spring Security
-        //Конфигурируем саму авторизацию.
         return http.csrf(AbstractHttpConfigurer::disable).
                 authorizeHttpRequests(
                         authorize -> authorize
@@ -95,6 +93,8 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.GET, "/games").hasAnyRole("USER","ADMIN")
                                 .requestMatchers(HttpMethod.GET, "/games/{id}").hasAnyRole("USER","ADMIN")
                                 .requestMatchers(HttpMethod.GET, "/games/image/{id}").hasAnyRole("USER","ADMIN")
+                                .requestMatchers(HttpMethod.DELETE, "/users/{id}/block").hasRole("ADMIN")
+                                .requestMatchers(HttpMethod.POST,"/game-saves").hasAnyRole("USER","ADMIN")
                                 .requestMatchers("/games/**").hasRole("ADMIN")
                                 .anyRequest().hasAnyRole("USER","ADMIN")
                 ).
@@ -116,8 +116,6 @@ public class SecurityConfig {
                         .logoutSuccessUrl("/auth/login"))*/
 
     }
-
-
 
     @Bean
     public PasswordEncoder getPasswordEncoder(){

@@ -1,11 +1,10 @@
 package com.example.courseWork.models.authModel;
 
-import com.example.courseWork.models.gameSaveModel.GameSave;
+import com.example.courseWork.models.gameSaveModel.GameState;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
-import org.checkerframework.common.aliasing.qual.Unique;
 
 import java.util.List;
 
@@ -42,7 +41,7 @@ public class Person {
     private PasswordRecoveryTokenEntity passwordRecoveryTokenEntity;
 
     @OneToMany(mappedBy = "person")
-    private List<GameSave> gameSaves;
+    private List<GameState> gameSaves;
     public Person() {
     }
     public Person(String username, String email, String password) {
@@ -110,11 +109,11 @@ public class Person {
         this.passwordRecoveryTokenEntity = passwordRecoveryTokenEntity;
     }
 
-    public List<GameSave> getGameSaves() {
+    public List<GameState> getGameSaves() {
         return gameSaves;
     }
 
-    public void setGameSaves(List<GameSave> gameSaves) {
+    public void setGameSaves(List<GameState> gameSaves) {
         this.gameSaves = gameSaves;
     }
 }

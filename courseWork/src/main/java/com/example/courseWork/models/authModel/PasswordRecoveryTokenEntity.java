@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 
 @Entity
-@Table(name = "passwordrecoverytoken")
+@Table(name = "password_recovery_token")
 public class PasswordRecoveryTokenEntity {
     @Id
     @Column(name = "id")

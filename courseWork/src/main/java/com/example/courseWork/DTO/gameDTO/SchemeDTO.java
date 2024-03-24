@@ -6,11 +6,11 @@ public class SchemeDTO {
     /*@NotEmpty(message ="Путь не должен быть пустым!")*/
     private int id;
     private String filename;
-    private List<FieldDTO> fields;
+    private List<GameStateParameterDTO> gameStateParameters;
 
-    public SchemeDTO(String filename, List<FieldDTO> fields) {
+    public SchemeDTO(String filename, List<GameStateParameterDTO> gameStateParameters) {
         this.filename = filename;
-        this.fields = fields;
+        this.gameStateParameters = gameStateParameters;
     }
 
     public SchemeDTO(String filename) {
@@ -28,12 +28,12 @@ public class SchemeDTO {
         this.filename = filename;
     }
 
-    public List<FieldDTO> getFields() {
-        return fields;
+    public List<GameStateParameterDTO> getGameStateParameters() {
+        return gameStateParameters;
     }
 
-    public void setFields(List<FieldDTO> fields) {
-        this.fields = fields;
+    public void setGameStateParameters(List<GameStateParameterDTO> gameStateParameters) {
+        this.gameStateParameters = gameStateParameters;
     }
 
     public int getId() {

@@ -19,23 +19,20 @@ import java.util.UUID;
 delete from path;
         delete from extractionpipeline;
         delete from image;
-        delete from field;
+        delete from game_state_parameter;
         delete from scheme;
-        delete from game;*/
+        delete from game;
+        */
 
 @Service
 @Transactional
 public class GamesService {
     private final GamesRepository gamesRepository;
     private final ImagesService imagesService;
-    private final PathsService pathsService;
-    private final ExtractionPipelinesService extractionPipelinesService;
     @Autowired
-    public GamesService(GamesRepository gamesRepository, ImagesService imagesService, PathsService pathsService, ExtractionPipelinesService extractionPipelinesService) {
+    public GamesService(GamesRepository gamesRepository, ImagesService imagesService) {
         this.gamesRepository = gamesRepository;
         this.imagesService = imagesService;
-        this.pathsService = pathsService;
-        this.extractionPipelinesService = extractionPipelinesService;
     }
 
     public Game findByName(String name){
@@ -72,27 +69,24 @@ public class GamesService {
             if(game.getImage() != null){
                 imagesService.removeFile(game.getImage());
             }
-
             gamesRepository.delete(game);
         }
     }
-
 
     public GameResponseDTO constructGame(Game game){
         GameResponseDTO gameResponseDTO = new GameResponseDTO();
         gameResponseDTO.setId(game.getId());
         gameResponseDTO.setName(game.getName());
         gameResponseDTO.setDescription(game.getDescription());
-        ;
         gameResponseDTO.setPaths(convertToPathDTO(game.getPaths()));
         gameResponseDTO.setExtractionPipeline(convertToExtractionPipelineDTO(game.getExtractionPipelines()));
 
         Scheme scheme = game.getScheme();
 
-        List<FieldDTO> fieldsDTO = convertToFieldDTO(scheme.getFields());
+        List<GameStateParameterDTO> gameStateParameterDTOS = convertToGameStateParameterDTO(scheme.getGameStateParameters());
 
         SchemeDTO schemeDTO = convertToSchemeDTO(scheme);
-        schemeDTO.setFields(fieldsDTO);
+        schemeDTO.setGameStateParameters(gameStateParameterDTOS);
 
         gameResponseDTO.setSchema(schemeDTO);
         String url = imagesService.getFileUrl(game.getImage().getId());
@@ -141,8 +135,8 @@ public class GamesService {
         Scheme scheme = convertToScheme(gameRequestDTO.getSchema());
         scheme.setGame(game);
 
-        List<Field> fields = convertToField(gameRequestDTO.getSchema().getFields(),scheme);
-        scheme.setFields(fields);
+        List<GameStateParameter> gameStateParameters = convertToGameStateParameter(gameRequestDTO.getSchema().getGameStateParameters(),scheme);
+        scheme.setGameStateParameters(gameStateParameters);
         game.setScheme(scheme);
 
         String filename = generateFilename(file);
@@ -159,7 +153,6 @@ public class GamesService {
     private String getExtension(MultipartFile file){
         return file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf(".")+1);
     }
-
 
     private List<Path> convertToPath(List<PathDTO> pathDTO,Game game){
         List<Path> listToReturn = new LinkedList<>();
@@ -189,27 +182,27 @@ public class GamesService {
         return listToReturn;
     }
 
-    private List<Field> convertToField(List<FieldDTO> fieldsDTO,Scheme scheme){
-        List<Field> listToReturn = new LinkedList<>();
-        for(int i = 0; i<fieldsDTO.size(); i++){
-            Field field = new Field(fieldsDTO.get(i).getKey(),fieldsDTO.get(i).getType(),
-                    fieldsDTO.get(i).getLabel(),fieldsDTO.get(i).getDescription());
-            if(fieldsDTO.get(i).getId() != 0){
-                field.setId(fieldsDTO.get(i).getId());
+    private List<GameStateParameter> convertToGameStateParameter(List<GameStateParameterDTO> gameStateParameterDTOS, Scheme scheme){
+        List<GameStateParameter> listToReturn = new LinkedList<>();
+        for(int i = 0; i<gameStateParameterDTOS.size(); i++){
+            GameStateParameter gameStateParameter = new GameStateParameter(gameStateParameterDTOS.get(i).getKey(),gameStateParameterDTOS.get(i).getType(),
+                    gameStateParameterDTOS.get(i).getLabel(),gameStateParameterDTOS.get(i).getDescription());
+            if(gameStateParameterDTOS.get(i).getId() != 0){
+                gameStateParameter.setId(gameStateParameterDTOS.get(i).getId());
             }
-            field.setScheme(scheme);
-            listToReturn.add(field);
+            gameStateParameter.setScheme(scheme);
+            listToReturn.add(gameStateParameter);
         }
         return listToReturn;
     }
 
-    private List<FieldDTO> convertToFieldDTO(List<Field> fields){
-        List<FieldDTO> listToReturn = new LinkedList<>();
-        for(int i = 0; i<fields.size(); i++){
-            FieldDTO fieldDTO = new FieldDTO(fields.get(i).getKey(),fields.get(i).getType(),
-                    fields.get(i).getLabel(),fields.get(i).getDescription());
-            fieldDTO.setId(fields.get(i).getId());
-            listToReturn.add(fieldDTO);
+    private List<GameStateParameterDTO> convertToGameStateParameterDTO(List<GameStateParameter> gameStateParameters){
+        List<GameStateParameterDTO> listToReturn = new LinkedList<>();
+        for(int i = 0; i<gameStateParameters.size(); i++){
+            GameStateParameterDTO gameStateParameterDTO = new GameStateParameterDTO(gameStateParameters.get(i).getKey(),gameStateParameters.get(i).getType(),
+                    gameStateParameters.get(i).getLabel(),gameStateParameters.get(i).getDescription());
+            gameStateParameterDTO.setId(gameStateParameters.get(i).getId());
+            listToReturn.add(gameStateParameterDTO);
         }
         return listToReturn;
     }
@@ -275,42 +268,3 @@ public class GamesService {
         }
         }
         */
-
-
-
-
-
-
-
-   /* @Transactional
-    public void update(GameAddRequestDTO gameAddRequestDTO,MultipartFile file,int id){
-        Game game = findOne(id);
-
-        game.setName(gameAddRequestDTO.getName());
-        game.setDescription(gameAddRequestDTO.getDescription());
-        List<Path> paths = convertToPath(gameAddRequestDTO.getPaths());
-
-        for (Path path : paths) {
-            path.setGame(game);
-        }
-        game.setPaths(convertToPath(gameAddRequestDTO.getPaths()));
-
-        game.setExtractionPipelines(convertToExtractionPipeline(gameAddRequestDTO.getExtractionPipeline()));
-        List<ExtractionPipeline> extractionPipelines= convertToExtractionPipeline(gameAddRequestDTO.getExtractionPipeline());
-        for (ExtractionPipeline extractionPipeline : extractionPipelines) {
-            extractionPipeline.setGame(game);
-        }
-
-        Scheme scheme = convertToScheme(gameAddRequestDTO.getSchema());
-        scheme.setGame(game);
-
-        List<Field> fields = convertToField(gameAddRequestDTO.getSchema().getFields());
-        for (Field field : fields) {
-            field.setScheme(scheme);
-        }
-        scheme.setFields(fields);
-
-        game.addSchemesToGame(scheme);
-
-        gamesRepository.save(game);
-    }*/
