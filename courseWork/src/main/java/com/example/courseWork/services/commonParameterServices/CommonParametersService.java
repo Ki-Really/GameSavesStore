@@ -76,6 +76,11 @@ public class CommonParametersService {
 
         return commonParametersResponseDTO;
     }
+
+    public CommonParameter findById(int id) {
+        return commonParametersRepository.findById(id).orElseThrow();
+    }
+
     private CommonParameter convertToCommonParameter(CommonParameterRequestDTO commonParameterRequestDTO){
         CommonParameter commonParameter = new CommonParameter();
         commonParameter.setLabel(commonParameterRequestDTO.getLabel());

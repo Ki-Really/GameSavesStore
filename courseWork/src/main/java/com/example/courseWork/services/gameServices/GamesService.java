@@ -4,8 +4,10 @@ import com.example.courseWork.DTO.gameDTO.*;
 import com.example.courseWork.DTO.gamePathDTO.GamePathDTO;
 import com.example.courseWork.DTO.gamePathDTO.GamePathsRequestDTO;
 import com.example.courseWork.DTO.gamePathDTO.GamePathsResponseDTO;
+import com.example.courseWork.models.commonParameters.CommonParameter;
 import com.example.courseWork.models.gameModel.*;
 import com.example.courseWork.repositories.gameRepositories.GamesRepository;
+import com.example.courseWork.services.commonParameterServices.CommonParametersService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,13 +33,16 @@ public class GamesService {
     private final GamesRepository gamesRepository;
     private final ImagesService imagesService;
     private final GameStateParameterTypesService gameStateParameterTypesService;
+
+    private final CommonParametersService commonParametersService;
     private final PathsService pathsService;
     @Autowired
-    public GamesService(GamesRepository gamesRepository, ImagesService imagesService, GameStateParameterTypesService gameStateParameterTypesService, PathsService pathsService) {
+    public GamesService(GamesRepository gamesRepository, ImagesService imagesService, GameStateParameterTypesService gameStateParameterTypesService, PathsService pathsService, CommonParametersService commonParametersService) {
         this.gamesRepository = gamesRepository;
         this.imagesService = imagesService;
         this.gameStateParameterTypesService = gameStateParameterTypesService;
         this.pathsService = pathsService;
+        this.commonParametersService = commonParametersService;
     }
 
     public Game findByName(String name){
@@ -242,6 +247,14 @@ public class GamesService {
             GameStateParameterType gameStateParameterType = gameStateParameterTypesService.findByType(gameStateParameterDTOS.get(i).getType());
             gameStateParameter.setGameStateParameterType(gameStateParameterType);
 
+
+            if (gameStateParameterDTOS.get(i).getCommonParameterId() > 0) {
+                CommonParameter commonParameter = commonParametersService.findById(
+                    gameStateParameterDTOS.get(i).getCommonParameterId()
+                );
+                gameStateParameter.setCommonParameter(commonParameter);
+            }
+
             List<GameStateParameter> gameStateParameters;
             if(gameStateParameterType.getGameStateParameters() != null){
                 gameStateParameters = gameStateParameterType.getGameStateParameters();
@@ -273,6 +286,11 @@ public class GamesService {
             GameStateParameterDTO gameStateParameterDTO = new GameStateParameterDTO(gameStateParameters.get(i).getKey(),gameStateParameters.get(i).getGameStateParameterType().getType(),
                     gameStateParameters.get(i).getLabel(),gameStateParameters.get(i).getDescription());
             gameStateParameterDTO.setId(gameStateParameters.get(i).getId());
+
+            CommonParameter commonParameter = gameStateParameters.get(i).getCommonParameter();
+            if (commonParameter != null) {
+                gameStateParameterDTO.setCommonParameterId(commonParameter.getId());
+            }
             listToReturn.add(gameStateParameterDTO);
         }
         return listToReturn;

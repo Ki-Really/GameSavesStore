@@ -7,6 +7,8 @@ public class GameStateParameterDTO {
 
     private String type;
 
+    private int commonParameterId;
+
     private String label;
 
     private String description;
@@ -43,6 +45,14 @@ public class GameStateParameterDTO {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public int getCommonParameterId() {
+        return commonParameterId;
+    }
+
+    public void setCommonParameterId(int commonParameterId) {
+        this.commonParameterId = commonParameterId;
     }
 
     public String getLabel() {

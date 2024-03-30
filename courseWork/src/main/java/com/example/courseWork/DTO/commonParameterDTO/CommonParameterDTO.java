@@ -4,14 +4,14 @@ import com.example.courseWork.DTO.gameDTO.GameStateParameterTypeDTO;
 
 public class CommonParameterDTO {
     private int id;
-    private GameStateParameterTypeDTO gameStateParameterTypeDTO;
+    private GameStateParameterTypeDTO type;
 
     private String label;
     private String description;
 
     public CommonParameterDTO(int id, GameStateParameterTypeDTO gameStateParameterTypeDTO, String label, String description) {
         this.id = id;
-        this.gameStateParameterTypeDTO = gameStateParameterTypeDTO;
+        this.type = gameStateParameterTypeDTO;
         this.label = label;
         this.description = description;
     }
@@ -28,11 +28,11 @@ public class CommonParameterDTO {
     }
 
     public GameStateParameterTypeDTO getGameStateParameterTypeDTO() {
-        return gameStateParameterTypeDTO;
+        return type;
     }
 
     public void setGameStateParameterTypeDTO(GameStateParameterTypeDTO gameStateParameterTypeDTO) {
-        this.gameStateParameterTypeDTO = gameStateParameterTypeDTO;
+        this.type = gameStateParameterTypeDTO;
     }
 
     public String getLabel() {

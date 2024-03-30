@@ -91,7 +91,7 @@ public class GameStateSharesService {
         return null;
     }
     private GameStateShareResponseDTO convertToGameStateShareResponseDTO(SharedSave sharedSave){
-        GameStateShareResponseDTO gameStateShareResponseDTO = new GameStateShareResponseDTO(sharedSave.getPerson().getId(),
+        GameStateShareResponseDTO gameStateShareResponseDTO = new GameStateShareResponseDTO(sharedSave.getId(),
                 sharedSave.getPerson().getUsername());
         return gameStateShareResponseDTO;
     }
