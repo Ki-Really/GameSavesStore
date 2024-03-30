@@ -1,6 +1,7 @@
 package com.example.courseWork.models.authModel;
 
 import com.example.courseWork.models.gameSaveModel.GameState;
+import com.example.courseWork.models.sharedSave.SharedSave;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
@@ -37,17 +38,24 @@ public class Person {
     @ManyToOne
     @JoinColumn(name ="fk_role",referencedColumnName = "id")
     private Role role;
+
+    @Column(name = "is_blocked")
+    private boolean isBlocked;
     @OneToOne(mappedBy = "person")
     private PasswordRecoveryTokenEntity passwordRecoveryTokenEntity;
 
     @OneToMany(mappedBy = "person")
     private List<GameState> gameSaves;
+
+    @OneToMany(mappedBy = "person",cascade = {CascadeType.PERSIST,CascadeType.MERGE,CascadeType.REMOVE,CascadeType.DETACH})
+    private List<SharedSave> sharedSaves;
     public Person() {
     }
-    public Person(String username, String email, String password) {
+    public Person(String username, String email, String password, boolean isBlocked) {
         this.username = username;
         this.email = email;
         this.password = password;
+        this.isBlocked = isBlocked;
     }
 
     @Override
@@ -115,5 +123,29 @@ public class Person {
 
     public void setGameSaves(List<GameState> gameSaves) {
         this.gameSaves = gameSaves;
+    }
+
+    public boolean getIsBlocked() {
+        return isBlocked;
+    }
+
+    public void setIsBlocked(boolean isBlocked) {
+        this.isBlocked = isBlocked;
+    }
+
+    public boolean isBlocked() {
+        return isBlocked;
+    }
+
+    public void setBlocked(boolean blocked) {
+        isBlocked = blocked;
+    }
+
+    public List<SharedSave> getSharedSaves() {
+        return sharedSaves;
+    }
+
+    public void setSharedSaves(List<SharedSave> sharedSaves) {
+        this.sharedSaves = sharedSaves;
     }
 }

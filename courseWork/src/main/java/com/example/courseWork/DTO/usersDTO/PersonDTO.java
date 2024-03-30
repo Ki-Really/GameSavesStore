@@ -52,12 +52,12 @@ public class PersonDTO {
         this.role = role;
     }
 
-    public boolean isBlocked() {
+    public boolean getIsBlocked() {
         return isBlocked;
     }
 
-    public void setBlocked(boolean blocked) {
-        isBlocked = blocked;
+    public void setIsBlocked(boolean isBlocked) {
+        this.isBlocked = isBlocked;
     }
 }
 

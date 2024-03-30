@@ -43,13 +43,12 @@ public class GameStateRequestDTO {
         this.localPath = localPath;
     }
 
-
-    public boolean isPublic() {
+    public boolean getIsPublic() {
         return isPublic;
     }
 
-    public void setPublic(boolean aPublic) {
-        isPublic = aPublic;
+    public void setIsPublic(boolean isPublic) {
+        this.isPublic = isPublic;
     }
 
     public List<GameStateValueDTO> getGameStateValues() {

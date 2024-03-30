@@ -2,6 +2,7 @@ package com.example.courseWork.models.gameSaveModel;
 
 import com.example.courseWork.models.authModel.Person;
 import com.example.courseWork.models.gameModel.Game;
+import com.example.courseWork.models.sharedSave.SharedSave;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -38,6 +39,9 @@ public class GameState {
     private LocalDateTime updatedAt;
     @Column(name="uploaded_at")
     private LocalDateTime uploadedAt;
+
+    @OneToMany(mappedBy = "gameState",cascade = {CascadeType.PERSIST,CascadeType.MERGE,CascadeType.REMOVE,CascadeType.DETACH})
+    private List<SharedSave> sharedSaves;
 
     public GameState(String name, String localPath, String archiveName, int sizeInBytes) {
         this.name = name;
@@ -114,12 +118,12 @@ public class GameState {
         this.gameStateValues = gameStateValues;
     }
 
-    public boolean isPublic() {
+    public boolean getIsPublic() {
         return isPublic;
     }
 
-    public void setPublic(boolean aPublic) {
-        isPublic = aPublic;
+    public void setIsPublic(boolean isPublic) {
+        this.isPublic = isPublic;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -144,5 +148,13 @@ public class GameState {
 
     public void setUploadedAt(LocalDateTime uploadedAt) {
         this.uploadedAt = uploadedAt;
+    }
+
+    public List<SharedSave> getSharedSaves() {
+        return sharedSaves;
+    }
+
+    public void setSharedSaves(List<SharedSave> sharedSaves) {
+        this.sharedSaves = sharedSaves;
     }
 }

@@ -1,6 +1,9 @@
 package com.example.courseWork.services.gameServices;
 
 import com.example.courseWork.DTO.gameDTO.*;
+import com.example.courseWork.DTO.gamePathDTO.GamePathDTO;
+import com.example.courseWork.DTO.gamePathDTO.GamePathsRequestDTO;
+import com.example.courseWork.DTO.gamePathDTO.GamePathsResponseDTO;
 import com.example.courseWork.models.gameModel.*;
 import com.example.courseWork.repositories.gameRepositories.GamesRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -11,10 +14,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+
+import java.util.*;
 /*
 delete from path;
         delete from extractionpipeline;
@@ -29,10 +30,14 @@ delete from path;
 public class GamesService {
     private final GamesRepository gamesRepository;
     private final ImagesService imagesService;
+    private final GameStateParameterTypesService gameStateParameterTypesService;
+    private final PathsService pathsService;
     @Autowired
-    public GamesService(GamesRepository gamesRepository, ImagesService imagesService) {
+    public GamesService(GamesRepository gamesRepository, ImagesService imagesService, GameStateParameterTypesService gameStateParameterTypesService, PathsService pathsService) {
         this.gamesRepository = gamesRepository;
         this.imagesService = imagesService;
+        this.gameStateParameterTypesService = gameStateParameterTypesService;
+        this.pathsService = pathsService;
     }
 
     public Game findByName(String name){
@@ -58,6 +63,28 @@ public class GamesService {
         gamesResponseDTO.setTotalCount(page.getTotalElements());
 
         return gamesResponseDTO;
+    }
+    public GamePathsResponseDTO findPaths(GamePathsRequestDTO gamePathsRequestDTO){
+        Page<Game> page = gamesRepository.findAll(PageRequest.of(
+                gamePathsRequestDTO.getPageNumber() - 1,
+                gamePathsRequestDTO.getPageSize(),
+                Sort.by(Sort.Direction.DESC, "id")
+        ));
+        GamePathsResponseDTO gamePathsResponseDTO = new GamePathsResponseDTO();
+
+        List<List<GamePathDTO>> allPaths = new ArrayList<>();
+        for (Game game : page.getContent()) {
+            allPaths.add(constructGamePath(game));
+        }
+
+        gamePathsResponseDTO.setItems(allPaths);
+        gamePathsResponseDTO.setTotalCount(countTotalPaths(allPaths));
+
+        return gamePathsResponseDTO;
+    }
+
+    private long countTotalPaths(List<List<GamePathDTO>> allPaths) {
+        return allPaths.stream().mapToLong(List::size).sum();
     }
 
     @Transactional
@@ -92,6 +119,21 @@ public class GamesService {
         String url = imagesService.getFileUrl(game.getImage().getId());
         gameResponseDTO.setImageUrl(url);
         return gameResponseDTO;
+    }
+    private List<GamePathDTO> constructGamePath(Game game){
+
+        List<GamePathDTO> gamePaths = new LinkedList<>();
+        for(Path path : game.getPaths()){
+            GamePathDTO gamePathDTO = new GamePathDTO();
+            gamePathDTO.setGameId(game.getId());
+            gamePathDTO.setGameName(game.getName());
+            gamePathDTO.setGameIconUrl(imagesService.getFileUrl(game.getImage().getId()));
+            gamePathDTO.setId(path.getId());
+            gamePathDTO.setPath(path.getPath());
+
+            gamePaths.add(gamePathDTO);
+        }
+        return gamePaths;
     }
     @Transactional
     public void save(GameRequestDTO gameRequestDTO, MultipartFile file) {
@@ -190,21 +232,45 @@ public class GamesService {
     private List<GameStateParameter> convertToGameStateParameter(List<GameStateParameterDTO> gameStateParameterDTOS, Scheme scheme){
         List<GameStateParameter> listToReturn = new LinkedList<>();
         for(int i = 0; i<gameStateParameterDTOS.size(); i++){
-            GameStateParameter gameStateParameter = new GameStateParameter(gameStateParameterDTOS.get(i).getKey(),gameStateParameterDTOS.get(i).getType(),
+            GameStateParameter gameStateParameter = new GameStateParameter(gameStateParameterDTOS.get(i).getKey(),
                     gameStateParameterDTOS.get(i).getLabel(),gameStateParameterDTOS.get(i).getDescription());
             if(gameStateParameterDTOS.get(i).getId() != 0){
                 gameStateParameter.setId(gameStateParameterDTOS.get(i).getId());
             }
             gameStateParameter.setScheme(scheme);
+
+            GameStateParameterType gameStateParameterType = gameStateParameterTypesService.findByType(gameStateParameterDTOS.get(i).getType());
+            gameStateParameter.setGameStateParameterType(gameStateParameterType);
+
+            List<GameStateParameter> gameStateParameters;
+            if(gameStateParameterType.getGameStateParameters() != null){
+                gameStateParameters = gameStateParameterType.getGameStateParameters();
+            }else{
+                gameStateParameters = new LinkedList<>();
+            }
+            gameStateParameters.add(gameStateParameter);
+            gameStateParameterType.setGameStateParameters(gameStateParameters);
+            /*if(gameRequestDTO.getCommonParameterId()!= null){
+                gameState.get
+            }*/
+
             listToReturn.add(gameStateParameter);
         }
         return listToReturn;
     }
+/*    private GameStateParameterType convertToGameStateParameterType(GameRequestDTO gameRequestDTO){
+        GameStateParameterType gameStateParameterType = new GameStateParameterType();
+        List<GameStateParameterDTO> gameStateParameters = new LinkedList<>(gameRequestDTO.getSchema().getGameStateParameters());
+        ;
+        gameRequestDTO.getSchema().getGameStateParameters().forEach(gameStateParameter);
+        gameStateParameterType.setType(gameRequestDTO.getSchema().getGameStateParameters()
+                .forEach(gameStateParameterDTO -> gameStateParameterDTO.get););
+    }*/
 
     private List<GameStateParameterDTO> convertToGameStateParameterDTO(List<GameStateParameter> gameStateParameters){
         List<GameStateParameterDTO> listToReturn = new LinkedList<>();
         for(int i = 0; i<gameStateParameters.size(); i++){
-            GameStateParameterDTO gameStateParameterDTO = new GameStateParameterDTO(gameStateParameters.get(i).getKey(),gameStateParameters.get(i).getType(),
+            GameStateParameterDTO gameStateParameterDTO = new GameStateParameterDTO(gameStateParameters.get(i).getKey(),gameStateParameters.get(i).getGameStateParameterType().getType(),
                     gameStateParameters.get(i).getLabel(),gameStateParameters.get(i).getDescription());
             gameStateParameterDTO.setId(gameStateParameters.get(i).getId());
             listToReturn.add(gameStateParameterDTO);
@@ -220,7 +286,6 @@ public class GamesService {
         SchemeDTO schemeDTO = new SchemeDTO(scheme.getFilename());
         return schemeDTO;
     }
-
 
     private List<PathDTO> convertToPathDTO(List<Path> paths){
         List<PathDTO> listToReturn = new LinkedList<>();
@@ -244,32 +309,3 @@ public class GamesService {
         return listToReturn;
     }
 }
-
-
-/*
-{
-        "name":"name999999",
-        "description":"description1212121",
-        "paths":[{
-        "id":59,
-        "path":"path99"
-        }],
-        "extractionPipeline": [{
-        "id":84,
-        "type":"sav-to-json99",
-        "inputFilename":"i99",
-        "outputFilename":"outpu121t"
-        }],
-        "schema": {
-        "id":46,
-        "filename":"filena3123me",
-        "fields":[{
-        "id":45,
-        "key":"ke123y",
-        "type":"ty124pe",
-        "label":"la42bel",
-        "description":"des124cription"
-        }]
-        }
-        }
-        */

@@ -1,9 +1,6 @@
 package com.example.courseWork.services.gameStateServices;
 
-import com.example.courseWork.DTO.gameDTO.GamesRequestDTO;
-import com.example.courseWork.DTO.gameDTO.GamesResponseDTO;
 import com.example.courseWork.DTO.gameSaveDTO.*;
-import com.example.courseWork.models.gameModel.Game;
 import com.example.courseWork.models.gameSaveModel.GameState;
 import com.example.courseWork.models.gameSaveModel.GameStateValue;
 import com.example.courseWork.repositories.gameSavesRepositories.GameStatesRepository;
@@ -94,10 +91,10 @@ public class GameStatesService {
             GameState updatedGameState = convertGameState(gameStateRequestDTO,file,archiveName,principal);
 
             updatedGameState.setId(gameState.getId());
+
             archivesService.update(file,updatedGameState);
             updatedGameState.setUpdatedAt(LocalDateTime.now());
             gameStatesRepository.save(updatedGameState);
-
         }
     }
 
@@ -112,7 +109,8 @@ public class GameStatesService {
     private GameState convertGameState(GameStateRequestDTO gameStateRequestDTO, MultipartFile file, String archiveName, Principal principal){
         GameState gameState = new GameState();
         gameState.setName(gameStateRequestDTO.getName());
-        gameState.setPublic(false);
+        gameState.setIsPublic(gameStateRequestDTO.getIsPublic());
+
         gameState.setLocalPath(gameStateRequestDTO.getLocalPath());
         gameState.setGameStateValues(convertToGameStateValues(gameStateRequestDTO.getGameStateValues(),gameStateRequestDTO.getGameId(),gameState));
         gameState.setArchiveName(archiveName);
@@ -124,10 +122,10 @@ public class GameStatesService {
             throw new RuntimeException(e);
         }
         gameState.setPerson(peopleService.findOne(principal.getName()));
-        gameState.setPublic(false);
         gameState.setCreatedAt(LocalDateTime.now());
         gameState.setUpdatedAt(LocalDateTime.now());
         gameState.setUploadedAt(LocalDateTime.now());
+
         return gameState;
     }
     public GameStateDTO constructGameStateDTO(GameState gameState){
@@ -140,6 +138,7 @@ public class GameStatesService {
         gameStateDTO.setGameIconUrl(imagesService.getFileUrl(gameState.getGame().getImage().getId()));
         gameStateDTO.setSizeInBytes(gameState.getSizeInBytes());
         gameStateDTO.setGameStateValues(convertToGameStateValuesDTO(gameState.getGameStateValues()));
+        gameStateDTO.setIsPublic(gameState.getIsPublic());
         return gameStateDTO;
     }
 

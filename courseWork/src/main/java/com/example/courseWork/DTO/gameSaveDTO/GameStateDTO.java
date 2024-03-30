@@ -8,16 +8,18 @@ public class GameStateDTO {
     private String name;
     private int gameId;
     private String gameIconUrl;
+    private boolean isPublic;
     private String localPath;
     private List<GameStateValueDTO> gameStateValues;
     private String archiveUrl;
     private long sizeInBytes;
 
-    public GameStateDTO(int id, String name, int gameId, String gameIconUrl, String localPath, List<GameStateValueDTO> gameStateValues, String archiveUrl, long sizeInBytes) {
+    public GameStateDTO(int id, String name, int gameId, String gameIconUrl, boolean isPublic, String localPath, List<GameStateValueDTO> gameStateValues, String archiveUrl, long sizeInBytes) {
         this.id = id;
         this.name = name;
         this.gameId = gameId;
         this.gameIconUrl = gameIconUrl;
+        this.isPublic = isPublic;
         this.localPath = localPath;
         this.gameStateValues = gameStateValues;
         this.archiveUrl = archiveUrl;
@@ -89,5 +91,13 @@ public class GameStateDTO {
 
     public void setSizeInBytes(long sizeInBytes) {
         this.sizeInBytes = sizeInBytes;
+    }
+
+    public boolean getIsPublic() {
+        return isPublic;
+    }
+
+    public void setIsPublic(boolean isPublic) {
+        this.isPublic = isPublic;
     }
 }

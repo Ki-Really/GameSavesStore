@@ -1,11 +1,9 @@
 package com.example.courseWork.controllers;
 
-import com.example.courseWork.DTO.gameDTO.*;
 import com.example.courseWork.DTO.gameSaveDTO.GameStateRequestDTO;
 import com.example.courseWork.DTO.gameSaveDTO.GameStateDTO;
 import com.example.courseWork.DTO.gameSaveDTO.GameStatesDTO;
 import com.example.courseWork.DTO.gameSaveDTO.GameStatesRequestDTO;
-import com.example.courseWork.models.gameModel.Game;
 import com.example.courseWork.models.gameSaveModel.GameState;
 import com.example.courseWork.services.gameStateServices.GameStatesService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -35,11 +33,11 @@ public class GameStatesController {
     private ResponseEntity<GameStateDTO> addGameState(@RequestPart("archive") MultipartFile file,
                                                      @RequestParam("gameStateData") String gameStatesData, Principal principal) throws JsonProcessingException {
         GameStateRequestDTO addGameStateDTO = objectMapper.readValue(gameStatesData, GameStateRequestDTO.class);
+
         gameStatesService.save(addGameStateDTO,file,principal);
 
         GameState gameState = gameStatesService.findByName(addGameStateDTO.getName());
         GameStateDTO gameStateDTO = gameStatesService.constructGameStateDTO(gameState);
-
 
         return ResponseEntity.ok(gameStateDTO);
     }
@@ -59,7 +57,6 @@ public class GameStatesController {
 
         GameState gameState = gameStatesService.findByName(gameStateRequestDTO.getName());
         GameStateDTO gameStateDTO = gameStatesService.constructGameStateDTO(gameState);
-
 
         return ResponseEntity.ok(gameStateDTO);
     }

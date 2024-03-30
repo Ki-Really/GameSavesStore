@@ -11,7 +11,6 @@ import java.util.Collections;
 public class PersonDetails implements UserDetails {
     private Person person;
 
-
     public PersonDetails(Person person) {
         this.person = person;
     }
@@ -48,7 +47,7 @@ public class PersonDetails implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return !person.getIsBlocked();
     }
     //Нужно чтобы получать данные аутентифицированного пользователя.
     public Person getPerson(){
