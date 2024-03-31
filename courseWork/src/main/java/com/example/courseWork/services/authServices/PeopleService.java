@@ -18,6 +18,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 
@@ -100,22 +101,35 @@ public class PeopleService {
         });
     }
 
-    public PeopleDTO findAll(PeopleRequestDTO peopleRequestDTO){
+    public PeopleDTO findAll(PeopleRequestDTO peopleRequestDTO, Principal principal){
         Page<Person> page = peopleRepository.findAll(PageRequest.of(
                 peopleRequestDTO.getPageNumber() - 1,
                 peopleRequestDTO.getPageSize(),
                 Sort.by(Sort.Direction.DESC, "id")
         ));
+
+        List<Person> filteredPeople = page.getContent().stream()
+                .filter(person -> !person.getUsername().equals(principal.getName()))
+                .toList();
+
         PeopleDTO peopleDTO = new PeopleDTO();
 
-        peopleDTO.setItems(page.getContent().stream().map(
+        peopleDTO.setItems(filteredPeople.stream().map(
                 this::constructPersonDTO
         ).toList());
         peopleDTO.setTotalCount(page.getTotalElements());
 
         return peopleDTO;
     }
-
+    private PersonDTO constructPersonDTO(Person person){
+        PersonDTO personDTO = new PersonDTO();
+        personDTO.setId(person.getId());
+        personDTO.setUsername(person.getUsername());
+        personDTO.setEmail(person.getEmail());
+        personDTO.setRole(person.getRole());
+        personDTO.setIsBlocked(person.getIsBlocked());
+        return personDTO;
+    }
     public Person findOne(int id)
     {
         Optional<Person> person = peopleRepository.findById(id);
@@ -128,13 +142,5 @@ public class PeopleService {
     }
 
 
-    private PersonDTO constructPersonDTO(Person person){
-        PersonDTO personDTO = new PersonDTO();
-        personDTO.setId(person.getId());
-        personDTO.setUsername(person.getUsername());
-        personDTO.setEmail(person.getEmail());
-        personDTO.setRole(person.getRole());
-        personDTO.setIsBlocked(person.getIsBlocked());
-        return personDTO;
-    }
+
 }

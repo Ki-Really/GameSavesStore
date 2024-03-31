@@ -5,6 +5,9 @@ public class GameStateValueDTO {
     private int gameStateParameterId;
 
     private String value;
+    private String label;
+    private String description;
+
 
 
     public GameStateValueDTO(int gameStateParameterId, String value) {
@@ -13,6 +16,22 @@ public class GameStateValueDTO {
 
     }
     public GameStateValueDTO() {
+    }
+
+    public String getLabel() {
+        return label;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public String getValue() {

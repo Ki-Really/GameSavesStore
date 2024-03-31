@@ -19,7 +19,7 @@ public class GamePathsController {
     }
 
     @GetMapping
-    private ResponseEntity<GamePathsResponseDTO> findGames(
+    private ResponseEntity<GamePathsResponseDTO> findGamePaths(
             @RequestParam(value = "searchQuery") String searchQuery,
             @RequestParam(value = "pageSize") Integer pageSize,
             @RequestParam(value = "pageNumber") Integer pageNumber){

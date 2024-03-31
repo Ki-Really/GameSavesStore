@@ -160,6 +160,9 @@ public class GameStatesService {
         List<GameStateValueDTO> listToReturn = new LinkedList<>();
         for(int i = 0; i<gameStateValues.size();i++){
             GameStateValueDTO gameStateValueDTO = new GameStateValueDTO(gameStateValues.get(i).getGameStateParameter().getId(), gameStateValues.get(i).getValue());
+            gameStateValueDTO.setLabel(gameStateValues.get(i).getGameStateParameter().getLabel());
+            gameStateValueDTO.setDescription(gameStateValues.get(i).getGameStateParameter().getDescription());
+
             listToReturn.add(gameStateValueDTO);
         }
         return listToReturn;

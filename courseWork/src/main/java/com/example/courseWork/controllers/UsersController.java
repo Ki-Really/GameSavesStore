@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
+
 
 @Controller
 @RequestMapping("/users")
@@ -51,11 +53,11 @@ public class UsersController {
     @GetMapping
     private ResponseEntity<PeopleDTO> getUsers(@RequestParam(value = "searchQuery") String searchQuery,
                                                @RequestParam(value = "pageSize") Integer pageSize,
-                                               @RequestParam(value = "pageNumber") Integer pageNumber){
+                                               @RequestParam(value = "pageNumber") Integer pageNumber, Principal principal){
         PeopleRequestDTO peopleRequestDTO = new PeopleRequestDTO(
                 searchQuery, pageSize, pageNumber
         );
-        PeopleDTO peopleDTO = peopleService.findAll(peopleRequestDTO);
+        PeopleDTO peopleDTO = peopleService.findAll(peopleRequestDTO,principal);
         return ResponseEntity.ok(peopleDTO);
     }
 }

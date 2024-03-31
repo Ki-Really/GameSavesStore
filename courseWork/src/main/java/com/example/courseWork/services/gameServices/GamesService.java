@@ -77,13 +77,14 @@ public class GamesService {
         ));
         GamePathsResponseDTO gamePathsResponseDTO = new GamePathsResponseDTO();
 
-        List<List<GamePathDTO>> allPaths = new ArrayList<>();
+
+        List<GamePathDTO> allPaths = new ArrayList<>();
         for (Game game : page.getContent()) {
-            allPaths.add(constructGamePath(game));
+            allPaths.addAll(constructGamePath(game));
         }
 
         gamePathsResponseDTO.setItems(allPaths);
-        gamePathsResponseDTO.setTotalCount(countTotalPaths(allPaths));
+        gamePathsResponseDTO.setTotalCount(allPaths.size());
 
         return gamePathsResponseDTO;
     }

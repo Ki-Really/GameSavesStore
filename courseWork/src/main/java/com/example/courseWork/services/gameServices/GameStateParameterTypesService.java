@@ -1,5 +1,6 @@
 package com.example.courseWork.services.gameServices;
 
+import com.example.courseWork.DTO.gameStateParameterTypeDTO.GameStateParameterTypesResponseDTO;
 import com.example.courseWork.models.gameModel.GameStateParameterType;
 import com.example.courseWork.repositories.gameRepositories.GameStateParameterTypesRepository;
 import jakarta.transaction.Transactional;
@@ -25,5 +26,8 @@ public class GameStateParameterTypesService {
     public GameStateParameterType findById(int id){
         Optional<GameStateParameterType> optionalGameStateParameterType = gameStateParameterTypesRepository.findById(id);
         return optionalGameStateParameterType.orElse(null);
+    }
+    public GameStateParameterTypesResponseDTO findAll(){
+
     }
 }

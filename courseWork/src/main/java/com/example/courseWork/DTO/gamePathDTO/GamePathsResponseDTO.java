@@ -5,10 +5,10 @@ import com.example.courseWork.DTO.gameSaveDTO.GameStateDTO;
 import java.util.List;
 
 public class GamePathsResponseDTO {
-    private List<List<GamePathDTO>> items;
+    private List<GamePathDTO> items;
     private long totalCount;
 
-    public GamePathsResponseDTO(List<List<GamePathDTO>> items, long totalCount) {
+    public GamePathsResponseDTO(List<GamePathDTO> items, long totalCount) {
         this.items = items;
         this.totalCount = totalCount;
     }
@@ -16,11 +16,11 @@ public class GamePathsResponseDTO {
     public GamePathsResponseDTO() {
     }
 
-    public List<List<GamePathDTO>> getItems() {
+    public List<GamePathDTO> getItems() {
         return items;
     }
 
-    public void setItems(List<List<GamePathDTO>> items) {
+    public void setItems(List<GamePathDTO> items) {
         this.items = items;
     }
 
