@@ -21,4 +21,6 @@ public class GameStateParametersService {
     public Optional<GameStateParameter> findById(int id){
         return gameStateParametersRepository.findById(id);
     }
+
+
 }

@@ -5,7 +5,6 @@ import com.example.courseWork.DTO.gameDTO.GameStateParameterTypeDTO;
 public class CommonParameterDTO {
     private int id;
     private GameStateParameterTypeDTO type;
-
     private String label;
     private String description;
 

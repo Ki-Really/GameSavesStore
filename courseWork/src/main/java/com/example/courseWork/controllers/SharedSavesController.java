@@ -15,19 +15,17 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/game-state-shares")
 public class SharedSavesController{
-    private final ObjectMapper objectMapper;
+
     private final GameStateSharesService gameStateSharesService;
 
     @Autowired
-    public SharedSavesController(ObjectMapper objectMapper, GameStateSharesService gameStateSharesService) {
-        this.objectMapper = objectMapper;
+    public SharedSavesController( GameStateSharesService gameStateSharesService) {
+
         this.gameStateSharesService = gameStateSharesService;
     }
 
     @PostMapping
-    private ResponseEntity<GameStateShareResponseDTO> addGameStateShare(@RequestParam("gameStateSharedData") String gameStateSharedData) throws JsonProcessingException {
-        ShareWithDTO shareWithDTO = objectMapper.readValue(gameStateSharedData, ShareWithDTO.class);
-
+    private ResponseEntity<GameStateShareResponseDTO> addGameStateShare(@RequestBody ShareWithDTO shareWithDTO) throws JsonProcessingException {
         SharedSave sharedSave = gameStateSharesService.save(shareWithDTO);
 
         GameStateShareResponseDTO gameStateShareResponseDTO = gameStateSharesService.constructResponseDTO(sharedSave);
@@ -45,4 +43,5 @@ public class SharedSavesController{
         GameStateSharesResponseDTO gameStateSharesResponseDTO = gameStateSharesService.getGameStateShares(id);
         return ResponseEntity.ok(gameStateSharesResponseDTO);
     }
+
 }

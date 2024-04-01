@@ -70,7 +70,7 @@ public class GameStatesController {
     }
 
     @GetMapping
-    private ResponseEntity<GameStatesDTO> findGames(
+    private ResponseEntity<GameStatesDTO> findGameStates(
             @RequestParam(value = "searchQuery") String searchQuery,
             @RequestParam(value = "pageSize") Integer pageSize,
             @RequestParam(value = "pageNumber") Integer pageNumber){
@@ -81,5 +81,34 @@ public class GameStatesController {
 
         return ResponseEntity.ok(gameStatesDTO);
     }
+
+    @GetMapping("/public")
+    private ResponseEntity<GameStatesDTO> findPublicGameStates(
+            @RequestParam(value = "searchQuery") String searchQuery,
+            @RequestParam(value = "pageSize") Integer pageSize,
+            @RequestParam(value = "pageNumber") Integer pageNumber){
+        GameStatesRequestDTO gameStatesRequestDTO = new GameStatesRequestDTO(
+                searchQuery, pageSize, pageNumber
+        );
+        GameStatesDTO gameStatesDTO = gameStatesService.findAllPublic(gameStatesRequestDTO);
+
+        return ResponseEntity.ok(gameStatesDTO);
+    }
+
+
+    @GetMapping("/received-game-state-shares")
+    private ResponseEntity<GameStatesDTO> findReceivedGameStates(
+            @RequestParam(value = "searchQuery") String searchQuery,
+            @RequestParam(value = "pageSize") Integer pageSize,
+            @RequestParam(value = "pageNumber") Integer pageNumber,Principal principal){
+        GameStatesRequestDTO gameStatesRequestDTO = new GameStatesRequestDTO(
+                searchQuery, pageSize, pageNumber
+        );
+        GameStatesDTO gameStatesDTO = gameStatesService.findReceivedGameStates(gameStatesRequestDTO,principal);
+
+        return ResponseEntity.ok(gameStatesDTO);
+    }
+
+
 
 }

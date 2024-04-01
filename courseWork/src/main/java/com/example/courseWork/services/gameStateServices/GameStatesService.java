@@ -1,17 +1,17 @@
 package com.example.courseWork.services.gameStateServices;
 
 import com.example.courseWork.DTO.gameSaveDTO.*;
+import com.example.courseWork.models.authModel.Person;
 import com.example.courseWork.models.gameSaveModel.GameState;
 import com.example.courseWork.models.gameSaveModel.GameStateValue;
+import com.example.courseWork.models.sharedSave.SharedSave;
 import com.example.courseWork.repositories.gameSavesRepositories.GameStatesRepository;
 import com.example.courseWork.services.authServices.PeopleService;
 import com.example.courseWork.services.gameServices.GamesService;
 import com.example.courseWork.services.gameServices.ImagesService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -22,6 +22,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -62,6 +63,50 @@ public class GameStatesService {
         gameStatesDTO.setTotalCount(page.getTotalElements());
 
         return gameStatesDTO;
+    }
+    public GameStatesDTO findAllPublic(GameStatesRequestDTO gameStatesRequestDTO){
+        Page<GameState> page = gameStatesRepository.findAll(PageRequest.of(
+                gameStatesRequestDTO.getPageNumber() - 1,
+                gameStatesRequestDTO.getPageSize(),
+                Sort.by(Sort.Direction.DESC, "id")
+        ));
+        GameStatesDTO gameStatesDTO = new GameStatesDTO();
+        List<GameState> filtered = page.getContent().stream().filter(GameState::getIsPublic).toList();
+
+        gameStatesDTO.setItems(filtered.stream().map(
+                this::constructGameStateDTO
+        ).toList());
+        gameStatesDTO.setTotalCount(page.getTotalElements());
+
+        return gameStatesDTO;
+    }
+
+    public GameStatesDTO findReceivedGameStates(GameStatesRequestDTO gameStatesRequestDTO,Principal principal){
+        GameStatesDTO gameStatesDTO = new GameStatesDTO();
+        Person person = peopleService.findOne(principal.getName());
+        List<SharedSave> sharedSaves = person.getSharedSaves();
+
+        if (!sharedSaves.isEmpty()) {
+            Pageable pageable = PageRequest.of(gameStatesRequestDTO.getPageNumber()-1, gameStatesRequestDTO.getPageSize(), Sort.by(Sort.Direction.DESC, "id"));
+
+            List<GameState> receivedGameStates = sharedSaves.stream()
+                    .map(SharedSave::getGameState)
+                    .collect(Collectors.toList());
+
+            int start = (int) pageable.getOffset();
+            int end = Math.min((start + pageable.getPageSize()), receivedGameStates.size());
+
+            Page<GameState> gameStatePage = new PageImpl<>(receivedGameStates.subList(start, end), pageable, receivedGameStates.size());
+
+            gameStatesDTO.setTotalCount(gameStatePage.getTotalElements());
+
+            gameStatesDTO.setItems(gameStatePage.getContent().stream()
+                    .map(this::constructGameStateDTO)
+                    .toList());
+
+            return gameStatesDTO;
+        }
+        return null;
     }
     @Transactional
     public void save(GameStateRequestDTO gameStateRequestDTO, MultipartFile file, Principal principal) {

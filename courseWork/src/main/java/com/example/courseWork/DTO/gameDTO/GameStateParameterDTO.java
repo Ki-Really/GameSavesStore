@@ -1,5 +1,7 @@
 package com.example.courseWork.DTO.gameDTO;
 
+import com.example.courseWork.DTO.commonParameterDTO.CommonParameterDTO;
+
 public class GameStateParameterDTO {
     private int id;
 
@@ -7,7 +9,7 @@ public class GameStateParameterDTO {
 
     private String type;
 
-    private int commonParameterId;
+    private CommonParameterDTO commonParameterDTO;
 
     private String label;
 
@@ -47,12 +49,12 @@ public class GameStateParameterDTO {
         this.type = type;
     }
 
-    public int getCommonParameterId() {
-        return commonParameterId;
+    public CommonParameterDTO getCommonParameterDTO() {
+        return commonParameterDTO;
     }
 
-    public void setCommonParameterId(int commonParameterId) {
-        this.commonParameterId = commonParameterId;
+    public void setCommonParameterDTO(CommonParameterDTO commonParameterDTO) {
+        this.commonParameterDTO = commonParameterDTO;
     }
 
     public String getLabel() {

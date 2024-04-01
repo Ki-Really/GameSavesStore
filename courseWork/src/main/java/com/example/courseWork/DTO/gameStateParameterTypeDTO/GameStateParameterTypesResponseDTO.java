@@ -31,4 +31,5 @@ public class GameStateParameterTypesResponseDTO {
     public void setTotalCount(long totalCount) {
         this.totalCount = totalCount;
     }
+
 }

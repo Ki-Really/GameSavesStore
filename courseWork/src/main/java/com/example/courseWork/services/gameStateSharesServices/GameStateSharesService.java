@@ -11,6 +11,8 @@ import com.example.courseWork.services.authServices.PeopleService;
 import com.example.courseWork.services.gameStateServices.GameStatesService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -63,29 +65,11 @@ public class GameStateSharesService {
     private SharedSave convertToSharedSave(ShareWithDTO shareWithDTO){
         Person person = peopleService.findPersonById(shareWithDTO.getShareWithId());
         GameState gameState = gameStatesService.findById(shareWithDTO.getGameStateId());
-        System.out.println(gameState.toString());
-        System.out.println(person.toString());
+
         if(gameState != null && person != null){
             SharedSave sharedSave = new SharedSave(person,gameState);
             person.getSharedSaves().add(sharedSave);
             gameState.getSharedSaves().add(sharedSave);
-            /*List<SharedSave> sharedSaves;
-
-            if(person.getSharedSaves()!=null){
-                person.getSharedSaves().add(sharedSave);
-            }else{
-                sharedSaves = new LinkedList<>();
-                sharedSaves.add(sharedSave);
-                person.setSharedSaves(sharedSaves);
-            }
-
-            if(gameState.getSharedSaves()!=null){
-                gameState.getSharedSaves().add(sharedSave);
-            }else{
-                sharedSaves = new LinkedList<>();
-                sharedSaves.add(sharedSave);
-                gameState.setSharedSaves(sharedSaves);
-            }*/
             return sharedSave;
         }
         return null;
@@ -99,4 +83,6 @@ public class GameStateSharesService {
         return new GameStateShareResponseDTO(
                 sharedSave.getPerson().getId(),sharedSave.getPerson().getUsername());
     }
+
+
 }

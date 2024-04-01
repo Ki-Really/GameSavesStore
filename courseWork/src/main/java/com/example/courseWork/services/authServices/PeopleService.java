@@ -117,7 +117,7 @@ public class PeopleService {
         peopleDTO.setItems(filteredPeople.stream().map(
                 this::constructPersonDTO
         ).toList());
-        peopleDTO.setTotalCount(page.getTotalElements());
+        peopleDTO.setTotalCount(filteredPeople.size());
 
         return peopleDTO;
     }
@@ -126,7 +126,7 @@ public class PeopleService {
         personDTO.setId(person.getId());
         personDTO.setUsername(person.getUsername());
         personDTO.setEmail(person.getEmail());
-        personDTO.setRole(person.getRole());
+        personDTO.setRole(person.getRole().getName());
         personDTO.setIsBlocked(person.getIsBlocked());
         return personDTO;
     }

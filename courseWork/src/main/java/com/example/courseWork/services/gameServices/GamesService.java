@@ -1,5 +1,6 @@
 package com.example.courseWork.services.gameServices;
 
+import com.example.courseWork.DTO.commonParameterDTO.CommonParameterDTO;
 import com.example.courseWork.DTO.gameDTO.*;
 import com.example.courseWork.DTO.gamePathDTO.GamePathDTO;
 import com.example.courseWork.DTO.gamePathDTO.GamePathsRequestDTO;
@@ -89,9 +90,6 @@ public class GamesService {
         return gamePathsResponseDTO;
     }
 
-    private long countTotalPaths(List<List<GamePathDTO>> allPaths) {
-        return allPaths.stream().mapToLong(List::size).sum();
-    }
 
     @Transactional
     public void deleteById(int id) {
@@ -249,9 +247,9 @@ public class GamesService {
             gameStateParameter.setGameStateParameterType(gameStateParameterType);
 
 
-            if (gameStateParameterDTOS.get(i).getCommonParameterId() > 0) {
+            if (gameStateParameterDTOS.get(i).getCommonParameterDTO().getId() > 0) {
                 CommonParameter commonParameter = commonParametersService.findById(
-                    gameStateParameterDTOS.get(i).getCommonParameterId()
+                    gameStateParameterDTOS.get(i).getCommonParameterDTO().getId()
                 );
                 gameStateParameter.setCommonParameter(commonParameter);
             }
@@ -272,14 +270,6 @@ public class GamesService {
         }
         return listToReturn;
     }
-/*    private GameStateParameterType convertToGameStateParameterType(GameRequestDTO gameRequestDTO){
-        GameStateParameterType gameStateParameterType = new GameStateParameterType();
-        List<GameStateParameterDTO> gameStateParameters = new LinkedList<>(gameRequestDTO.getSchema().getGameStateParameters());
-        ;
-        gameRequestDTO.getSchema().getGameStateParameters().forEach(gameStateParameter);
-        gameStateParameterType.setType(gameRequestDTO.getSchema().getGameStateParameters()
-                .forEach(gameStateParameterDTO -> gameStateParameterDTO.get););
-    }*/
 
     private List<GameStateParameterDTO> convertToGameStateParameterDTO(List<GameStateParameter> gameStateParameters){
         List<GameStateParameterDTO> listToReturn = new LinkedList<>();
@@ -290,7 +280,7 @@ public class GamesService {
 
             CommonParameter commonParameter = gameStateParameters.get(i).getCommonParameter();
             if (commonParameter != null) {
-                gameStateParameterDTO.setCommonParameterId(commonParameter.getId());
+                gameStateParameterDTO.setCommonParameterDTO(constructCommonParameterDTO(commonParameter));
             }
             listToReturn.add(gameStateParameterDTO);
         }
@@ -326,5 +316,17 @@ public class GamesService {
             listToReturn.add(extractionPipelineDTO);
         }
         return listToReturn;
+    }
+    private CommonParameterDTO constructCommonParameterDTO(CommonParameter commonParameter){
+        CommonParameterDTO commonParameterDTO = new CommonParameterDTO();
+        commonParameterDTO.setLabel(commonParameter.getLabel());
+        commonParameterDTO.setDescription(commonParameter.getDescription());
+        commonParameterDTO.setId(commonParameter.getId());
+
+        GameStateParameterTypeDTO gameStateParameterTypeDTO = new GameStateParameterTypeDTO();
+        gameStateParameterTypeDTO.setId(commonParameter.getGameStateParameterType().getId());
+        gameStateParameterTypeDTO.setType(commonParameter.getGameStateParameterType().getType());
+        commonParameterDTO.setGameStateParameterTypeDTO(gameStateParameterTypeDTO);
+        return commonParameterDTO;
     }
 }

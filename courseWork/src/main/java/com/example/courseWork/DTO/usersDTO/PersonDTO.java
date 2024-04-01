@@ -6,10 +6,10 @@ public class PersonDTO {
     private int id;
     private String username;
     private String email;
-    private Role role;
+    private String role;
     private boolean isBlocked;
 
-    public PersonDTO(int id, String username, String email, Role role, boolean isBlocked) {
+    public PersonDTO(int id, String username, String email, String role, boolean isBlocked) {
         this.id = id;
         this.username = username;
         this.email = email;
@@ -44,11 +44,11 @@ public class PersonDTO {
         this.email = email;
     }
 
-    public Role getRole() {
+    public String getRole() {
         return role;
     }
 
-    public void setRole(Role role) {
+    public void setRole(String role) {
         this.role = role;
     }
 
