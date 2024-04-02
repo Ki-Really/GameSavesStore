@@ -56,11 +56,20 @@ public class GamesService {
     }
 
     public GamesResponseDTO findAll(GamesRequestDTO gamesRequestDTO){
-        Page<Game> page = gamesRepository.findAll(PageRequest.of(
-            gamesRequestDTO.getPageNumber() - 1,
-            gamesRequestDTO.getPageSize(),
-            Sort.by(Sort.Direction.DESC, "id")
-        ));
+
+        Page<Game> page;
+        if (gamesRequestDTO.getSearchQuery() != null && !gamesRequestDTO.getSearchQuery().isEmpty()) {
+            page = gamesRepository.findByNameContainingOrDescriptionContaining(
+                    gamesRequestDTO.getSearchQuery(), gamesRequestDTO.getSearchQuery(),
+                    PageRequest.of(gamesRequestDTO.getPageNumber() - 1, gamesRequestDTO.getPageSize(),
+                            Sort.by(Sort.Direction.DESC, "id")));
+        } else {
+            page = gamesRepository.findAll(PageRequest.of(
+                    gamesRequestDTO.getPageNumber() - 1,
+                    gamesRequestDTO.getPageSize(),
+                    Sort.by(Sort.Direction.DESC, "id")
+            ));
+        }
         GamesResponseDTO gamesResponseDTO = new GamesResponseDTO();
 
         gamesResponseDTO.setItems(page.getContent().stream().map(
@@ -246,13 +255,16 @@ public class GamesService {
             GameStateParameterType gameStateParameterType = gameStateParameterTypesService.findByType(gameStateParameterDTOS.get(i).getType());
             gameStateParameter.setGameStateParameterType(gameStateParameterType);
 
-
-            if (gameStateParameterDTOS.get(i).getCommonParameterDTO().getId() > 0) {
+            if(gameStateParameterDTOS.get(i).getCommonParameterDTO()!=null){
                 CommonParameter commonParameter = commonParametersService.findById(
-                    gameStateParameterDTOS.get(i).getCommonParameterDTO().getId()
+                        gameStateParameterDTOS.get(i).getCommonParameterDTO().getId()
                 );
                 gameStateParameter.setCommonParameter(commonParameter);
             }
+/*
+            if (gameStateParameterDTOS.get(i).getCommonParameterDTO().getId() > 0) {
+
+            }*/
 
             List<GameStateParameter> gameStateParameters;
             if(gameStateParameterType.getGameStateParameters() != null){
@@ -262,9 +274,6 @@ public class GamesService {
             }
             gameStateParameters.add(gameStateParameter);
             gameStateParameterType.setGameStateParameters(gameStateParameters);
-            /*if(gameRequestDTO.getCommonParameterId()!= null){
-                gameState.get
-            }*/
 
             listToReturn.add(gameStateParameter);
         }
