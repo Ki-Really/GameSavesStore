@@ -1,7 +1,9 @@
 package com.example.courseWork.services.gameStateServices;
 
+import com.example.courseWork.DTO.gameDTO.GameStateParameterTypeDTO;
 import com.example.courseWork.DTO.gameSaveDTO.*;
 import com.example.courseWork.models.authModel.Person;
+import com.example.courseWork.models.gameModel.GameStateParameterType;
 import com.example.courseWork.models.gameSaveModel.GameState;
 import com.example.courseWork.models.gameSaveModel.GameStateValue;
 import com.example.courseWork.models.sharedSave.SharedSave;
@@ -49,12 +51,23 @@ public class GameStatesService {
         return gameState.orElse(null);
     }
 
-    public GameStatesDTO findAll(GameStatesRequestDTO gameStatesRequestDTO){
-        Page<GameState> page = gameStatesRepository.findAll(PageRequest.of(
-                gameStatesRequestDTO.getPageNumber() - 1,
-                gameStatesRequestDTO.getPageSize(),
-                Sort.by(Sort.Direction.DESC, "id")
-        ));
+    public GameStatesDTO findAll(GameStatesRequestDTO gameStatesRequestDTO,Principal principal){
+        Person person = peopleService.findOne(principal.getName());
+        Page<GameState> page;
+        if(gameStatesRequestDTO.getSearchQuery()!=null && !gameStatesRequestDTO.getSearchQuery().isEmpty()){
+            page = gameStatesRepository.findByPersonIdAndNameContaining(person.getId(),gameStatesRequestDTO.getSearchQuery(), PageRequest.of(
+                    gameStatesRequestDTO.getPageNumber() - 1,
+                    gameStatesRequestDTO.getPageSize(),
+                    Sort.by(Sort.Direction.DESC, "id")
+            ));
+        }else{
+            page = gameStatesRepository.findByPersonId(person.getId(),PageRequest.of(
+                    gameStatesRequestDTO.getPageNumber() - 1,
+                    gameStatesRequestDTO.getPageSize(),
+                    Sort.by(Sort.Direction.DESC, "id")
+            ));
+        }
+
         GameStatesDTO gameStatesDTO = new GameStatesDTO();
 
         gameStatesDTO.setItems(page.getContent().stream().map(
@@ -65,11 +78,20 @@ public class GameStatesService {
         return gameStatesDTO;
     }
     public GameStatesDTO findAllPublic(GameStatesRequestDTO gameStatesRequestDTO){
-        Page<GameState> page = gameStatesRepository.findAll(PageRequest.of(
-                gameStatesRequestDTO.getPageNumber() - 1,
-                gameStatesRequestDTO.getPageSize(),
-                Sort.by(Sort.Direction.DESC, "id")
-        ));
+        Page<GameState> page;
+        if(gameStatesRequestDTO.getSearchQuery()!=null && !gameStatesRequestDTO.getSearchQuery().isEmpty()) {
+            page = gameStatesRepository.findByNameContaining(gameStatesRequestDTO.getSearchQuery(), PageRequest.of(
+                    gameStatesRequestDTO.getPageNumber() - 1,
+                    gameStatesRequestDTO.getPageSize(),
+                    Sort.by(Sort.Direction.DESC, "id")
+            ));
+        }else{
+            page = gameStatesRepository.findAll(PageRequest.of(
+                    gameStatesRequestDTO.getPageNumber() - 1,
+                    gameStatesRequestDTO.getPageSize(),
+                    Sort.by(Sort.Direction.DESC, "id")
+            ));
+        }
         GameStatesDTO gameStatesDTO = new GameStatesDTO();
         List<GameState> filtered = page.getContent().stream().filter(GameState::getIsPublic).toList();
 
@@ -81,7 +103,7 @@ public class GameStatesService {
         return gameStatesDTO;
     }
 
-    public GameStatesDTO findReceivedGameStates(GameStatesRequestDTO gameStatesRequestDTO,Principal principal){
+    /*public GameStatesDTO findReceivedGameStates(GameStatesRequestDTO gameStatesRequestDTO,Principal principal){
         GameStatesDTO gameStatesDTO = new GameStatesDTO();
         Person person = peopleService.findOne(principal.getName());
         List<SharedSave> sharedSaves = person.getSharedSaves();
@@ -106,7 +128,54 @@ public class GameStatesService {
 
             return gameStatesDTO;
         }
-        return null;
+        return new GameStatesDTO();
+    }*/
+    public GameStatesDTO findReceivedGameStates(GameStatesRequestDTO gameStatesRequestDTO, Principal principal) {
+        GameStatesDTO gameStatesDTO = new GameStatesDTO();
+        Person person = peopleService.findOne(principal.getName());
+        List<SharedSave> sharedSaves = person.getSharedSaves();
+
+        if (!sharedSaves.isEmpty()) {
+            List<GameState> receivedGameStates = sharedSaves.stream()
+                    .map(SharedSave::getGameState)
+                    .collect(Collectors.toList());
+
+            // Фильтруем список по имени игрового сохранения
+            String searchName = gameStatesRequestDTO.getSearchQuery();
+            if (searchName != null && !searchName.isEmpty()) {
+                receivedGameStates = receivedGameStates.stream()
+                        .filter(state -> state.getName().toLowerCase().contains(searchName.toLowerCase()))
+                        .collect(Collectors.toList());
+            }
+
+            // Применяем пагинацию для всех игровых сохранений, если нет результатов поиска
+            Pageable pageableAll = PageRequest.of(gameStatesRequestDTO.getPageNumber() - 1, gameStatesRequestDTO.getPageSize(), Sort.by(Sort.Direction.DESC, "id"));
+            int startAll = (int) pageableAll.getOffset();
+            int endAll = Math.min((startAll + pageableAll.getPageSize()), receivedGameStates.size());
+
+            Page<GameState> gameStatePageAll = new PageImpl<>(receivedGameStates.subList(startAll, endAll), pageableAll, receivedGameStates.size());
+
+            gameStatesDTO.setTotalCount(gameStatePageAll.getTotalElements());
+            gameStatesDTO.setItems(gameStatePageAll.getContent().stream()
+                    .map(this::constructGameStateDTO)
+                    .toList());
+
+            // Проверяем, есть ли результаты поиска
+            if (!receivedGameStates.isEmpty()) {
+                // Применяем пагинацию для найденных результатов
+                Pageable pageable = PageRequest.of(gameStatesRequestDTO.getPageNumber() - 1, gameStatesRequestDTO.getPageSize(), Sort.by(Sort.Direction.DESC, "id"));
+                int start = (int) pageable.getOffset();
+                int end = Math.min((start + pageable.getPageSize()), receivedGameStates.size());
+
+                Page<GameState> gameStatePage = new PageImpl<>(receivedGameStates.subList(start, end), pageable, receivedGameStates.size());
+
+                gameStatesDTO.setTotalCount(gameStatePage.getTotalElements());
+                gameStatesDTO.setItems(gameStatePage.getContent().stream()
+                        .map(this::constructGameStateDTO)
+                        .toList());
+            }
+        }
+        return gameStatesDTO;
     }
     @Transactional
     public void save(GameStateRequestDTO gameStateRequestDTO, MultipartFile file, Principal principal) {
@@ -116,15 +185,16 @@ public class GameStatesService {
         gameStatesRepository.save(gameState);
     }
     @Transactional
-    public void deleteById(int id){
+    public void deleteById(int id,Principal principal){
         Optional<GameState> optionalGameState = gameStatesRepository.findById(id);
-
         if(optionalGameState.isPresent()){
             GameState gameState = optionalGameState.get();
-            if(gameState.getArchiveName() != null){
-                archivesService.removeFile(gameState.getArchiveName());
+            if(gameState.getPerson().getUsername().equals(principal.getName())){
+                if(gameState.getArchiveName() != null){
+                    archivesService.removeFile(gameState.getArchiveName());
+                }
+                gameStatesRepository.delete(gameState);
             }
-            gameStatesRepository.delete(gameState);
         }
     }
     @Transactional
@@ -132,14 +202,16 @@ public class GameStatesService {
         Optional<GameState> optionalGameState = gameStatesRepository.findById(id);
         if(optionalGameState.isPresent()){
             GameState gameState = optionalGameState.get();
-            String archiveName = gameState.getArchiveName();
-            GameState updatedGameState = convertGameState(gameStateRequestDTO,file,archiveName,principal);
+            if(gameState.getPerson().getUsername().equals(principal.getName())){
+                String archiveName = gameState.getArchiveName();
+                GameState updatedGameState = convertGameState(gameStateRequestDTO,file,archiveName,principal);
 
-            updatedGameState.setId(gameState.getId());
+                updatedGameState.setId(gameState.getId());
 
-            archivesService.update(file,updatedGameState);
-            updatedGameState.setUpdatedAt(LocalDateTime.now());
-            gameStatesRepository.save(updatedGameState);
+                archivesService.update(file,updatedGameState);
+                updatedGameState.setUpdatedAt(LocalDateTime.now());
+                gameStatesRepository.save(updatedGameState);
+            }
         }
     }
 
@@ -184,6 +256,9 @@ public class GameStatesService {
         gameStateDTO.setSizeInBytes(gameState.getSizeInBytes());
         gameStateDTO.setGameStateValues(convertToGameStateValuesDTO(gameState.getGameStateValues()));
         gameStateDTO.setIsPublic(gameState.getIsPublic());
+        gameStateDTO.setCreatedAt(gameState.getCreatedAt());
+        gameStateDTO.setUpdatedAt(gameState.getUpdatedAt());
+        gameStateDTO.setUploadedAt(gameState.getUploadedAt());
         return gameStateDTO;
     }
 
@@ -207,10 +282,17 @@ public class GameStatesService {
             GameStateValueDTO gameStateValueDTO = new GameStateValueDTO(gameStateValues.get(i).getGameStateParameter().getId(), gameStateValues.get(i).getValue());
             gameStateValueDTO.setLabel(gameStateValues.get(i).getGameStateParameter().getLabel());
             gameStateValueDTO.setDescription(gameStateValues.get(i).getGameStateParameter().getDescription());
+            gameStateValueDTO.setGameStateParameterType(convertToGameStateParameterTypeDTO(gameStateValues.get(i).getGameStateParameter().getGameStateParameterType()));
 
             listToReturn.add(gameStateValueDTO);
         }
         return listToReturn;
+    }
+    private GameStateParameterTypeDTO convertToGameStateParameterTypeDTO(GameStateParameterType gameStateParameterType){
+        GameStateParameterTypeDTO gameStateParameterTypeDTO = new GameStateParameterTypeDTO();
+        gameStateParameterTypeDTO.setId(gameStateParameterType.getId());
+        gameStateParameterTypeDTO.setType(gameStateParameterType.getType());
+        return gameStateParameterTypeDTO;
     }
 
 }

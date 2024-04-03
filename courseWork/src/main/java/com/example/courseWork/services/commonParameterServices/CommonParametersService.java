@@ -62,11 +62,22 @@ public class CommonParametersService {
     }
 
     public CommonParametersResponseDTO findAll(CommonParametersRequestDTO commonParametersRequestDTO){
-        Page<CommonParameter> page = commonParametersRepository.findAll(PageRequest.of(
-                commonParametersRequestDTO.getPageNumber() - 1,
-                commonParametersRequestDTO.getPageSize(),
-                Sort.by(Sort.Direction.DESC, "id")
-        ));
+        Page<CommonParameter> page;
+        if (commonParametersRequestDTO.getSearchQuery() != null && !commonParametersRequestDTO.getSearchQuery().isEmpty()) {
+            page = commonParametersRepository.findByLabelContainingOrDescriptionContaining(commonParametersRequestDTO.getSearchQuery(),commonParametersRequestDTO.getSearchQuery(),
+                    PageRequest.of(
+                    commonParametersRequestDTO.getPageNumber() - 1,
+                    commonParametersRequestDTO.getPageSize(),
+                    Sort.by(Sort.Direction.DESC, "id")
+            ));
+        }else{
+            page = commonParametersRepository.findAll(
+                    PageRequest.of(
+                            commonParametersRequestDTO.getPageNumber() - 1,
+                            commonParametersRequestDTO.getPageSize(),
+                            Sort.by(Sort.Direction.DESC, "id")
+                    ));
+        }
         CommonParametersResponseDTO commonParametersResponseDTO = new CommonParametersResponseDTO();
 
         commonParametersResponseDTO.setItems(page.getContent().stream().map(

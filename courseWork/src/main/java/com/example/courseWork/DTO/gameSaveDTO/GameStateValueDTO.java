@@ -1,9 +1,11 @@
 package com.example.courseWork.DTO.gameSaveDTO;
 
+import com.example.courseWork.DTO.gameDTO.GameStateParameterTypeDTO;
+
 public class GameStateValueDTO {
     private int id;
     private int gameStateParameterId;
-
+    private GameStateParameterTypeDTO gameStateParameterType;
     private String value;
     private String label;
     private String description;
@@ -56,5 +58,13 @@ public class GameStateValueDTO {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public GameStateParameterTypeDTO getGameStateParameterType() {
+        return gameStateParameterType;
+    }
+
+    public void setGameStateParameterType(GameStateParameterTypeDTO gameStateParameterType) {
+        this.gameStateParameterType = gameStateParameterType;
     }
 }

@@ -30,7 +30,6 @@ public class CommonParametersController {
         CommonParameter commonParameter = commonParametersService.save(commonParameterRequestDTO);
         CommonParameterDTO commonParameterDTO = commonParametersService.constructCommonParameterDTO(commonParameter);
 
-
         return ResponseEntity.ok(commonParameterDTO);
     }
 

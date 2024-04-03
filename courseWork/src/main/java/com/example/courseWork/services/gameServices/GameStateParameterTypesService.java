@@ -33,11 +33,20 @@ public class GameStateParameterTypesService {
         return optionalGameStateParameterType.orElse(null);
     }
     public GameStateParameterTypesResponseDTO findAll(GameStateParameterTypesRequestDTO gameStateParameterTypesRequestDTO){
-        Page<GameStateParameterType> page = gameStateParameterTypesRepository.findAll(PageRequest.of(
-                gameStateParameterTypesRequestDTO.getPageNumber() - 1,
-                gameStateParameterTypesRequestDTO.getPageSize(),
-                Sort.by(Sort.Direction.DESC, "id")
-        ));
+        Page<GameStateParameterType> page;
+        if(gameStateParameterTypesRequestDTO.getSearchQuery()!= null && !gameStateParameterTypesRequestDTO.getSearchQuery().isEmpty()){
+            page = gameStateParameterTypesRepository.findByTypeContaining(gameStateParameterTypesRequestDTO.getSearchQuery(), PageRequest.of(
+                    gameStateParameterTypesRequestDTO.getPageNumber() - 1,
+                    gameStateParameterTypesRequestDTO.getPageSize(),
+                    Sort.by(Sort.Direction.DESC, "id")
+            ));
+        } else{
+            page = gameStateParameterTypesRepository.findAll(PageRequest.of(
+                    gameStateParameterTypesRequestDTO.getPageNumber() - 1,
+                    gameStateParameterTypesRequestDTO.getPageSize(),
+                    Sort.by(Sort.Direction.DESC, "id")
+            ));
+        }
         GameStateParameterTypesResponseDTO gameStateParameterTypesResponseDTO = new GameStateParameterTypesResponseDTO();
 
         gameStateParameterTypesResponseDTO.setItems(page.getContent().stream().map(

@@ -102,12 +102,20 @@ public class PeopleService {
     }
 
     public PeopleDTO findAll(PeopleRequestDTO peopleRequestDTO, Principal principal){
-        Page<Person> page = peopleRepository.findAll(PageRequest.of(
-                peopleRequestDTO.getPageNumber() - 1,
-                peopleRequestDTO.getPageSize(),
-                Sort.by(Sort.Direction.DESC, "id")
-        ));
-
+        Page<Person> page;
+        if(peopleRequestDTO.getSearchQuery()!=null && !peopleRequestDTO.getSearchQuery().isEmpty()){
+             page = peopleRepository.findByUsernameContaining(peopleRequestDTO.getSearchQuery(), PageRequest.of(
+                    peopleRequestDTO.getPageNumber() - 1,
+                    peopleRequestDTO.getPageSize(),
+                    Sort.by(Sort.Direction.DESC, "id")
+            ));
+        }else{
+             page = peopleRepository.findAll(PageRequest.of(
+                    peopleRequestDTO.getPageNumber() - 1,
+                    peopleRequestDTO.getPageSize(),
+                    Sort.by(Sort.Direction.DESC, "id")
+            ));
+        }
         List<Person> filteredPeople = page.getContent().stream()
                 .filter(person -> !person.getUsername().equals(principal.getName()))
                 .toList();

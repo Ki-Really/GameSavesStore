@@ -43,8 +43,8 @@ public class GameStatesController {
     }
 
     @DeleteMapping("/{id}")
-    private ResponseEntity<HttpStatus> deleteGameState(@PathVariable(name ="id") int id) throws IOException {
-        gameStatesService.deleteById(id);
+    private ResponseEntity<HttpStatus> deleteGameState(@PathVariable(name ="id") int id,Principal principal) throws IOException {
+        gameStatesService.deleteById(id,principal);
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
@@ -73,11 +73,11 @@ public class GameStatesController {
     private ResponseEntity<GameStatesDTO> findGameStates(
             @RequestParam(value = "searchQuery") String searchQuery,
             @RequestParam(value = "pageSize") Integer pageSize,
-            @RequestParam(value = "pageNumber") Integer pageNumber){
+            @RequestParam(value = "pageNumber") Integer pageNumber,Principal principal){
         GameStatesRequestDTO gameStatesRequestDTO = new GameStatesRequestDTO(
                 searchQuery, pageSize, pageNumber
         );
-        GameStatesDTO gameStatesDTO = gameStatesService.findAll(gameStatesRequestDTO);
+        GameStatesDTO gameStatesDTO = gameStatesService.findAll(gameStatesRequestDTO,principal);
 
         return ResponseEntity.ok(gameStatesDTO);
     }

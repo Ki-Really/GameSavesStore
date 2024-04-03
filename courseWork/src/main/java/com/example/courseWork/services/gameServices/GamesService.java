@@ -79,25 +79,7 @@ public class GamesService {
 
         return gamesResponseDTO;
     }
-    public GamePathsResponseDTO findPaths(GamePathsRequestDTO gamePathsRequestDTO){
-        Page<Game> page = gamesRepository.findAll(PageRequest.of(
-                gamePathsRequestDTO.getPageNumber() - 1,
-                gamePathsRequestDTO.getPageSize(),
-                Sort.by(Sort.Direction.DESC, "id")
-        ));
-        GamePathsResponseDTO gamePathsResponseDTO = new GamePathsResponseDTO();
 
-
-        List<GamePathDTO> allPaths = new ArrayList<>();
-        for (Game game : page.getContent()) {
-            allPaths.addAll(constructGamePath(game));
-        }
-
-        gamePathsResponseDTO.setItems(allPaths);
-        gamePathsResponseDTO.setTotalCount(allPaths.size());
-
-        return gamePathsResponseDTO;
-    }
 
 
     @Transactional
@@ -123,31 +105,17 @@ public class GamesService {
 
         Scheme scheme = game.getScheme();
 
-        List<GameStateParameterDTO> gameStateParameterDTOS = convertToGameStateParameterDTO(scheme.getGameStateParameters());
+        List<GameStateParameterResponseDTO> gameStateParameterResponseDTOS = convertToGameStateParameterResponseDTO(scheme.getGameStateParameters());
 
-        SchemeDTO schemeDTO = convertToSchemeDTO(scheme);
-        schemeDTO.setGameStateParameters(gameStateParameterDTOS);
+        SchemeResponseDTO schemeResponseDTO = convertToSchemeResponseDTO(scheme);
+        schemeResponseDTO.setGameStateParameters(gameStateParameterResponseDTOS);
 
-        gameResponseDTO.setSchema(schemeDTO);
+        gameResponseDTO.setSchema(schemeResponseDTO);
         String url = imagesService.getFileUrl(game.getImage().getId());
         gameResponseDTO.setImageUrl(url);
         return gameResponseDTO;
     }
-    private List<GamePathDTO> constructGamePath(Game game){
 
-        List<GamePathDTO> gamePaths = new LinkedList<>();
-        for(Path path : game.getPaths()){
-            GamePathDTO gamePathDTO = new GamePathDTO();
-            gamePathDTO.setGameId(game.getId());
-            gamePathDTO.setGameName(game.getName());
-            gamePathDTO.setGameIconUrl(imagesService.getFileUrl(game.getImage().getId()));
-            gamePathDTO.setId(path.getId());
-            gamePathDTO.setPath(path.getPath());
-
-            gamePaths.add(gamePathDTO);
-        }
-        return gamePaths;
-    }
     @Transactional
     public void save(GameRequestDTO gameRequestDTO, MultipartFile file) {
         Game game = convertGame(gameRequestDTO,file);
@@ -255,9 +223,9 @@ public class GamesService {
             GameStateParameterType gameStateParameterType = gameStateParameterTypesService.findByType(gameStateParameterDTOS.get(i).getType());
             gameStateParameter.setGameStateParameterType(gameStateParameterType);
 
-            if(gameStateParameterDTOS.get(i).getCommonParameterDTO()!=null){
+            if(gameStateParameterDTOS.get(i).getCommonParameterId()>0){
                 CommonParameter commonParameter = commonParametersService.findById(
-                        gameStateParameterDTOS.get(i).getCommonParameterDTO().getId()
+                        gameStateParameterDTOS.get(i).getCommonParameterId()
                 );
                 gameStateParameter.setCommonParameter(commonParameter);
             }
@@ -280,29 +248,44 @@ public class GamesService {
         return listToReturn;
     }
 
-    private List<GameStateParameterDTO> convertToGameStateParameterDTO(List<GameStateParameter> gameStateParameters){
-        List<GameStateParameterDTO> listToReturn = new LinkedList<>();
+    private List<GameStateParameterResponseDTO> convertToGameStateParameterResponseDTO(List<GameStateParameter> gameStateParameters){
+        List<GameStateParameterResponseDTO> listToReturn = new LinkedList<>();
         for(int i = 0; i<gameStateParameters.size(); i++){
-            GameStateParameterDTO gameStateParameterDTO = new GameStateParameterDTO(gameStateParameters.get(i).getKey(),gameStateParameters.get(i).getGameStateParameterType().getType(),
+            GameStateParameterResponseDTO gameStateParameterResponseDTO = new GameStateParameterResponseDTO(gameStateParameters.get(i).getKey(),gameStateParameters.get(i).getGameStateParameterType().getType(),
                     gameStateParameters.get(i).getLabel(),gameStateParameters.get(i).getDescription());
-            gameStateParameterDTO.setId(gameStateParameters.get(i).getId());
+            gameStateParameterResponseDTO.setId(gameStateParameters.get(i).getId());
 
             CommonParameter commonParameter = gameStateParameters.get(i).getCommonParameter();
             if (commonParameter != null) {
-                gameStateParameterDTO.setCommonParameterDTO(constructCommonParameterDTO(commonParameter));
+                gameStateParameterResponseDTO.setCommonParameterDTO(constructCommonParameterDTO(commonParameter));
             }
-            listToReturn.add(gameStateParameterDTO);
+            listToReturn.add(gameStateParameterResponseDTO);
         }
         return listToReturn;
+    }
+    private CommonParameterDTO convertToCommonParameterDTO(CommonParameter commonParameter){
+        CommonParameterDTO commonParameterDTO = new CommonParameterDTO();
+        commonParameterDTO.setId(commonParameter.getId());
+        commonParameterDTO.setLabel(commonParameter.getLabel());
+        commonParameterDTO.setDescription(commonParameter.getDescription());
+        commonParameterDTO.setGameStateParameterTypeDTO(convertToGameStateParameterTypeDTO(commonParameter.getGameStateParameterType()));
+        return commonParameterDTO;
+    }
+
+    private GameStateParameterTypeDTO convertToGameStateParameterTypeDTO(GameStateParameterType gameStateParameterType){
+        GameStateParameterTypeDTO gameStateParameterTypeDTO = new GameStateParameterTypeDTO();
+        gameStateParameterTypeDTO.setId(gameStateParameterType.getId());
+        gameStateParameterTypeDTO.setType(gameStateParameterType.getType());
+        return gameStateParameterTypeDTO;
     }
     private Scheme convertToScheme(SchemeDTO schemeDTO){
         Scheme scheme = new Scheme(schemeDTO.getFilename());
         return scheme;
     }
 
-    private SchemeDTO convertToSchemeDTO(Scheme scheme){
-        SchemeDTO schemeDTO = new SchemeDTO(scheme.getFilename());
-        return schemeDTO;
+    private SchemeResponseDTO convertToSchemeResponseDTO(Scheme scheme){
+        SchemeResponseDTO schemeResponseDTO = new SchemeResponseDTO(scheme.getFilename(),convertToGameStateParameterResponseDTO(scheme.getGameStateParameters()));
+        return schemeResponseDTO;
     }
 
     private List<PathDTO> convertToPathDTO(List<Path> paths){

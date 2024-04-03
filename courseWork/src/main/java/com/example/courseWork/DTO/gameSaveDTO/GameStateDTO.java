@@ -1,6 +1,7 @@
 package com.example.courseWork.DTO.gameSaveDTO;
 
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class GameStateDTO {
@@ -13,8 +14,11 @@ public class GameStateDTO {
     private List<GameStateValueDTO> gameStateValues;
     private String archiveUrl;
     private long sizeInBytes;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    private LocalDateTime uploadedAt;
 
-    public GameStateDTO(int id, String name, int gameId, String gameIconUrl, boolean isPublic, String localPath, List<GameStateValueDTO> gameStateValues, String archiveUrl, long sizeInBytes) {
+    public GameStateDTO(int id, String name, int gameId, String gameIconUrl, boolean isPublic, String localPath, List<GameStateValueDTO> gameStateValues, String archiveUrl, long sizeInBytes, LocalDateTime createdAt, LocalDateTime updatedAt, LocalDateTime uploadedAt) {
         this.id = id;
         this.name = name;
         this.gameId = gameId;
@@ -24,6 +28,9 @@ public class GameStateDTO {
         this.gameStateValues = gameStateValues;
         this.archiveUrl = archiveUrl;
         this.sizeInBytes = sizeInBytes;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.uploadedAt = uploadedAt;
     }
 
     public GameStateDTO() {
@@ -99,5 +106,29 @@ public class GameStateDTO {
 
     public void setIsPublic(boolean isPublic) {
         this.isPublic = isPublic;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public LocalDateTime getUploadedAt() {
+        return uploadedAt;
+    }
+
+    public void setUploadedAt(LocalDateTime uploadedAt) {
+        this.uploadedAt = uploadedAt;
     }
 }

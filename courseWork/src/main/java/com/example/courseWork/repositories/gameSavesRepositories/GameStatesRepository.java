@@ -17,6 +17,7 @@ public interface GameStatesRepository extends JpaRepository<GameState, Integer> 
     Optional<GameState> findByName(String name);
     Optional<GameState> findById(int id);
     void deleteById(int id);
-    Page<GameState> findAllBySharedSavesIn(List<SharedSave> sharedSaves, Pageable pageable);
-
+    Page<GameState> findByPersonId(int id,Pageable pageable);
+    Page<GameState> findByPersonIdAndNameContaining(int id,String name,Pageable pageable);
+    Page<GameState> findByNameContaining(String name,Pageable pageable);
 }
