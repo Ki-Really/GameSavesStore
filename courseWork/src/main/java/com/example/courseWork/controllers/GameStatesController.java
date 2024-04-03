@@ -55,7 +55,7 @@ public class GameStatesController {
         GameStateRequestDTO gameStateRequestDTO = objectMapper.readValue(gameStateData, GameStateRequestDTO.class);
         gameStatesService.update(gameStateRequestDTO,file,id,principal);
 
-        GameState gameState = gameStatesService.findByName(gameStateRequestDTO.getName());
+        GameState gameState = gameStatesService.findById(id);
         GameStateDTO gameStateDTO = gameStatesService.constructGameStateDTO(gameState);
 
         return ResponseEntity.ok(gameStateDTO);
