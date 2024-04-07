@@ -1,0 +1,33 @@
+#DB properties
+spring.datasource.driver-class-name = org.postgresql.Driver
+spring.datasource.url = jdbc:postgresql://localhost:5555/coursework?currentSchema=cloud_game_saves
+spring.datasource.username = postgres
+spring.datasource.password = Airbender1
+
+#Hibernate properties
+spring.jpa.properties.hibernate.dialect = org.hibernate.dialect.PostgreSQLDialect
+spring.jpa.properties.hibernate.show_sql = true
+spring.jpa.generate-ddl = true
+
+#Email properties
+spring.mail.host = smtp.gmail.com
+spring.mail.port = 587
+spring.mail.username = admin@example.com
+spring.mail.password = test test test test
+spring.mail.properties.mail.smtp.auth = true
+spring.mail.properties.mail.smtp.starttls = true
+
+spring.servlet.multipart.max-file-size=1000MB
+spring.servlet.multipart.max-request-size = 1000MB
+server.servlet.session.timeout=3600
+server.servlet.session.cookie.max-age=3600
+
+spring.sql.init.mode = always
+spring.sql.init.continue-on-error=false
+spring.sql.init.data-locations = classpath:demo_data.sql
+
+minio.picture-bucket = images
+minio.archive-bucket = archives
+minio.url = http://localhost:9000
+minio.access-key = minioadmin
+minio.secret-key = minioadmin
