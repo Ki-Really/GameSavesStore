@@ -1,3 +1,4 @@
+/*
 package com.example.courseWork.DTO.usersDTO;
 
 import java.util.List;
@@ -30,3 +31,4 @@ public class PeopleDTO {
         this.totalCount = totalCount;
     }
 }
+*/

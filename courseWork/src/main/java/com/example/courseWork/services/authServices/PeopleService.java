@@ -1,13 +1,9 @@
 package com.example.courseWork.services.authServices;
 
-import com.example.courseWork.DTO.gameSaveDTO.GameStatesDTO;
-import com.example.courseWork.DTO.gameSaveDTO.GameStatesRequestDTO;
-import com.example.courseWork.DTO.usersDTO.PeopleDTO;
+import com.example.courseWork.DTO.entityDTO.EntitiesResponseDTO;
 import com.example.courseWork.DTO.usersDTO.PeopleRequestDTO;
 import com.example.courseWork.DTO.usersDTO.PersonDTO;
 import com.example.courseWork.models.authModel.Person;
-import com.example.courseWork.models.gameModel.Game;
-import com.example.courseWork.models.gameSaveModel.GameState;
 import com.example.courseWork.repositories.authRepositories.PeopleRepository;
 import com.example.courseWork.util.PersonNotFoundException;
 import jakarta.transaction.Transactional;
@@ -22,7 +18,6 @@ import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 
-import static java.util.stream.Collectors.toList;
 
 @Service
 @Transactional
@@ -68,8 +63,6 @@ public class PeopleService {
 
     }
 
-
-
     public Person checkCredentials(String username,String password){
         Optional<Person> person = peopleRepository.findByUsername(username);
         String encodedPassword = passwordEncoder.encode(password);
@@ -101,7 +94,7 @@ public class PeopleService {
         });
     }
 
-    public PeopleDTO findAll(PeopleRequestDTO peopleRequestDTO, Principal principal){
+    public EntitiesResponseDTO<PersonDTO> findAll(PeopleRequestDTO peopleRequestDTO, Principal principal){
         Page<Person> page;
         if(peopleRequestDTO.getSearchQuery()!=null && !peopleRequestDTO.getSearchQuery().isEmpty()){
              page = peopleRepository.findByUsernameContaining(peopleRequestDTO.getSearchQuery(), PageRequest.of(
@@ -120,7 +113,7 @@ public class PeopleService {
                 .filter(person -> !person.getUsername().equals(principal.getName()))
                 .toList();
 
-        PeopleDTO peopleDTO = new PeopleDTO();
+        EntitiesResponseDTO<PersonDTO> peopleDTO = new EntitiesResponseDTO<>();
 
         peopleDTO.setItems(filteredPeople.stream().map(
                 this::constructPersonDTO

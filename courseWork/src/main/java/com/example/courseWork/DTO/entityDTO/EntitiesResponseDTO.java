@@ -1,27 +1,25 @@
-/*
-package com.example.courseWork.DTO.gameSaveDTO;
-
+package com.example.courseWork.DTO.entityDTO;
 
 import java.util.List;
 
-public class GameStatesDTO {
-    private List<GameStateDTO> items;
+public class EntitiesResponseDTO<T> {
+    private List<T> items;
+
     private long totalCount;
 
-    public GameStatesDTO(List<GameStateDTO> items, long totalCount) {
+    public EntitiesResponseDTO(List<T> items, long totalCount) {
         this.items = items;
         this.totalCount = totalCount;
     }
 
-    public GameStatesDTO() {
-
+    public EntitiesResponseDTO() {
     }
 
-    public List<GameStateDTO> getItems() {
+    public List<T> getItems() {
         return items;
     }
 
-    public void setItems(List<GameStateDTO> items) {
+    public void setItems(List<T> items) {
         this.items = items;
     }
 
@@ -33,4 +31,3 @@ public class GameStatesDTO {
         this.totalCount = totalCount;
     }
 }
-*/

@@ -1,6 +1,6 @@
 package com.example.courseWork.controllers;
 
-import com.example.courseWork.DTO.usersDTO.PeopleDTO;
+import com.example.courseWork.DTO.entityDTO.EntitiesResponseDTO;
 import com.example.courseWork.DTO.usersDTO.PeopleRequestDTO;
 import com.example.courseWork.DTO.usersDTO.PersonDTO;
 import com.example.courseWork.models.authModel.Person;
@@ -51,13 +51,13 @@ public class UsersController {
     }
 
     @GetMapping
-    private ResponseEntity<PeopleDTO> getUsers(@RequestParam(value = "searchQuery") String searchQuery,
-                                               @RequestParam(value = "pageSize") Integer pageSize,
-                                               @RequestParam(value = "pageNumber") Integer pageNumber, Principal principal){
+    private ResponseEntity<EntitiesResponseDTO<PersonDTO>> getUsers(@RequestParam(value = "searchQuery") String searchQuery,
+                                                         @RequestParam(value = "pageSize") Integer pageSize,
+                                                         @RequestParam(value = "pageNumber") Integer pageNumber, Principal principal){
         PeopleRequestDTO peopleRequestDTO = new PeopleRequestDTO(
                 searchQuery, pageSize, pageNumber
         );
-        PeopleDTO peopleDTO = peopleService.findAll(peopleRequestDTO,principal);
+        EntitiesResponseDTO<PersonDTO> peopleDTO = peopleService.findAll(peopleRequestDTO,principal);
         return ResponseEntity.ok(peopleDTO);
     }
 }

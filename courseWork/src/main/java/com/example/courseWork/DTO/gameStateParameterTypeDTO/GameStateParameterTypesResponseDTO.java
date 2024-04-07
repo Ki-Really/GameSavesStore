@@ -1,3 +1,4 @@
+/*
 package com.example.courseWork.DTO.gameStateParameterTypeDTO;
 
 import com.example.courseWork.DTO.gameDTO.GameStateParameterTypeDTO;
@@ -33,3 +34,4 @@ public class GameStateParameterTypesResponseDTO {
     }
 
 }
+*/

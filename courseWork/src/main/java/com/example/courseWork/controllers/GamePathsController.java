@@ -1,7 +1,8 @@
 package com.example.courseWork.controllers;
 
+import com.example.courseWork.DTO.entityDTO.EntitiesResponseDTO;
+import com.example.courseWork.DTO.gamePathDTO.GamePathDTO;
 import com.example.courseWork.DTO.gamePathDTO.GamePathsRequestDTO;
-import com.example.courseWork.DTO.gamePathDTO.GamePathsResponseDTO;
 import com.example.courseWork.services.gameServices.PathsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -21,14 +22,14 @@ public class GamePathsController {
 
 
     @GetMapping
-    private ResponseEntity<GamePathsResponseDTO> findGamePaths(
+    private ResponseEntity<EntitiesResponseDTO<GamePathDTO>> findGamePaths(
             @RequestParam(value = "searchQuery") String searchQuery,
             @RequestParam(value = "pageSize") Integer pageSize,
             @RequestParam(value = "pageNumber") Integer pageNumber){
         GamePathsRequestDTO gamePathsRequestDTO = new GamePathsRequestDTO(
                 searchQuery, pageSize, pageNumber
         );
-        GamePathsResponseDTO gamePathsResponseDTO = pathsService.findPaths(gamePathsRequestDTO);
+        EntitiesResponseDTO<GamePathDTO> gamePathsResponseDTO = pathsService.findPaths(gamePathsRequestDTO);
 
         return ResponseEntity.ok(gamePathsResponseDTO);
     }

@@ -1,7 +1,8 @@
 package com.example.courseWork.controllers;
 
+import com.example.courseWork.DTO.entityDTO.EntitiesResponseDTO;
+import com.example.courseWork.DTO.gameDTO.GameStateParameterTypeDTO;
 import com.example.courseWork.DTO.gameStateParameterTypeDTO.GameStateParameterTypesRequestDTO;
-import com.example.courseWork.DTO.gameStateParameterTypeDTO.GameStateParameterTypesResponseDTO;
 import com.example.courseWork.services.gameServices.GameStateParameterTypesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -20,14 +21,14 @@ public class GameStateParameterTypesController {
     }
 
     @GetMapping
-    private ResponseEntity<GameStateParameterTypesResponseDTO> findGameStateParameterTypes(
+    private ResponseEntity<EntitiesResponseDTO<GameStateParameterTypeDTO>> findGameStateParameterTypes(
             @RequestParam(value = "searchQuery") String searchQuery,
             @RequestParam(value = "pageSize") Integer pageSize,
             @RequestParam(value = "pageNumber") Integer pageNumber){
         GameStateParameterTypesRequestDTO gameStateParameterTypesRequestDTO = new GameStateParameterTypesRequestDTO(
                 searchQuery, pageSize, pageNumber
         );
-        GameStateParameterTypesResponseDTO gameStateParameterTypesResponseDTO = gameStateParameterTypesService.findAll(gameStateParameterTypesRequestDTO);
+        EntitiesResponseDTO<GameStateParameterTypeDTO> gameStateParameterTypesResponseDTO = gameStateParameterTypesService.findAll(gameStateParameterTypesRequestDTO);
         return ResponseEntity.ok(gameStateParameterTypesResponseDTO);
     }
 }

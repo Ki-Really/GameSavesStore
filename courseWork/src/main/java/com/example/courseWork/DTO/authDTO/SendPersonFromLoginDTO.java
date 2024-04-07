@@ -16,6 +16,9 @@ public class SendPersonFromLoginDTO {
         this.email = email;
         this.role = role;
     }
+    public SendPersonFromLoginDTO(String username){
+        this.username = username;
+    }
     public SendPersonFromLoginDTO() {
     }
 

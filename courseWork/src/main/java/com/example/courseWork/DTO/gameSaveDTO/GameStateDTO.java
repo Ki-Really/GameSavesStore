@@ -1,6 +1,8 @@
 package com.example.courseWork.DTO.gameSaveDTO;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -8,20 +10,25 @@ public class GameStateDTO {
     private int id;
     private String name;
     private int gameId;
+    private String gameName;
     private String gameIconUrl;
     private boolean isPublic;
     private String localPath;
     private List<GameStateValueDTO> gameStateValues;
     private String archiveUrl;
     private long sizeInBytes;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdAt;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime updatedAt;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime uploadedAt;
 
-    public GameStateDTO(int id, String name, int gameId, String gameIconUrl, boolean isPublic, String localPath, List<GameStateValueDTO> gameStateValues, String archiveUrl, long sizeInBytes, LocalDateTime createdAt, LocalDateTime updatedAt, LocalDateTime uploadedAt) {
+    public GameStateDTO(int id, String name, int gameId, String gameName, String gameIconUrl, boolean isPublic, String localPath, List<GameStateValueDTO> gameStateValues, String archiveUrl, long sizeInBytes, LocalDateTime createdAt, LocalDateTime updatedAt, LocalDateTime uploadedAt) {
         this.id = id;
         this.name = name;
         this.gameId = gameId;
+        this.gameName = gameName;
         this.gameIconUrl = gameIconUrl;
         this.isPublic = isPublic;
         this.localPath = localPath;
@@ -130,5 +137,13 @@ public class GameStateDTO {
 
     public void setUploadedAt(LocalDateTime uploadedAt) {
         this.uploadedAt = uploadedAt;
+    }
+
+    public String getGameName() {
+        return gameName;
+    }
+
+    public void setGameName(String gameName) {
+        this.gameName = gameName;
     }
 }

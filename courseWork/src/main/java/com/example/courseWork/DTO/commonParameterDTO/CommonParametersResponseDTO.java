@@ -1,3 +1,4 @@
+/*
 package com.example.courseWork.DTO.commonParameterDTO;
 
 import com.example.courseWork.DTO.gameDTO.GameResponseDTO;
@@ -33,3 +34,4 @@ public class CommonParametersResponseDTO {
         this.totalCount = totalCount;
     }
 }
+*/

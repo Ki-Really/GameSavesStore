@@ -1,5 +1,6 @@
 package com.example.courseWork.services.gameStateServices;
 
+import com.example.courseWork.DTO.entityDTO.EntitiesResponseDTO;
 import com.example.courseWork.DTO.gameDTO.GameStateParameterTypeDTO;
 import com.example.courseWork.DTO.gameSaveDTO.*;
 import com.example.courseWork.models.authModel.Person;
@@ -20,10 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.security.Principal;
 import java.time.LocalDateTime;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -51,7 +49,7 @@ public class GameStatesService {
         return gameState.orElse(null);
     }
 
-    public GameStatesDTO findAll(GameStatesRequestDTO gameStatesRequestDTO,Principal principal){
+    public EntitiesResponseDTO<GameStateDTO> findAll(GameStatesRequestDTO gameStatesRequestDTO, Principal principal){
         Person person = peopleService.findOne(principal.getName());
         Page<GameState> page;
         if(gameStatesRequestDTO.getSearchQuery()!=null && !gameStatesRequestDTO.getSearchQuery().isEmpty()){
@@ -68,7 +66,7 @@ public class GameStatesService {
             ));
         }
 
-        GameStatesDTO gameStatesDTO = new GameStatesDTO();
+        EntitiesResponseDTO<GameStateDTO> gameStatesDTO = new EntitiesResponseDTO<>();
 
         gameStatesDTO.setItems(page.getContent().stream().map(
                 this::constructGameStateDTO
@@ -77,7 +75,7 @@ public class GameStatesService {
 
         return gameStatesDTO;
     }
-    public GameStatesDTO findAllPublic(GameStatesRequestDTO gameStatesRequestDTO){
+    public EntitiesResponseDTO<GameStateDTO> findAllPublic(GameStatesRequestDTO gameStatesRequestDTO){
         Page<GameState> page;
         if(gameStatesRequestDTO.getSearchQuery()!=null && !gameStatesRequestDTO.getSearchQuery().isEmpty()) {
             page = gameStatesRepository.findByNameContaining(gameStatesRequestDTO.getSearchQuery(), PageRequest.of(
@@ -92,7 +90,7 @@ public class GameStatesService {
                     Sort.by(Sort.Direction.DESC, "id")
             ));
         }
-        GameStatesDTO gameStatesDTO = new GameStatesDTO();
+        EntitiesResponseDTO<GameStateDTO> gameStatesDTO = new EntitiesResponseDTO<>();
         List<GameState> filtered = page.getContent().stream().filter(GameState::getIsPublic).toList();
 
         gameStatesDTO.setItems(filtered.stream().map(
@@ -130,8 +128,8 @@ public class GameStatesService {
         }
         return new GameStatesDTO();
     }*/
-    public GameStatesDTO findReceivedGameStates(GameStatesRequestDTO gameStatesRequestDTO, Principal principal) {
-        GameStatesDTO gameStatesDTO = new GameStatesDTO();
+    public EntitiesResponseDTO<GameStateDTO> findReceivedGameStates(GameStatesRequestDTO gameStatesRequestDTO, Principal principal) {
+        EntitiesResponseDTO<GameStateDTO> gameStatesDTO = new EntitiesResponseDTO<>();
         Person person = peopleService.findOne(principal.getName());
         List<SharedSave> sharedSaves = person.getSharedSaves();
 
@@ -140,7 +138,6 @@ public class GameStatesService {
                     .map(SharedSave::getGameState)
                     .collect(Collectors.toList());
 
-            // Фильтруем список по имени игрового сохранения
             String searchName = gameStatesRequestDTO.getSearchQuery();
             if (searchName != null && !searchName.isEmpty()) {
                 receivedGameStates = receivedGameStates.stream()
@@ -148,7 +145,6 @@ public class GameStatesService {
                         .collect(Collectors.toList());
             }
 
-            // Применяем пагинацию для всех игровых сохранений, если нет результатов поиска
             Pageable pageableAll = PageRequest.of(gameStatesRequestDTO.getPageNumber() - 1, gameStatesRequestDTO.getPageSize(), Sort.by(Sort.Direction.DESC, "id"));
             int startAll = (int) pageableAll.getOffset();
             int endAll = Math.min((startAll + pageableAll.getPageSize()), receivedGameStates.size());
@@ -160,9 +156,7 @@ public class GameStatesService {
                     .map(this::constructGameStateDTO)
                     .toList());
 
-            // Проверяем, есть ли результаты поиска
             if (!receivedGameStates.isEmpty()) {
-                // Применяем пагинацию для найденных результатов
                 Pageable pageable = PageRequest.of(gameStatesRequestDTO.getPageNumber() - 1, gameStatesRequestDTO.getPageSize(), Sort.by(Sort.Direction.DESC, "id"));
                 int start = (int) pageable.getOffset();
                 int end = Math.min((start + pageable.getPageSize()), receivedGameStates.size());
@@ -174,6 +168,9 @@ public class GameStatesService {
                         .map(this::constructGameStateDTO)
                         .toList());
             }
+        }else{
+            gameStatesDTO.setItems(new ArrayList<>());
+            gameStatesDTO.setTotalCount(0);
         }
         return gameStatesDTO;
     }
@@ -256,20 +253,25 @@ public class GameStatesService {
         gameStateDTO.setSizeInBytes(gameState.getSizeInBytes());
         gameStateDTO.setGameStateValues(convertToGameStateValuesDTO(gameState.getGameStateValues()));
         gameStateDTO.setIsPublic(gameState.getIsPublic());
+        gameStateDTO.setGameName(gameState.getGame().getName());
         gameStateDTO.setCreatedAt(gameState.getCreatedAt());
         gameStateDTO.setUpdatedAt(gameState.getUpdatedAt());
         gameStateDTO.setUploadedAt(gameState.getUploadedAt());
         return gameStateDTO;
     }
 
-    private List<GameStateValue> convertToGameStateValues(List<GameStateValueDTO> gameStateValueDTO,int gameId,GameState gameState){
+////??????????????????????????????????????????????????????????????????\/\/\/
+    private List<GameStateValue> convertToGameStateValues(List<GameStateValueDTO> gameStateValueDTOS,int gameId,GameState gameState){
         List<GameStateValue> listToReturn = new LinkedList<>();
-        for(int i = 0; i<gameStateValueDTO.size();i++){
-            GameStateValue gameStateValue = new GameStateValue(gameStateValueDTO.get(i).getValue(),
-                    gamesService.findOne(gameId).getScheme().getGameStateParameters().get(i));
+        for(int i = 0; i<gameStateValueDTOS.size();i++){
+            GameStateValueDTO gameStateValueDTO = gameStateValueDTOS.get(i);
+            GameStateValue gameStateValue = new GameStateValue(
+                    gameStateValueDTO.getValue(),
+                    gamesService.findOne(gameId).getScheme().getGameStateParameters().get(i)
+            );
             gameStateValue.setGameState(gameState);
-            if(gameStateValueDTO.get(i).getId() != 0){
-                gameStateValue.setId(gameStateValueDTO.get(i).getId());
+            if(gameStateValueDTO.getId() != 0){
+                gameStateValue.setId(gameStateValueDTO.getId());
             }
             listToReturn.add(gameStateValue);
         }
@@ -279,10 +281,19 @@ public class GameStatesService {
     private List<GameStateValueDTO> convertToGameStateValuesDTO(List<GameStateValue> gameStateValues){
         List<GameStateValueDTO> listToReturn = new LinkedList<>();
         for(int i = 0; i<gameStateValues.size();i++){
-            GameStateValueDTO gameStateValueDTO = new GameStateValueDTO(gameStateValues.get(i).getGameStateParameter().getId(), gameStateValues.get(i).getValue());
-            gameStateValueDTO.setLabel(gameStateValues.get(i).getGameStateParameter().getLabel());
-            gameStateValueDTO.setDescription(gameStateValues.get(i).getGameStateParameter().getDescription());
-            gameStateValueDTO.setGameStateParameterType(convertToGameStateParameterTypeDTO(gameStateValues.get(i).getGameStateParameter().getGameStateParameterType()));
+
+            GameStateValue gameStateValue = gameStateValues.get(i);
+
+            GameStateValueDTO gameStateValueDTO = new GameStateValueDTO(
+                    gameStateValue.getGameStateParameter().getId(), gameStateValue.getValue());
+                    gameStateValueDTO.setLabel(gameStateValue.getGameStateParameter().getLabel()
+            );
+            gameStateValueDTO.setDescription(
+                    gameStateValue.getGameStateParameter().getDescription()
+            );
+            gameStateValueDTO.setGameStateParameterType(convertToGameStateParameterTypeDTO(
+                    gameStateValue.getGameStateParameter().getGameStateParameterType())
+            );
 
             listToReturn.add(gameStateValueDTO);
         }

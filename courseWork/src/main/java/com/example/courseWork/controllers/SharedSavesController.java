@@ -1,12 +1,11 @@
 package com.example.courseWork.controllers;
 
-import com.example.courseWork.DTO.sharedSaveDTO.GameStateSharesResponseDTO;
+import com.example.courseWork.DTO.entityDTO.EntitiesResponseDTO;
 import com.example.courseWork.DTO.sharedSaveDTO.ShareWithDTO;
 import com.example.courseWork.models.sharedSave.SharedSave;
 import com.example.courseWork.DTO.sharedSaveDTO.GameStateShareResponseDTO;
 import com.example.courseWork.services.gameStateSharesServices.GameStateSharesService;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,8 +38,8 @@ public class SharedSavesController{
     }
 
     @GetMapping("{id}")
-    private ResponseEntity<GameStateSharesResponseDTO> getSharedSaves(@PathVariable("id") int id){
-        GameStateSharesResponseDTO gameStateSharesResponseDTO = gameStateSharesService.getGameStateShares(id);
+    private ResponseEntity<EntitiesResponseDTO<GameStateShareResponseDTO>> getSharedSaves(@PathVariable("id") int id){
+        EntitiesResponseDTO<GameStateShareResponseDTO> gameStateSharesResponseDTO = gameStateSharesService.getGameStateShares(id);
         return ResponseEntity.ok(gameStateSharesResponseDTO);
     }
 

@@ -3,12 +3,9 @@ package com.example.courseWork.services.commonParameterServices;
 import com.example.courseWork.DTO.commonParameterDTO.CommonParameterDTO;
 import com.example.courseWork.DTO.commonParameterDTO.CommonParameterRequestDTO;
 import com.example.courseWork.DTO.commonParameterDTO.CommonParametersRequestDTO;
-import com.example.courseWork.DTO.commonParameterDTO.CommonParametersResponseDTO;
+import com.example.courseWork.DTO.entityDTO.EntitiesResponseDTO;
 import com.example.courseWork.DTO.gameDTO.GameStateParameterTypeDTO;
-import com.example.courseWork.DTO.gameDTO.GamesResponseDTO;
 import com.example.courseWork.models.commonParameters.CommonParameter;
-import com.example.courseWork.models.gameModel.Game;
-import com.example.courseWork.models.gameModel.GameStateParameter;
 import com.example.courseWork.models.gameModel.GameStateParameterType;
 import com.example.courseWork.repositories.commonParameterRepositories.CommonParametersRepository;
 import com.example.courseWork.services.gameServices.GameStateParameterTypesService;
@@ -61,7 +58,7 @@ public class CommonParametersService {
         return null;
     }
 
-    public CommonParametersResponseDTO findAll(CommonParametersRequestDTO commonParametersRequestDTO){
+    public EntitiesResponseDTO<CommonParameterDTO> findAll(CommonParametersRequestDTO commonParametersRequestDTO){
         Page<CommonParameter> page;
         if (commonParametersRequestDTO.getSearchQuery() != null && !commonParametersRequestDTO.getSearchQuery().isEmpty()) {
             page = commonParametersRepository.findByLabelContainingOrDescriptionContaining(commonParametersRequestDTO.getSearchQuery(),commonParametersRequestDTO.getSearchQuery(),
@@ -78,7 +75,7 @@ public class CommonParametersService {
                             Sort.by(Sort.Direction.DESC, "id")
                     ));
         }
-        CommonParametersResponseDTO commonParametersResponseDTO = new CommonParametersResponseDTO();
+        EntitiesResponseDTO<CommonParameterDTO> commonParametersResponseDTO = new EntitiesResponseDTO<>();
 
         commonParametersResponseDTO.setItems(page.getContent().stream().map(
                 this::constructCommonParameter
@@ -111,6 +108,7 @@ public class CommonParametersService {
         commonParameterDTO.setGameStateParameterTypeDTO(convertToGameStateParameterTypeDTO(commonParameter.getGameStateParameterType()));
         return commonParameterDTO;
     }
+
     private CommonParameterDTO constructCommonParameter(CommonParameter commonParameter){
         CommonParameterDTO commonParameterDTO = new CommonParameterDTO();
         commonParameterDTO.setLabel(commonParameter.getLabel());

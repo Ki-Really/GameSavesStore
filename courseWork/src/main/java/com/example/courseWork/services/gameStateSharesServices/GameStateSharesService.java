@@ -1,7 +1,7 @@
 package com.example.courseWork.services.gameStateSharesServices;
 
+import com.example.courseWork.DTO.entityDTO.EntitiesResponseDTO;
 import com.example.courseWork.DTO.sharedSaveDTO.GameStateShareResponseDTO;
-import com.example.courseWork.DTO.sharedSaveDTO.GameStateSharesResponseDTO;
 import com.example.courseWork.DTO.sharedSaveDTO.ShareWithDTO;
 import com.example.courseWork.models.authModel.Person;
 import com.example.courseWork.models.gameSaveModel.GameState;
@@ -11,14 +11,9 @@ import com.example.courseWork.services.authServices.PeopleService;
 import com.example.courseWork.services.gameStateServices.GameStatesService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Transactional
@@ -47,16 +42,17 @@ public class GameStateSharesService {
         gameStateSharesRepository.deleteById(id);
     }
 
-    public GameStateSharesResponseDTO getGameStateShares(int id){
+    public EntitiesResponseDTO<GameStateShareResponseDTO> getGameStateShares(int id){
         GameState gameState = gameStatesService.findById(id);
         if(gameState != null){
-            GameStateSharesResponseDTO gameStateSharesResponseDTO = new GameStateSharesResponseDTO();
+            EntitiesResponseDTO<GameStateShareResponseDTO> gameStateSharesResponseDTO = new EntitiesResponseDTO<>();
             List<SharedSave> sharedSaves = gameStateSharesRepository.findByGameState(gameState);
             List<GameStateShareResponseDTO> gameStateShares = new LinkedList<>();
             sharedSaves.forEach(
                     sharedSave -> gameStateShares.add(convertToGameStateShareResponseDTO(sharedSave))
             );
-            gameStateSharesResponseDTO.setGameStateShares(gameStateShares);
+            gameStateSharesResponseDTO.setItems(gameStateShares);
+            gameStateSharesResponseDTO.setTotalCount(gameStateShares.size());
             return  gameStateSharesResponseDTO;
         }
         return null;

@@ -1,8 +1,8 @@
 package com.example.courseWork.services.gameServices;
 
+import com.example.courseWork.DTO.entityDTO.EntitiesResponseDTO;
 import com.example.courseWork.DTO.gamePathDTO.GamePathDTO;
 import com.example.courseWork.DTO.gamePathDTO.GamePathsRequestDTO;
-import com.example.courseWork.DTO.gamePathDTO.GamePathsResponseDTO;
 import com.example.courseWork.models.gameModel.Path;
 import com.example.courseWork.repositories.gameRepositories.PathsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +34,7 @@ public class PathsService {
     public Page<Path> findAll(Pageable pageable){
         return pathsRepository.findAll(pageable);
     }*/
-    public GamePathsResponseDTO findPaths(GamePathsRequestDTO gamePathsRequestDTO){
+    public EntitiesResponseDTO<GamePathDTO> findPaths(GamePathsRequestDTO gamePathsRequestDTO){
         Page<Path> page;
         if(gamePathsRequestDTO.getSearchQuery()!=null && !gamePathsRequestDTO.getSearchQuery().isEmpty()){
             page = pathsRepository.findByPathContaining(gamePathsRequestDTO.getSearchQuery(), PageRequest.of(
@@ -49,8 +49,7 @@ public class PathsService {
                     Sort.by(Sort.Direction.DESC, "id")
             ));
         }
-        System.out.println(page.getContent());
-        GamePathsResponseDTO gamePathsResponseDTO = new GamePathsResponseDTO();
+        EntitiesResponseDTO<GamePathDTO> gamePathsResponseDTO = new EntitiesResponseDTO<>();
 
         gamePathsResponseDTO.setItems(constructGamePath(page.getContent()));
         gamePathsResponseDTO.setTotalCount(page.getTotalElements());
@@ -61,6 +60,7 @@ public class PathsService {
 
         List<GamePathDTO> gamePaths = new LinkedList<>();
         for(Path path : paths){
+
             GamePathDTO gamePathDTO = new GamePathDTO();
             gamePathDTO.setGameId(path.getGame().getId());
             gamePathDTO.setGameName(path.getGame().getName());

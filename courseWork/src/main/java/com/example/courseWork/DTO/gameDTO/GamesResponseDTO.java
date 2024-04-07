@@ -1,3 +1,4 @@
+/*
 package com.example.courseWork.DTO.gameDTO;
 
 import java.util.List;
@@ -24,3 +25,4 @@ public class GamesResponseDTO {
         this.totalCount = totalCount;
     }
 }
+*/

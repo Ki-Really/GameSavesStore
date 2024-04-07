@@ -1,5 +1,6 @@
 package com.example.courseWork.controllers;
 
+import com.example.courseWork.DTO.entityDTO.EntitiesResponseDTO;
 import com.example.courseWork.DTO.gameDTO.*;
 import com.example.courseWork.models.gameModel.Game;
 import com.example.courseWork.services.gameServices.GamesService;
@@ -60,14 +61,14 @@ public class GamesController {
 
 
     @GetMapping
-    private ResponseEntity<GamesResponseDTO> findGames(
+    private ResponseEntity<EntitiesResponseDTO<GameResponseDTO>> findGames(
         @RequestParam(value = "searchQuery") String searchQuery,
         @RequestParam(value = "pageSize") Integer pageSize,
         @RequestParam(value = "pageNumber") Integer pageNumber){
         GamesRequestDTO gamesRequestDTO = new GamesRequestDTO(
             searchQuery, pageSize, pageNumber
         );
-        GamesResponseDTO gamesResponseDTO = gamesService.findAll(gamesRequestDTO);
+        EntitiesResponseDTO<GameResponseDTO> gamesResponseDTO = gamesService.findAll(gamesRequestDTO);
 
         return ResponseEntity.ok(gamesResponseDTO);
     }

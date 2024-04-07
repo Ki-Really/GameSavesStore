@@ -1,10 +1,8 @@
 package com.example.courseWork.services.gameServices;
 
 import com.example.courseWork.DTO.commonParameterDTO.CommonParameterDTO;
+import com.example.courseWork.DTO.entityDTO.EntitiesResponseDTO;
 import com.example.courseWork.DTO.gameDTO.*;
-import com.example.courseWork.DTO.gamePathDTO.GamePathDTO;
-import com.example.courseWork.DTO.gamePathDTO.GamePathsRequestDTO;
-import com.example.courseWork.DTO.gamePathDTO.GamePathsResponseDTO;
 import com.example.courseWork.models.commonParameters.CommonParameter;
 import com.example.courseWork.models.gameModel.*;
 import com.example.courseWork.repositories.gameRepositories.GamesRepository;
@@ -55,7 +53,7 @@ public class GamesService {
         return game.orElse(null);
     }
 
-    public GamesResponseDTO findAll(GamesRequestDTO gamesRequestDTO){
+    public EntitiesResponseDTO<GameResponseDTO> findAll(GamesRequestDTO gamesRequestDTO){
 
         Page<Game> page;
         if (gamesRequestDTO.getSearchQuery() != null && !gamesRequestDTO.getSearchQuery().isEmpty()) {
@@ -70,7 +68,7 @@ public class GamesService {
                     Sort.by(Sort.Direction.DESC, "id")
             ));
         }
-        GamesResponseDTO gamesResponseDTO = new GamesResponseDTO();
+        EntitiesResponseDTO<GameResponseDTO> gamesResponseDTO = new EntitiesResponseDTO<>();
 
         gamesResponseDTO.setItems(page.getContent().stream().map(
             this::constructGame
@@ -195,14 +193,15 @@ public class GamesService {
         return listToReturn;
     }
 
-    private List<ExtractionPipeline> convertToExtractionPipeline(List<ExtractionPipelineDTO> pipelineDTO,Game game){
+    private List<ExtractionPipeline> convertToExtractionPipeline(List<ExtractionPipelineDTO> extractionPipelineDTOS,Game game){
         List<ExtractionPipeline> listToReturn = new LinkedList<>();
-        for(int i = 0; i<pipelineDTO.size(); i++){
-            ExtractionPipeline pipeline = new ExtractionPipeline(pipelineDTO.get(i).getType(),
-                    pipelineDTO.get(i).getInputFilename(),
-                    pipelineDTO.get(i).getOutputFilename());
-            if(pipelineDTO.get(i).getId() != 0){
-                pipeline.setId(pipelineDTO.get(i).getId());
+        for(int i = 0; i<extractionPipelineDTOS.size(); i++){
+            ExtractionPipelineDTO pipelineDTO = extractionPipelineDTOS.get(i);
+            ExtractionPipeline pipeline = new ExtractionPipeline(pipelineDTO.getType(),
+                    pipelineDTO.getInputFilename(),
+                    pipelineDTO.getOutputFilename());
+            if(pipelineDTO.getId() != 0){
+                pipeline.setId(pipelineDTO.getId());
             }
             pipeline.setGame(game);
             listToReturn.add(pipeline);
@@ -213,26 +212,28 @@ public class GamesService {
     private List<GameStateParameter> convertToGameStateParameter(List<GameStateParameterDTO> gameStateParameterDTOS, Scheme scheme){
         List<GameStateParameter> listToReturn = new LinkedList<>();
         for(int i = 0; i<gameStateParameterDTOS.size(); i++){
-            GameStateParameter gameStateParameter = new GameStateParameter(gameStateParameterDTOS.get(i).getKey(),
-                    gameStateParameterDTOS.get(i).getLabel(),gameStateParameterDTOS.get(i).getDescription());
-            if(gameStateParameterDTOS.get(i).getId() != 0){
-                gameStateParameter.setId(gameStateParameterDTOS.get(i).getId());
+            GameStateParameterDTO gameStateParameterDTO = gameStateParameterDTOS.get(i);
+            GameStateParameter gameStateParameter = new GameStateParameter(
+                    gameStateParameterDTO.getKey(),
+                    gameStateParameterDTO.getLabel(),
+                    gameStateParameterDTO.getDescription()
+            );
+
+            if(gameStateParameterDTO.getId() != 0){
+                gameStateParameter.setId(gameStateParameterDTO.getId());
             }
+
             gameStateParameter.setScheme(scheme);
 
-            GameStateParameterType gameStateParameterType = gameStateParameterTypesService.findByType(gameStateParameterDTOS.get(i).getType());
+            GameStateParameterType gameStateParameterType = gameStateParameterTypesService.findByType(gameStateParameterDTO.getType());
             gameStateParameter.setGameStateParameterType(gameStateParameterType);
 
-            if(gameStateParameterDTOS.get(i).getCommonParameterId()>0){
+            if(gameStateParameterDTO.getCommonParameterId()>0){
                 CommonParameter commonParameter = commonParametersService.findById(
-                        gameStateParameterDTOS.get(i).getCommonParameterId()
+                        gameStateParameterDTO.getCommonParameterId()
                 );
                 gameStateParameter.setCommonParameter(commonParameter);
             }
-/*
-            if (gameStateParameterDTOS.get(i).getCommonParameterDTO().getId() > 0) {
-
-            }*/
 
             List<GameStateParameter> gameStateParameters;
             if(gameStateParameterType.getGameStateParameters() != null){
@@ -251,11 +252,15 @@ public class GamesService {
     private List<GameStateParameterResponseDTO> convertToGameStateParameterResponseDTO(List<GameStateParameter> gameStateParameters){
         List<GameStateParameterResponseDTO> listToReturn = new LinkedList<>();
         for(int i = 0; i<gameStateParameters.size(); i++){
-            GameStateParameterResponseDTO gameStateParameterResponseDTO = new GameStateParameterResponseDTO(gameStateParameters.get(i).getKey(),gameStateParameters.get(i).getGameStateParameterType().getType(),
-                    gameStateParameters.get(i).getLabel(),gameStateParameters.get(i).getDescription());
-            gameStateParameterResponseDTO.setId(gameStateParameters.get(i).getId());
+            GameStateParameter gameStateParameter = gameStateParameters.get(i);
+            GameStateParameterResponseDTO gameStateParameterResponseDTO = new GameStateParameterResponseDTO(
+                    gameStateParameter.getKey(),
+                    gameStateParameter.getGameStateParameterType().getType(),
+                    gameStateParameter.getLabel(),gameStateParameter.getDescription()
+            );
+            gameStateParameterResponseDTO.setId(gameStateParameter.getId());
 
-            CommonParameter commonParameter = gameStateParameters.get(i).getCommonParameter();
+            CommonParameter commonParameter = gameStateParameter.getCommonParameter();
             if (commonParameter != null) {
                 gameStateParameterResponseDTO.setCommonParameterDTO(constructCommonParameterDTO(commonParameter));
             }
@@ -263,36 +268,40 @@ public class GamesService {
         }
         return listToReturn;
     }
-    private CommonParameterDTO convertToCommonParameterDTO(CommonParameter commonParameter){
+/*    private CommonParameterDTO convertToCommonParameterDTO(CommonParameter commonParameter){
         CommonParameterDTO commonParameterDTO = new CommonParameterDTO();
         commonParameterDTO.setId(commonParameter.getId());
         commonParameterDTO.setLabel(commonParameter.getLabel());
         commonParameterDTO.setDescription(commonParameter.getDescription());
         commonParameterDTO.setGameStateParameterTypeDTO(convertToGameStateParameterTypeDTO(commonParameter.getGameStateParameterType()));
         return commonParameterDTO;
-    }
+    }*/
 
-    private GameStateParameterTypeDTO convertToGameStateParameterTypeDTO(GameStateParameterType gameStateParameterType){
+/*    private GameStateParameterTypeDTO convertToGameStateParameterTypeDTO(GameStateParameterType gameStateParameterType){
         GameStateParameterTypeDTO gameStateParameterTypeDTO = new GameStateParameterTypeDTO();
         gameStateParameterTypeDTO.setId(gameStateParameterType.getId());
         gameStateParameterTypeDTO.setType(gameStateParameterType.getType());
         return gameStateParameterTypeDTO;
-    }
+    }*/
     private Scheme convertToScheme(SchemeDTO schemeDTO){
         Scheme scheme = new Scheme(schemeDTO.getFilename());
         return scheme;
     }
 
     private SchemeResponseDTO convertToSchemeResponseDTO(Scheme scheme){
-        SchemeResponseDTO schemeResponseDTO = new SchemeResponseDTO(scheme.getFilename(),convertToGameStateParameterResponseDTO(scheme.getGameStateParameters()));
+        SchemeResponseDTO schemeResponseDTO = new SchemeResponseDTO(
+                scheme.getFilename(),
+                convertToGameStateParameterResponseDTO(scheme.getGameStateParameters())
+        );
         return schemeResponseDTO;
     }
 
     private List<PathDTO> convertToPathDTO(List<Path> paths){
         List<PathDTO> listToReturn = new LinkedList<>();
         for(int i = 0; i<paths.size(); i++){
-            PathDTO pathDTO = new PathDTO(paths.get(i).getPath());
-            pathDTO.setId(paths.get(i).getId());
+            Path path = paths.get(i);
+            PathDTO pathDTO = new PathDTO(path.getPath());
+            pathDTO.setId(path.getId());
             listToReturn.add(pathDTO);
         }
         return listToReturn;
@@ -300,11 +309,12 @@ public class GamesService {
     private List<ExtractionPipelineDTO> convertToExtractionPipelineDTO(List<ExtractionPipeline> extractionPipelines){
         List<ExtractionPipelineDTO> listToReturn = new LinkedList<>();
         for(int i = 0; i<extractionPipelines.size(); i++){
+            ExtractionPipeline extractionPipeline = extractionPipelines.get(i);
             ExtractionPipelineDTO extractionPipelineDTO = new ExtractionPipelineDTO(
-                    extractionPipelines.get(i).getType(),
-                    extractionPipelines.get(i).getInputFilename(),
-                    extractionPipelines.get(i).getOutputFilename());
-            extractionPipelineDTO.setId(extractionPipelines.get(i).getId());
+                    extractionPipeline.getType(),
+                    extractionPipeline.getInputFilename(),
+                    extractionPipeline.getOutputFilename());
+            extractionPipelineDTO.setId(extractionPipeline.getId());
             listToReturn.add(extractionPipelineDTO);
         }
         return listToReturn;

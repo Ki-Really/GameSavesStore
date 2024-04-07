@@ -1,3 +1,4 @@
+/*
 package com.example.courseWork.DTO.gamePathDTO;
 
 import com.example.courseWork.DTO.gameSaveDTO.GameStateDTO;
@@ -32,3 +33,4 @@ public class GamePathsResponseDTO {
         this.totalCount = totalCount;
     }
 }
+*/

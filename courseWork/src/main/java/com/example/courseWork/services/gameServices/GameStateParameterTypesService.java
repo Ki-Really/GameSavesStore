@@ -1,8 +1,8 @@
 package com.example.courseWork.services.gameServices;
 
+import com.example.courseWork.DTO.entityDTO.EntitiesResponseDTO;
 import com.example.courseWork.DTO.gameDTO.GameStateParameterTypeDTO;
 import com.example.courseWork.DTO.gameStateParameterTypeDTO.GameStateParameterTypesRequestDTO;
-import com.example.courseWork.DTO.gameStateParameterTypeDTO.GameStateParameterTypesResponseDTO;
 import com.example.courseWork.models.gameModel.GameStateParameterType;
 import com.example.courseWork.repositories.gameRepositories.GameStateParameterTypesRepository;
 import jakarta.transaction.Transactional;
@@ -32,7 +32,7 @@ public class GameStateParameterTypesService {
         Optional<GameStateParameterType> optionalGameStateParameterType = gameStateParameterTypesRepository.findById(id);
         return optionalGameStateParameterType.orElse(null);
     }
-    public GameStateParameterTypesResponseDTO findAll(GameStateParameterTypesRequestDTO gameStateParameterTypesRequestDTO){
+    public EntitiesResponseDTO<GameStateParameterTypeDTO> findAll(GameStateParameterTypesRequestDTO gameStateParameterTypesRequestDTO){
         Page<GameStateParameterType> page;
         if(gameStateParameterTypesRequestDTO.getSearchQuery()!= null && !gameStateParameterTypesRequestDTO.getSearchQuery().isEmpty()){
             page = gameStateParameterTypesRepository.findByTypeContaining(gameStateParameterTypesRequestDTO.getSearchQuery(), PageRequest.of(
@@ -47,7 +47,7 @@ public class GameStateParameterTypesService {
                     Sort.by(Sort.Direction.DESC, "id")
             ));
         }
-        GameStateParameterTypesResponseDTO gameStateParameterTypesResponseDTO = new GameStateParameterTypesResponseDTO();
+        EntitiesResponseDTO<GameStateParameterTypeDTO> gameStateParameterTypesResponseDTO = new EntitiesResponseDTO();
 
         gameStateParameterTypesResponseDTO.setItems(page.getContent().stream().map(
                 this::constructGameStateParameterType

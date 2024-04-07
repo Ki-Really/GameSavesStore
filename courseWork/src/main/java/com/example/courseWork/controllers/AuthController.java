@@ -4,9 +4,11 @@ import com.example.courseWork.DTO.authDTO.*;
 import com.example.courseWork.models.authModel.MailStructure;
 import com.example.courseWork.models.authModel.PasswordRecoveryTokenEntity;
 import com.example.courseWork.models.authModel.Person;
+import com.example.courseWork.security.PersonDetails;
 import com.example.courseWork.services.authServices.MailService;
 import com.example.courseWork.services.authServices.PasswordRecoveryTokenService;
 import com.example.courseWork.services.authServices.PeopleService;
+import com.example.courseWork.services.authServices.PersonDetailsService;
 import com.example.courseWork.util.PersonErrorResponse;
 import com.example.courseWork.util.PersonNotCreatedException;
 import com.example.courseWork.util.PersonNotFoundException;
@@ -16,6 +18,14 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +33,7 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/auth")
@@ -31,12 +42,18 @@ public class AuthController {
     private final PeopleService peopleService;
     private final MailService mailService;
     private final PasswordRecoveryTokenService passwordRecoveryTokenService;
+    private final RememberMeServices rememberMeServices;
+    private final AuthenticationManager authenticationManager;
+    private final PersonDetailsService personDetailsService;
 
     @Autowired
-    public AuthController(PeopleService peopleService, MailService mailService, PasswordRecoveryTokenService passwordRecoveryTokenService) {
+    public AuthController(PeopleService peopleService, MailService mailService, PasswordRecoveryTokenService passwordRecoveryTokenService, RememberMeServices rememberMeServices, AuthenticationManager authenticationManager, PersonDetailsService personDetailsService) {
         this.peopleService = peopleService;
         this.mailService = mailService;
         this.passwordRecoveryTokenService = passwordRecoveryTokenService;
+        this.rememberMeServices = rememberMeServices;
+        this.authenticationManager = authenticationManager;
+        this.personDetailsService = personDetailsService;
     }
 
     @PostMapping("/registration")
@@ -58,6 +75,28 @@ public class AuthController {
         return ResponseEntity.ok(HttpStatus.OK);
 
     }
+
+    /*@PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody @Valid PersonLoginDTO personLoginDTO) {
+        try {
+            // Попытка аутентификации пользователя
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(personLoginDTO.getUsername(), personLoginDTO.getPassword())
+            );
+
+            // Установка аутентификации в контекст безопасности
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            UserDetails userDetails = personDetailsService.loadUserByUsername(personLoginDTO.getUsername());
+
+            return ResponseEntity.ok("Login successful!");
+        } catch (UsernameNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
+        } catch (AuthenticationException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authentication failed");
+        }
+    }*/
+
 
     @PostMapping("/login")
     private ResponseEntity<SendPersonFromLoginDTO> login(@RequestBody @Valid PersonLoginDTO personLoginDTO,
@@ -81,6 +120,7 @@ public class AuthController {
                 person.getEmail(),person.getRole().getName());
         return ResponseEntity.ok(sendPersonFromLoginDTO);
     }
+
 
     @GetMapping("/me")
     @ResponseBody

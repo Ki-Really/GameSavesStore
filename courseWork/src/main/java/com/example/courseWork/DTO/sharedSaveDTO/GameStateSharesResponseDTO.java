@@ -1,3 +1,4 @@
+/*
 package com.example.courseWork.DTO.sharedSaveDTO;
 
 import java.util.List;
@@ -20,3 +21,4 @@ public class GameStateSharesResponseDTO {
         this.items = gameStateShares;
     }
 }
+*/
