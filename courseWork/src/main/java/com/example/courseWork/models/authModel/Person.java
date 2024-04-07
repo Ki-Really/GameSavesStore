@@ -7,11 +7,12 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 
+import java.io.Serializable;
 import java.util.List;
 
 @Entity
 @Table(name = "Person")
-public class Person {
+public class Person implements Serializable {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)

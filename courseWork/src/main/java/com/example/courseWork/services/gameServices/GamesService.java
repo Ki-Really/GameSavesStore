@@ -262,7 +262,7 @@ public class GamesService {
 
             CommonParameter commonParameter = gameStateParameter.getCommonParameter();
             if (commonParameter != null) {
-                gameStateParameterResponseDTO.setCommonParameterDTO(constructCommonParameterDTO(commonParameter));
+                gameStateParameterResponseDTO.setCommonParameter(constructCommonParameterDTO(commonParameter));
             }
             listToReturn.add(gameStateParameterResponseDTO);
         }
@@ -328,7 +328,7 @@ public class GamesService {
         GameStateParameterTypeDTO gameStateParameterTypeDTO = new GameStateParameterTypeDTO();
         gameStateParameterTypeDTO.setId(commonParameter.getGameStateParameterType().getId());
         gameStateParameterTypeDTO.setType(commonParameter.getGameStateParameterType().getType());
-        commonParameterDTO.setGameStateParameterTypeDTO(gameStateParameterTypeDTO);
+        commonParameterDTO.setType(gameStateParameterTypeDTO);
         return commonParameterDTO;
     }
 }

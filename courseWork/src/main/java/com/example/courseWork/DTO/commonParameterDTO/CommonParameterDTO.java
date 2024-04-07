@@ -26,11 +26,7 @@ public class CommonParameterDTO {
         this.id = id;
     }
 
-    public GameStateParameterTypeDTO getGameStateParameterTypeDTO() {
-        return type;
-    }
-
-    public void setGameStateParameterTypeDTO(GameStateParameterTypeDTO gameStateParameterTypeDTO) {
+    public void setType(GameStateParameterTypeDTO gameStateParameterTypeDTO) {
         this.type = gameStateParameterTypeDTO;
     }
 
@@ -48,5 +44,9 @@ public class CommonParameterDTO {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public GameStateParameterTypeDTO getType() {
+        return type;
     }
 }

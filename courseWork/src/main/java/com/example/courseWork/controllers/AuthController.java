@@ -14,6 +14,7 @@ import com.example.courseWork.util.PersonNotCreatedException;
 import com.example.courseWork.util.PersonNotFoundException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -42,18 +43,12 @@ public class AuthController {
     private final PeopleService peopleService;
     private final MailService mailService;
     private final PasswordRecoveryTokenService passwordRecoveryTokenService;
-    private final RememberMeServices rememberMeServices;
-    private final AuthenticationManager authenticationManager;
-    private final PersonDetailsService personDetailsService;
 
     @Autowired
-    public AuthController(PeopleService peopleService, MailService mailService, PasswordRecoveryTokenService passwordRecoveryTokenService, RememberMeServices rememberMeServices, AuthenticationManager authenticationManager, PersonDetailsService personDetailsService) {
+    public AuthController(PeopleService peopleService, MailService mailService, PasswordRecoveryTokenService passwordRecoveryTokenService) {
         this.peopleService = peopleService;
         this.mailService = mailService;
         this.passwordRecoveryTokenService = passwordRecoveryTokenService;
-        this.rememberMeServices = rememberMeServices;
-        this.authenticationManager = authenticationManager;
-        this.personDetailsService = personDetailsService;
     }
 
     @PostMapping("/registration")
@@ -99,10 +94,12 @@ public class AuthController {
 
 
     @PostMapping("/login")
-    private ResponseEntity<SendPersonFromLoginDTO> login(@RequestBody @Valid PersonLoginDTO personLoginDTO,
-                                                         BindingResult bindingResult, HttpServletRequest request) throws ServletException {
+    private ResponseEntity<SendPersonFromLoginDTO> login(
+        @RequestBody @Valid PersonLoginDTO personLoginDTO,
+        BindingResult bindingResult,
+        HttpServletRequest request
+    ) throws ServletException {
         if(bindingResult.hasErrors()){
-
             StringBuilder errorMsg = new StringBuilder();
             List<FieldError> errors = bindingResult.getFieldErrors();
             for(FieldError error : errors){
@@ -120,7 +117,6 @@ public class AuthController {
                 person.getEmail(),person.getRole().getName());
         return ResponseEntity.ok(sendPersonFromLoginDTO);
     }
-
 
     @GetMapping("/me")
     @ResponseBody

@@ -9,7 +9,7 @@ public class GameStateParameterResponseDTO {
 
     private String type;
 
-    private CommonParameterDTO commonParameterDTO;
+    private CommonParameterDTO commonParameter;
 
     private String label;
 
@@ -49,12 +49,12 @@ public class GameStateParameterResponseDTO {
         this.type = type;
     }
 
-    public CommonParameterDTO getCommonParameterDTO() {
-        return commonParameterDTO;
+    public CommonParameterDTO getCommonParameter() {
+        return commonParameter;
     }
 
-    public void setCommonParameterDTO(CommonParameterDTO commonParameterDTO) {
-        this.commonParameterDTO = commonParameterDTO;
+    public void setCommonParameter(CommonParameterDTO commonParameterDTO) {
+        this.commonParameter = commonParameterDTO;
     }
 
     public String getLabel() {

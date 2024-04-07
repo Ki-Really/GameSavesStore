@@ -105,7 +105,7 @@ public class CommonParametersService {
         commonParameterDTO.setLabel(commonParameter.getLabel());
         commonParameterDTO.setDescription(commonParameter.getDescription());
         commonParameterDTO.setId(commonParameter.getId());
-        commonParameterDTO.setGameStateParameterTypeDTO(convertToGameStateParameterTypeDTO(commonParameter.getGameStateParameterType()));
+        commonParameterDTO.setType(convertToGameStateParameterTypeDTO(commonParameter.getGameStateParameterType()));
         return commonParameterDTO;
     }
 
@@ -118,7 +118,7 @@ public class CommonParametersService {
         GameStateParameterTypeDTO gameStateParameterTypeDTO = new GameStateParameterTypeDTO();
         gameStateParameterTypeDTO.setId(commonParameter.getGameStateParameterType().getId());
         gameStateParameterTypeDTO.setType(commonParameter.getGameStateParameterType().getType());
-        commonParameterDTO.setGameStateParameterTypeDTO(gameStateParameterTypeDTO);
+        commonParameterDTO.setType(gameStateParameterTypeDTO);
         return commonParameterDTO;
     }
 
