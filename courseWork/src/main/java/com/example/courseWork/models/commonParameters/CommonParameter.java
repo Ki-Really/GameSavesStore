@@ -2,6 +2,7 @@ package com.example.courseWork.models.commonParameters;
 
 import com.example.courseWork.models.gameModel.GameStateParameter;
 import com.example.courseWork.models.gameModel.GameStateParameterType;
+import com.example.courseWork.models.graphicCommonModel.GraphicCommon;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -24,6 +25,8 @@ public class CommonParameter {
 
     @OneToMany(mappedBy = "commonParameter")
     private List<GameStateParameter> gameStateParameters;
+    @OneToMany(mappedBy = "commonParameter",cascade = {CascadeType.REMOVE})
+    private List<GraphicCommon> graphicCommons;
 
     public CommonParameter(String label, String description, GameStateParameterType gameStateParameterType, List<GameStateParameter> gameStateParameters) {
         this.label = label;
@@ -73,5 +76,13 @@ public class CommonParameter {
 
     public void setGameStateParameters(List<GameStateParameter> gameStateParameters) {
         this.gameStateParameters = gameStateParameters;
+    }
+
+    public List<GraphicCommon> getGraphicCommons() {
+        return graphicCommons;
+    }
+
+    public void setGraphicCommons(List<GraphicCommon> graphicCommons) {
+        this.graphicCommons = graphicCommons;
     }
 }

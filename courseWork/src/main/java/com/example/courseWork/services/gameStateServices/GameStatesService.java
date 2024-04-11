@@ -12,6 +12,7 @@ import com.example.courseWork.repositories.gameSavesRepositories.GameStatesRepos
 import com.example.courseWork.services.authServices.PeopleService;
 import com.example.courseWork.services.gameServices.GamesService;
 import com.example.courseWork.services.gameServices.ImagesService;
+import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
@@ -32,13 +33,15 @@ public class GameStatesService {
     private final ArchivesService archivesService;
     private final PeopleService peopleService;
     private final ImagesService imagesService;
+    private final EntityManager entityManager;
     @Autowired
-    public GameStatesService(GameStatesRepository gameStatesRepository, GamesService gamesService, ArchivesService archivesService, PeopleService peopleService, ImagesService imagesService) {
+    public GameStatesService(GameStatesRepository gameStatesRepository, GamesService gamesService, ArchivesService archivesService, PeopleService peopleService, ImagesService imagesService, EntityManager entityManager) {
         this.gameStatesRepository = gameStatesRepository;
         this.gamesService = gamesService;
         this.archivesService = archivesService;
         this.peopleService = peopleService;
         this.imagesService = imagesService;
+        this.entityManager = entityManager;
     }
     public GameState findByName(String name){
         return gameStatesRepository.findByName(name).orElse(null);
@@ -77,6 +80,108 @@ public class GameStatesService {
     }
     public EntitiesResponseDTO<GameStateDTO> findAllPublic(GameStatesRequestDTO gameStatesRequestDTO){
         Page<GameState> page;
+
+        if(gameStatesRequestDTO.getSearchQuery()!=null && !gameStatesRequestDTO.getSearchQuery().isEmpty()) {
+            if(gameStatesRequestDTO.getSearchGameId()>0 && gameStatesRequestDTO.getSearchGameName()!=null){
+                page = gameStatesRepository.findByNameContainingAndGameIdAndGameNameContaining(gameStatesRequestDTO.getSearchQuery(),
+                        gameStatesRequestDTO.getSearchGameId(),gameStatesRequestDTO.getSearchGameName(),
+                        PageRequest.of(
+                        gameStatesRequestDTO.getPageNumber() - 1,
+                        gameStatesRequestDTO.getPageSize(),
+                        Sort.by(Sort.Direction.DESC, "id")
+                ));
+            }else if(gameStatesRequestDTO.getSearchGameId()>0 && gameStatesRequestDTO.getSearchGameName()==null){
+                page = gameStatesRepository.findByNameContainingAndGameId(gameStatesRequestDTO.getSearchQuery(),
+                        gameStatesRequestDTO.getSearchGameId(),
+                        PageRequest.of(
+                                gameStatesRequestDTO.getPageNumber() - 1,
+                                gameStatesRequestDTO.getPageSize(),
+                                Sort.by(Sort.Direction.DESC, "id")
+                        ));
+            }else if(gameStatesRequestDTO.getSearchGameId()<=0 && gameStatesRequestDTO.getSearchGameName()!=null){
+                page = gameStatesRepository.findByNameContainingAndGameNameContaining(gameStatesRequestDTO.getSearchQuery(),
+                        gameStatesRequestDTO.getSearchGameName(),
+                        PageRequest.of(
+                                gameStatesRequestDTO.getPageNumber() - 1,
+                                gameStatesRequestDTO.getPageSize(),
+                                Sort.by(Sort.Direction.DESC, "id")
+                        ));
+            }
+            else {
+                page = gameStatesRepository.findByNameContaining(gameStatesRequestDTO.getSearchQuery(), PageRequest.of(
+                        gameStatesRequestDTO.getPageNumber() - 1,
+                        gameStatesRequestDTO.getPageSize(),
+                        Sort.by(Sort.Direction.DESC, "id")
+                ));
+            }
+        }
+        else if(gameStatesRequestDTO.getSearchGameId() > 0 && gameStatesRequestDTO.getSearchGameName()!=null){
+            page = gameStatesRepository.findByGameIdAndGameNameContaining(
+                    gameStatesRequestDTO.getSearchGameId(),
+                    gameStatesRequestDTO.getSearchGameName(),
+                    PageRequest.of(
+                    gameStatesRequestDTO.getPageNumber() - 1,
+                    gameStatesRequestDTO.getPageSize(),
+                    Sort.by(Sort.Direction.DESC, "id")
+            ));
+        }
+        else if(gameStatesRequestDTO.getSearchGameId() > 0 && gameStatesRequestDTO.getSearchGameName()==null){
+            page = gameStatesRepository.findByGameId(gameStatesRequestDTO.getSearchGameId(), PageRequest.of(
+                    gameStatesRequestDTO.getPageNumber() - 1,
+                    gameStatesRequestDTO.getPageSize(),
+                    Sort.by(Sort.Direction.DESC, "id")
+            ));
+        }
+        else if(gameStatesRequestDTO.getSearchGameId() <= 0 && gameStatesRequestDTO.getSearchGameName()!=null){
+            page = gameStatesRepository.findByGameNameContaining(gameStatesRequestDTO.getSearchGameName(), PageRequest.of(
+                    gameStatesRequestDTO.getPageNumber() - 1,
+                    gameStatesRequestDTO.getPageSize(),
+                    Sort.by(Sort.Direction.DESC, "id")
+            ));
+        }
+        else {
+            page = gameStatesRepository.findAll(PageRequest.of(
+                    gameStatesRequestDTO.getPageNumber() - 1,
+                    gameStatesRequestDTO.getPageSize(),
+                    Sort.by(Sort.Direction.DESC, "id")
+            ));
+        }
+
+        List<GameState> searched = page.getContent().stream().filter(GameState::getIsPublic).toList();
+
+        /*List<GameState> filtered = filterGameStates(searched,gameStatesRequestDTO);*/
+
+        EntitiesResponseDTO<GameStateDTO> gameStatesDTO = new EntitiesResponseDTO<>();
+        gameStatesDTO.setItems(searched.stream().map(
+                this::constructGameStateDTO
+        ).toList());
+        gameStatesDTO.setTotalCount(page.getTotalElements());
+
+
+
+        return gameStatesDTO;
+    }
+
+  /*  private List<GameState> filterGameStates(List<GameState> searchedGameStatesDTO,GameStatesRequestDTO gameStatesRequestDTO){
+        List<GameState> filteredGameStates;
+        if(gameStatesRequestDTO.getSearchGameStateId()>0 && !gameStatesRequestDTO.getSearchQuery().isEmpty()) {
+            filteredGameStates = gameStatesRepository.findByIdContainingAndNameContaining(gameStatesRequestDTO.getSearchQuery(), PageRequest.of(
+                    gameStatesRequestDTO.getPageNumber() - 1,
+                    gameStatesRequestDTO.getPageSize(),
+                    Sort.by(Sort.Direction.DESC, "id")
+            ));
+        }else{
+            page = gameStatesRepository.findAll(PageRequest.of(
+                    gameStatesRequestDTO.getPageNumber() - 1,
+                    gameStatesRequestDTO.getPageSize(),
+                    Sort.by(Sort.Direction.DESC, "id")
+            ));
+        }
+        return
+    }*/
+
+    /*public EntitiesResponseDTO<GameStateDTO> findAllPublicWithFilters(GameStatesRequestDTO gameStatesRequestDTO){
+        Page<GameState> page;
         if(gameStatesRequestDTO.getSearchQuery()!=null && !gameStatesRequestDTO.getSearchQuery().isEmpty()) {
             page = gameStatesRepository.findByNameContaining(gameStatesRequestDTO.getSearchQuery(), PageRequest.of(
                     gameStatesRequestDTO.getPageNumber() - 1,
@@ -99,7 +204,7 @@ public class GameStatesService {
         gameStatesDTO.setTotalCount(page.getTotalElements());
 
         return gameStatesDTO;
-    }
+    }*/
 
     /*public GameStatesDTO findReceivedGameStates(GameStatesRequestDTO gameStatesRequestDTO,Principal principal){
         GameStatesDTO gameStatesDTO = new GameStatesDTO();

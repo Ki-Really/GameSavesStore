@@ -131,15 +131,11 @@ public class PeopleService {
         personDTO.setIsBlocked(person.getIsBlocked());
         return personDTO;
     }
-    public Person findOne(int id)
-    {
-        Optional<Person> person = peopleRepository.findById(id);
-        return person.orElseThrow(PersonNotFoundException::new);
-    }
+
 
     public Person findOne(String username) {
         Optional<Person> person = peopleRepository.findByUsername(username);
-        return person.orElseThrow(PersonNotFoundException::new);
+        return person.orElseThrow(() -> new PersonNotFoundException("Person not found with username: " + username));
     }
 
 

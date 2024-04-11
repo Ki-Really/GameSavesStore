@@ -39,6 +39,7 @@ public class CommonParametersService {
         Optional<CommonParameter> optionalCommonParameter = commonParametersRepository.findById(id);
         if(optionalCommonParameter.isPresent()){
             CommonParameter commonParameter = optionalCommonParameter.get();
+            commonParameter.getGameStateParameters().forEach(gameStateParameter -> gameStateParameter.setCommonParameter(null));
             commonParametersRepository.delete(commonParameter);
         }
     }

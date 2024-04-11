@@ -73,10 +73,10 @@ public class GameStatesController {
     private ResponseEntity<EntitiesResponseDTO> findGameStates(
             @RequestParam(value = "searchQuery") String searchQuery,
             @RequestParam(value = "pageSize") Integer pageSize,
-            @RequestParam(value = "pageNumber") Integer pageNumber,Principal principal){
+            @RequestParam(value = "pageNumber") Integer pageNumber,
+            Principal principal){
         GameStatesRequestDTO gameStatesRequestDTO = new GameStatesRequestDTO(
-                searchQuery, pageSize, pageNumber
-        );
+                searchQuery, pageSize, pageNumber);
         EntitiesResponseDTO<GameStateDTO> gameStatesDTO = gameStatesService.findAll(gameStatesRequestDTO,principal);
 
         return ResponseEntity.ok(gameStatesDTO);
@@ -84,12 +84,14 @@ public class GameStatesController {
 
     @GetMapping("/public")
     private ResponseEntity<EntitiesResponseDTO<GameStateDTO>> findPublicGameStates(
-            @RequestParam(value = "searchQuery") String searchQuery,
+            @RequestParam(value = "searchQuery",required = false) String searchQuery,
             @RequestParam(value = "pageSize") Integer pageSize,
-            @RequestParam(value = "pageNumber") Integer pageNumber){
+            @RequestParam(value = "pageNumber") Integer pageNumber,
+            @RequestParam(value = "searchGameId",required = false) Integer searchGameId,
+            @RequestParam(value = "searchGameName",required = false) String searchGameName){
         GameStatesRequestDTO gameStatesRequestDTO = new GameStatesRequestDTO(
-                searchQuery, pageSize, pageNumber
-        );
+                searchQuery, pageSize, pageNumber,
+                searchGameId, searchGameName);
         EntitiesResponseDTO<GameStateDTO> gameStatesDTO = gameStatesService.findAllPublic(gameStatesRequestDTO);
 
         return ResponseEntity.ok(gameStatesDTO);
@@ -102,8 +104,7 @@ public class GameStatesController {
             @RequestParam(value = "pageSize") Integer pageSize,
             @RequestParam(value = "pageNumber") Integer pageNumber,Principal principal){
         GameStatesRequestDTO gameStatesRequestDTO = new GameStatesRequestDTO(
-                searchQuery, pageSize, pageNumber
-        );
+                searchQuery, pageSize, pageNumber);
         EntitiesResponseDTO<GameStateDTO> gameStatesDTO = gameStatesService.findReceivedGameStates(gameStatesRequestDTO,principal);
 
         return ResponseEntity.ok(gameStatesDTO);

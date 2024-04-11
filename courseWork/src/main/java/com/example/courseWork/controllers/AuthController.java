@@ -4,29 +4,17 @@ import com.example.courseWork.DTO.authDTO.*;
 import com.example.courseWork.models.authModel.MailStructure;
 import com.example.courseWork.models.authModel.PasswordRecoveryTokenEntity;
 import com.example.courseWork.models.authModel.Person;
-import com.example.courseWork.security.PersonDetails;
 import com.example.courseWork.services.authServices.MailService;
 import com.example.courseWork.services.authServices.PasswordRecoveryTokenService;
 import com.example.courseWork.services.authServices.PeopleService;
-import com.example.courseWork.services.authServices.PersonDetailsService;
-import com.example.courseWork.util.PersonErrorResponse;
-import com.example.courseWork.util.PersonNotCreatedException;
-import com.example.courseWork.util.PersonNotFoundException;
+import com.example.courseWork.util.*;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -34,7 +22,6 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/auth")
@@ -55,7 +42,6 @@ public class AuthController {
     private ResponseEntity<HttpStatus> create(@RequestBody @Valid Person person,
                                               BindingResult bindingResult){
         if(bindingResult.hasErrors()){
-
             StringBuilder errorMsg = new StringBuilder();
             List<FieldError> errors = bindingResult.getFieldErrors();
             for(FieldError error : errors){
@@ -91,14 +77,17 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authentication failed");
         }
     }*/
-
+  /*  @ExceptionHandler(LoginFailedException.class)
+    public ResponseEntity<String> handleLoginFailedException(LoginFailedException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
+    }*/
 
     @PostMapping("/login")
     private ResponseEntity<SendPersonFromLoginDTO> login(
         @RequestBody @Valid PersonLoginDTO personLoginDTO,
         BindingResult bindingResult,
         HttpServletRequest request
-    ) throws ServletException {
+    ) {
         if(bindingResult.hasErrors()){
             StringBuilder errorMsg = new StringBuilder();
             List<FieldError> errors = bindingResult.getFieldErrors();
@@ -110,9 +99,16 @@ public class AuthController {
             }
             throw new PersonNotCreatedException(errorMsg.toString());
         }
-
-        request.login(personLoginDTO.getUsername(), personLoginDTO.getPassword());
         Person person = peopleService.findOne(personLoginDTO.getUsername());
+        if(person == null){
+            throw new PersonNotFoundException("Пользователь не был найден.");
+        }
+        try{
+            request.login(personLoginDTO.getUsername(), personLoginDTO.getPassword());
+        }catch(ServletException e){
+            throw new LoginFailedException("Login failed. Invalid username or password.");
+        }
+
         SendPersonFromLoginDTO sendPersonFromLoginDTO = new SendPersonFromLoginDTO(person.getUsername(),
                 person.getEmail(),person.getRole().getName());
         return ResponseEntity.ok(sendPersonFromLoginDTO);
@@ -178,7 +174,7 @@ public class AuthController {
         }
     }
 
-    @ExceptionHandler
+   /* @ExceptionHandler
     private ResponseEntity<PersonErrorResponse> handleException(PersonNotFoundException e){
         PersonErrorResponse response = new PersonErrorResponse("Person with this id was not found!",
                 System.currentTimeMillis());
@@ -190,7 +186,7 @@ public class AuthController {
         PersonErrorResponse response = new PersonErrorResponse(e.getMessage(),
                 System.currentTimeMillis());
         return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
-    }
+    }*/
 
 
 

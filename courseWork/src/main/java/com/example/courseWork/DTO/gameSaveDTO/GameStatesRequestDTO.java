@@ -6,8 +6,18 @@ public class GameStatesRequestDTO {
     private int pageSize;
 
     private int pageNumber;
+    private int searchGameId;
+    private String searchGameName;
 
     public GameStatesRequestDTO() {}
+
+    public GameStatesRequestDTO(String searchQuery, int pageSize, int pageNumber, int searchGameId, String searchGameName) {
+        this.searchQuery = searchQuery;
+        this.pageSize = pageSize;
+        this.pageNumber = pageNumber;
+        this.searchGameId = searchGameId;
+        this.searchGameName = searchGameName;
+    }
 
     public GameStatesRequestDTO(String searchQuery, int pageSize, int pageNumber) {
         this.searchQuery = searchQuery;
@@ -36,5 +46,21 @@ public class GameStatesRequestDTO {
 
     public void setPageNumber(int pageNumber) {
         this.pageNumber = pageNumber;
+    }
+
+    public int getSearchGameId() {
+        return searchGameId;
+    }
+
+    public void setSearchGameId(int searchGameId) {
+        this.searchGameId = searchGameId;
+    }
+
+    public String getSearchGameName() {
+        return searchGameName;
+    }
+
+    public void setSearchGameName(String searchGameName) {
+        this.searchGameName = searchGameName;
     }
 }
