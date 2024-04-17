@@ -11,16 +11,16 @@ public class TimeConverter {
     public String convert(String type,String value) {
             switch (type) {
                 case "time_minutes" -> {
-                    return String.valueOf(Integer.parseInt(value) * 60);
+                    return String.valueOf(Double.parseDouble(value) * 60);
                 }
                 case "time_hours" -> {
-                    return String.valueOf(Integer.parseInt(value) * 3600);
+                    return String.valueOf(Double.parseDouble(value) * 3600);
                 }
                 case "time_ms" -> {
-                    return  String.valueOf((Long.parseLong(value) / 1000));
+                    return  String.valueOf((Double.parseDouble(value) / 1000));
                 }
                 case "time_seconds" -> {
-                    return  String.valueOf(Long.parseLong(value));
+                    return  String.valueOf(Double.parseDouble(value));
                 }
                 case "time_date_format" -> {
                     SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");

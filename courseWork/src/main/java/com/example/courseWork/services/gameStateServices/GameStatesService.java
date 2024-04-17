@@ -352,8 +352,8 @@ public class GameStatesService {
         List<GameStateValue> listToReturn = new LinkedList<>();
         String convertedValueInSeconds;
         String convertedValueGender;
-        GameStateValue gameStateValue = new GameStateValue();
         for(int i = 0; i<gameStateValueDTOS.size();i++){
+            GameStateValue gameStateValue = new GameStateValue();
             GameStateValueDTO gameStateValueDTO = gameStateValueDTOS.get(i);
             Optional<GameStateParameter> optionalGameStateParameter = gameStateParametersService.findById(gameStateValueDTO.getGameStateParameterId());
 
@@ -367,7 +367,7 @@ public class GameStatesService {
                     gameStateValue.setValue(convertedValueGender);
                 }
                     else{
-                    gameStateValue.setValue(gameStateValue.getValue());
+                    gameStateValue.setValue(gameStateValueDTO.getValue());
                 }
             }
             //найти по id gameStateParameter

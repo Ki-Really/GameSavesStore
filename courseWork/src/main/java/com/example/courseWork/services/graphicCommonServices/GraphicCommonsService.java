@@ -87,7 +87,12 @@ public class GraphicCommonsService {
         return graphicCommonsResponseDTO;
     }
 
+    public GraphicCommonDTO findById(int id) {
+        Optional<GraphicCommon> optionalGraphicCommon = graphicCommonsRepository.findById(id);
+        GraphicCommon graphicCommon = optionalGraphicCommon.orElseThrow();
 
+        return constructGraphicCommonDTO(graphicCommon);
+    }
 
     private GraphicCommon convertToGraphicCommon(GraphicCommonRequestDTO graphicCommonRequestDTO) {
         GraphicCommon graphicCommon = new GraphicCommon();
@@ -146,18 +151,18 @@ public class GraphicCommonsService {
                     extractedValues.add(String.valueOf(gameStateParameter.getGameStateValues().get(j).getValue()));
                 }
             }
-            List<Integer> data = extractedValues.stream().map(Integer::parseInt).toList();
+            List<Double> data = extractedValues.stream().map(Double::parseDouble).toList();
 
-            int minValue = data.stream().min(Integer::compareTo).orElse(Integer.MIN_VALUE);
-            int maxValue = data.stream().max(Integer::compareTo).orElse(Integer.MAX_VALUE);
+            double minValue = data.stream().min(Double::compareTo).orElse(Double.MIN_VALUE);
+            double maxValue = data.stream().max(Double::compareTo).orElse(Double.MAX_VALUE);
 
-            int partSize = (maxValue - minValue + 1)/10;
+            double partSize = (maxValue - minValue + 1)/10;
 
             List<CommonHistogramDataDTO> commonHistogramDataDTOList = new LinkedList<>();
 
-            for(int i = minValue; i<=maxValue;i+=partSize){
+            for(double i = minValue; i<=maxValue;i+=partSize){
                 int counter = 0;
-                for(int value : data){
+                for(double value : data){
                     if(value>=i && value < i+partSize){
                         counter++;
                     }
@@ -165,9 +170,10 @@ public class GraphicCommonsService {
                 commonHistogramDataDTOList.add(new CommonHistogramDataDTO(i,i + partSize - 1,counter));
             }
 
+            graphicCommonResponseDataDTO.setId(graphicCommon.getId());
             graphicCommonResponseDataDTO.setVisualType(graphicCommon.getVisualType());
-            graphicCommonResponseDataDTO.setCommonParameterDTO(convertToCommonParameterDTO(graphicCommon.getCommonParameter()));
-            graphicCommonResponseDataDTO.setCommonHistogramDataDTOList(commonHistogramDataDTOList);
+            graphicCommonResponseDataDTO.setCommonParameter(convertToCommonParameterDTO(graphicCommon.getCommonParameter()));
+            graphicCommonResponseDataDTO.setData(commonHistogramDataDTOList);
             return graphicCommonResponseDataDTO;
         }
         else{
@@ -182,7 +188,7 @@ public class GraphicCommonsService {
             GraphicCommon graphicCommon = optionalGraphicCommon.get();
             GraphicCommonPieChartGenderResponseDataDTO graphicCommonResponseDataDTO = new GraphicCommonPieChartGenderResponseDataDTO();
             graphicCommonResponseDataDTO.setVisualType(graphicCommon.getVisualType());
-            graphicCommonResponseDataDTO.setCommonParameterDTO(convertToCommonParameterDTO(graphicCommon.getCommonParameter()));
+            graphicCommonResponseDataDTO.setCommonParameter(convertToCommonParameterDTO(graphicCommon.getCommonParameter()));
 
             List<String> extractedValues = new LinkedList<>();
             GameStateParameter gameStateParameter;
@@ -197,23 +203,24 @@ public class GraphicCommonsService {
                 }
             }
             int commonSizeElements = extractedValues.size();
-            int femaleCounter = 0;
+            int maleCounter = 0;
             for(String value : extractedValues){
-                if(value.equals("female")){
-                    femaleCounter ++;
+                if(value.equals("male")){
+                    maleCounter ++;
                 }
             }
-            double percentageOfWomen = ((double)femaleCounter / commonSizeElements) * 100;
-            double percentageOfMen = 100 - percentageOfWomen;
+            double percentageOfMen = ((double)maleCounter / commonSizeElements) * 100;
+            double percentageOfWomen = 100 - percentageOfMen;
             List<CommonPieChartDataDTO> commonList = new LinkedList<>();
             CommonPieChartDataDTO commonPieChartDataWomenDTO = new CommonPieChartDataDTO((int)percentageOfWomen,"women");
             CommonPieChartDataDTO commonPieChartDataMenDTO = new CommonPieChartDataDTO((int)percentageOfMen,"men");
             commonList.add(commonPieChartDataWomenDTO);
             commonList.add(commonPieChartDataMenDTO);
 
+            graphicCommonResponseDataDTO.setId(graphicCommon.getId());
             graphicCommonResponseDataDTO.setVisualType(graphicCommon.getVisualType());
-            graphicCommonResponseDataDTO.setCommonParameterDTO(convertToCommonParameterDTO(graphicCommon.getCommonParameter()));
-            graphicCommonResponseDataDTO.setCommonPieChartDataDTOList(commonList);
+            graphicCommonResponseDataDTO.setCommonParameter(convertToCommonParameterDTO(graphicCommon.getCommonParameter()));
+            graphicCommonResponseDataDTO.setData(commonList);
             System.out.println(graphicCommonResponseDataDTO);
             return graphicCommonResponseDataDTO;
         }

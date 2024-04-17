@@ -5,18 +5,25 @@ import com.example.courseWork.DTO.commonParameterDTO.CommonParameterDTO;
 import java.util.List;
 
 public class GraphicCommonPieChartGenderResponseDataDTO {
-    private String visualType;
-    private CommonParameterDTO commonParameterDTO;
-    private List<CommonPieChartDataDTO> commonPieChartDataDTOList;
+    private int id;
 
-    public GraphicCommonPieChartGenderResponseDataDTO(String visualType, CommonParameterDTO commonParameterDTO, List<CommonPieChartDataDTO> commonPieChartDataDTOList) {
+    private String visualType;
+    private CommonParameterDTO commonParameter;
+    private List<CommonPieChartDataDTO> data;
+
+    public GraphicCommonPieChartGenderResponseDataDTO(int id, String visualType, CommonParameterDTO commonParameterDTO, List<CommonPieChartDataDTO> commonPieChartDataDTOList) {
+        this.id = id;
         this.visualType = visualType;
-        this.commonParameterDTO = commonParameterDTO;
-        this.commonPieChartDataDTOList = commonPieChartDataDTOList;
+        this.commonParameter = commonParameterDTO;
+        this.data = commonPieChartDataDTOList;
     }
 
     public GraphicCommonPieChartGenderResponseDataDTO() {
     }
+
+    public int getId() { return id; }
+
+    public void setId(int id) { this.id = id; }
 
     public String getVisualType() {
         return visualType;
@@ -26,19 +33,19 @@ public class GraphicCommonPieChartGenderResponseDataDTO {
         this.visualType = visualType;
     }
 
-    public CommonParameterDTO getCommonParameterDTO() {
-        return commonParameterDTO;
+    public CommonParameterDTO getCommonParameter() {
+        return commonParameter;
     }
 
-    public void setCommonParameterDTO(CommonParameterDTO commonParameterDTO) {
-        this.commonParameterDTO = commonParameterDTO;
+    public void setCommonParameter(CommonParameterDTO commonParameterDTO) {
+        this.commonParameter = commonParameterDTO;
     }
 
-    public List<CommonPieChartDataDTO> getCommonPieChartDataDTOList() {
-        return commonPieChartDataDTOList;
+    public List<CommonPieChartDataDTO> getData() {
+        return data;
     }
 
-    public void setCommonPieChartDataDTOList(List<CommonPieChartDataDTO> commonPieChartDataDTOList) {
-        this.commonPieChartDataDTOList = commonPieChartDataDTOList;
+    public void setData(List<CommonPieChartDataDTO> commonPieChartDataDTOList) {
+        this.data = commonPieChartDataDTOList;
     }
 }

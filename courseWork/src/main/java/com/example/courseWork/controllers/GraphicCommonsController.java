@@ -41,6 +41,12 @@ public class GraphicCommonsController {
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
+    @GetMapping("/graphic/common/{id}")
+    private ResponseEntity<GraphicCommonDTO> getCommonGraphic(@PathVariable(name = "id") int id) {
+        GraphicCommonDTO graphicCommonDTO = graphicCommonsService.findById(id);
+        return ResponseEntity.ok(graphicCommonDTO);
+    }
+
     @GetMapping("/graphic/common")
     private ResponseEntity<EntitiesResponseDTO<GraphicCommonDTO>> findCommonParameters(
             @RequestParam(value = "searchQuery",required = false) String searchQuery,
@@ -68,5 +74,4 @@ public class GraphicCommonsController {
         GraphicCommonPieChartGenderResponseDataDTO graphicCommonDataDTO = graphicCommonsService.getPieChartGenderData(id);
         return ResponseEntity.ok(graphicCommonDataDTO);
     }
-
 }

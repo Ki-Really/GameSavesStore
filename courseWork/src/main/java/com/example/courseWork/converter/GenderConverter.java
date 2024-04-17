@@ -11,10 +11,10 @@ public class GenderConverter {
 
     public String convert(String value) {
         switch (value) {
-            case "male", "m" -> {
+            case "male", "m", "Male" -> {
                 return "male";
             }
-            case "female", "f" -> {
+            case "female", "f", "Female" -> {
                 return "female";
             }
             default -> throw new IllegalArgumentException("Неизвестный тип данных");

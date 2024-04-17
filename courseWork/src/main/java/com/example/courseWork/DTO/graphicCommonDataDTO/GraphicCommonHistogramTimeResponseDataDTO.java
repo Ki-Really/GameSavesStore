@@ -5,18 +5,25 @@ import com.example.courseWork.DTO.commonParameterDTO.CommonParameterDTO;
 import java.util.List;
 
 public class GraphicCommonHistogramTimeResponseDataDTO {
-    private String visualType;
-    private CommonParameterDTO commonParameterDTO;
-    private List<CommonHistogramDataDTO> commonHistogramDataDTOList;
+    private int id;
 
-    public GraphicCommonHistogramTimeResponseDataDTO(String visualType, CommonParameterDTO commonParameterDTO, List<CommonHistogramDataDTO> commonHistogramDataDTOList) {
+    private String visualType;
+    private CommonParameterDTO commonParameter;
+    private List<CommonHistogramDataDTO> data;
+
+    public GraphicCommonHistogramTimeResponseDataDTO(int id, String visualType, CommonParameterDTO commonParameterDTO, List<CommonHistogramDataDTO> commonHistogramDataDTOList) {
+        this.id = id;
         this.visualType = visualType;
-        this.commonParameterDTO = commonParameterDTO;
-        this.commonHistogramDataDTOList = commonHistogramDataDTOList;
+        this.commonParameter = commonParameterDTO;
+        this.data = commonHistogramDataDTOList;
     }
 
     public GraphicCommonHistogramTimeResponseDataDTO() {
     }
+
+    public int getId() { return id; }
+
+    public void setId(int id) { this.id = id; }
 
     public String getVisualType() {
         return visualType;
@@ -26,19 +33,19 @@ public class GraphicCommonHistogramTimeResponseDataDTO {
         this.visualType = visualType;
     }
 
-    public CommonParameterDTO getCommonParameterDTO() {
-        return commonParameterDTO;
+    public CommonParameterDTO getCommonParameter() {
+        return commonParameter;
     }
 
-    public void setCommonParameterDTO(CommonParameterDTO commonParameterDTO) {
-        this.commonParameterDTO = commonParameterDTO;
+    public void setCommonParameter(CommonParameterDTO commonParameterDTO) {
+        this.commonParameter = commonParameterDTO;
     }
 
-    public List<CommonHistogramDataDTO> getCommonHistogramDataDTOList() {
-        return commonHistogramDataDTOList;
+    public List<CommonHistogramDataDTO> getData() {
+        return data;
     }
 
-    public void setCommonHistogramDataDTOList(List<CommonHistogramDataDTO> commonHistogramDataDTOList) {
-        this.commonHistogramDataDTOList = commonHistogramDataDTOList;
+    public void setData(List<CommonHistogramDataDTO> commonHistogramDataDTOList) {
+        this.data = commonHistogramDataDTOList;
     }
 }

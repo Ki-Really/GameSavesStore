@@ -1,11 +1,11 @@
 package com.example.courseWork.DTO.graphicCommonDataDTO;
 
 public class CommonHistogramDataDTO {
-    private int min;
-    private int max;
+    private double min;
+    private double max;
     private int height;
 
-    public CommonHistogramDataDTO(int min, int max, int height) {
+    public CommonHistogramDataDTO(double min, double max, int height) {
         this.min = min;
         this.max = max;
         this.height = height;
@@ -14,7 +14,7 @@ public class CommonHistogramDataDTO {
     public CommonHistogramDataDTO() {
     }
 
-    public int getMin() {
+    public double getMin() {
         return min;
     }
 
@@ -22,7 +22,7 @@ public class CommonHistogramDataDTO {
         this.min = min;
     }
 
-    public int getMax() {
+    public double getMax() {
         return max;
     }
 
