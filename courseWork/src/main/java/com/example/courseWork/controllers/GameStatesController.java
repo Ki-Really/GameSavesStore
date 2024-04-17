@@ -87,11 +87,10 @@ public class GameStatesController {
             @RequestParam(value = "searchQuery",required = false) String searchQuery,
             @RequestParam(value = "pageSize") Integer pageSize,
             @RequestParam(value = "pageNumber") Integer pageNumber,
-            @RequestParam(value = "searchGameId",required = false) Integer searchGameId,
-            @RequestParam(value = "searchGameName",required = false) String searchGameName){
+            @RequestParam(value = "searchGameId",required = false) Integer searchGameId) {
         GameStatesRequestDTO gameStatesRequestDTO = new GameStatesRequestDTO(
                 searchQuery, pageSize, pageNumber,
-                searchGameId, searchGameName);
+                searchGameId);
         EntitiesResponseDTO<GameStateDTO> gameStatesDTO = gameStatesService.findAllPublic(gameStatesRequestDTO);
 
         return ResponseEntity.ok(gameStatesDTO);

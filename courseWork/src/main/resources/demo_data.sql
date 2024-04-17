@@ -33,6 +33,37 @@ INSERT INTO game_state_parameter_type(type)
 SELECT 'type4'
 WHERE NOT EXISTS (SELECT 1 FROM game_state_parameter_type WHERE type = 'type4');
 
+
+
+INSERT INTO game_state_parameter_type(type)
+SELECT 'time_seconds'
+WHERE NOT EXISTS (SELECT 1 FROM game_state_parameter_type WHERE type = 'time_seconds');
+
+INSERT INTO game_state_parameter_type(type)
+SELECT 'time_hours'
+WHERE NOT EXISTS (SELECT 1 FROM game_state_parameter_type WHERE type = 'time_hours');
+
+INSERT INTO game_state_parameter_type(type)
+SELECT 'time_ms'
+WHERE NOT EXISTS (SELECT 1 FROM game_state_parameter_type WHERE type = 'time_ms');
+
+INSERT INTO game_state_parameter_type(type)
+SELECT 'time_minutes'
+WHERE NOT EXISTS (SELECT 1 FROM game_state_parameter_type WHERE type = 'time_minutes');
+
+INSERT INTO game_state_parameter_type(type)
+SELECT 'gender'
+WHERE NOT EXISTS (SELECT 1 FROM game_state_parameter_type WHERE type = 'gender');
+
+INSERT INTO game_state_parameter_type(type)
+SELECT 'male'
+WHERE NOT EXISTS (SELECT 1 FROM game_state_parameter_type WHERE type = 'male');
+
+INSERT INTO game_state_parameter_type(type)
+SELECT 'female'
+WHERE NOT EXISTS (SELECT 1 FROM game_state_parameter_type WHERE type = 'female');
+
+
 -- Вставка данных в таблицу person
 INSERT INTO person(username, email, password, fk_role, is_blocked)
 SELECT 'testo', 'testoprotesto123321@gmail.com', '$2a$10$y3k9MF5fU0qOHENqLWlfzuthoREI6Fn9Scx8GKlSL3YN4pX76tVYq', 2, false

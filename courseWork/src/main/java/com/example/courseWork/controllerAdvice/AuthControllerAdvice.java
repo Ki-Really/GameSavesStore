@@ -1,36 +1,41 @@
 package com.example.courseWork.controllerAdvice;
 
 import com.example.courseWork.util.*;
-import com.example.courseWork.util.exception.ExceptionBody;
+import com.example.courseWork.util.exceptions.personException.LoginFailedException;
+import com.example.courseWork.util.exceptions.personException.PersonAlreadyExistsException;
+import com.example.courseWork.util.exceptions.personException.PersonBadCredentialsException;
+import com.example.courseWork.util.exceptions.personException.PersonNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
+
 
 @RestControllerAdvice
 public class AuthControllerAdvice {
     @ExceptionHandler(PersonNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    private ExceptionBody handlePersonNotFoundException(PersonNotFoundException e){
-        return new ExceptionBody(e.getMessage());
+    private ResponseEntity<ErrorResponse> handlePersonNotFoundException(PersonNotFoundException e){
+        ErrorResponse response = new ErrorResponse(e.getMessage());
+        return new ResponseEntity<>(response,HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(PersonNotCreatedException.class)
+    @ExceptionHandler(PersonBadCredentialsException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    private ExceptionBody handlePersonNotCreatedException(PersonNotCreatedException e){
-        return new ExceptionBody(e.getMessage());
+    private ResponseEntity<ErrorResponse> handlePersonNotCreatedException(PersonBadCredentialsException e){
+        ErrorResponse response = new ErrorResponse(e.getMessage(),e.getErrors());
+        return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
     }
     @ExceptionHandler(PersonAlreadyExistsException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ResponseEntity<PersonErrorResponse> handlePersonAlreadyExistsException(PersonAlreadyExistsException ex) {
-        PersonErrorResponse response = new PersonErrorResponse(ex.getMessage(), System.currentTimeMillis());
+    public ResponseEntity<ErrorResponse> handlePersonAlreadyExistsException(PersonAlreadyExistsException ex) {
+        ErrorResponse response = new ErrorResponse(ex.getMessage());
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(LoginFailedException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ResponseEntity<PersonErrorResponse> handleLoginFailedException(LoginFailedException ex) {
-        PersonErrorResponse response = new PersonErrorResponse(ex.getMessage(),System.currentTimeMillis());
+    public ResponseEntity<ErrorResponse> handleLoginFailedException(LoginFailedException ex) {
+        ErrorResponse response = new ErrorResponse(ex.getMessage());
         return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
     }
 }

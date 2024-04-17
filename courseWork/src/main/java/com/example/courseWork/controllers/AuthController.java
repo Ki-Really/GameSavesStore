@@ -7,19 +7,23 @@ import com.example.courseWork.models.authModel.Person;
 import com.example.courseWork.services.authServices.MailService;
 import com.example.courseWork.services.authServices.PasswordRecoveryTokenService;
 import com.example.courseWork.services.authServices.PeopleService;
-import com.example.courseWork.util.*;
+import com.example.courseWork.util.exceptions.personException.LoginFailedException;
+import com.example.courseWork.util.exceptions.personException.PersonBadCredentialsException;
+import com.example.courseWork.util.exceptions.personException.PersonNotFoundException;
+import com.example.courseWork.util.validators.personValidator.UniqueEmailValidator;
+import com.example.courseWork.util.validators.personValidator.UniqueUsernameValidator;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,31 +34,41 @@ public class AuthController {
     private final PeopleService peopleService;
     private final MailService mailService;
     private final PasswordRecoveryTokenService passwordRecoveryTokenService;
+    private final UniqueUsernameValidator uniqueUsernameValidator;
+    private final UniqueEmailValidator uniqueEmailValidator;
 
     @Autowired
-    public AuthController(PeopleService peopleService, MailService mailService, PasswordRecoveryTokenService passwordRecoveryTokenService) {
+    public AuthController(PeopleService peopleService, MailService mailService, PasswordRecoveryTokenService passwordRecoveryTokenService, UniqueUsernameValidator uniqueUsernameValidator, UniqueEmailValidator uniqueEmailValidator) {
         this.peopleService = peopleService;
         this.mailService = mailService;
         this.passwordRecoveryTokenService = passwordRecoveryTokenService;
+        this.uniqueUsernameValidator = uniqueUsernameValidator;
+        this.uniqueEmailValidator = uniqueEmailValidator;
     }
 
     @PostMapping("/registration")
     private ResponseEntity<HttpStatus> create(@RequestBody @Valid Person person,
                                               BindingResult bindingResult){
+        uniqueUsernameValidator.validate(person,bindingResult);
+        uniqueEmailValidator.validate(person,bindingResult);
+
         if(bindingResult.hasErrors()){
-            StringBuilder errorMsg = new StringBuilder();
+           // StringBuilder errorMsg = new StringBuilder();
+
             List<FieldError> errors = bindingResult.getFieldErrors();
+            List<String> stringErrors = new LinkedList<>();
             for(FieldError error : errors){
-                errorMsg.append(error.getField())
+                stringErrors.add(error.getField() +" - " + error.getDefaultMessage()+";");
+                /*errorMsg.append(error.getField())
                         .append(" - ")
                         .append(error.getDefaultMessage())
-                        .append(";");
+                        .append(";");*/
             }
-            throw new PersonNotCreatedException(errorMsg.toString());
+
+            throw new PersonBadCredentialsException("Registration failed", stringErrors);
         }
         peopleService.save(person);
         return ResponseEntity.ok(HttpStatus.OK);
-
     }
 
     /*@PostMapping("/login")
@@ -89,24 +103,23 @@ public class AuthController {
         HttpServletRequest request
     ) {
         if(bindingResult.hasErrors()){
-            StringBuilder errorMsg = new StringBuilder();
+            List<String> stringErrors = new LinkedList<>();
             List<FieldError> errors = bindingResult.getFieldErrors();
             for(FieldError error : errors){
-                errorMsg.append(error.getField())
-                        .append(" - ")
-                        .append(error.getDefaultMessage())
-                        .append(";");
+                stringErrors.add(error.getField() +" - " + error.getDefaultMessage()+";");
+
             }
-            throw new PersonNotCreatedException(errorMsg.toString());
+            throw new PersonBadCredentialsException("Bad credentials",stringErrors);
         }
-        Person person = peopleService.findOne(personLoginDTO.getUsername());
-        if(person == null){
-            throw new PersonNotFoundException("Пользователь не был найден.");
-        }
+
         try{
             request.login(personLoginDTO.getUsername(), personLoginDTO.getPassword());
         }catch(ServletException e){
-            throw new LoginFailedException("Login failed. Invalid username or password.");
+            throw new LoginFailedException("Login failed. Invalid username or password!");
+        }
+        Person person = peopleService.findOne(personLoginDTO.getUsername());
+        if(person == null){
+            throw new PersonNotFoundException("User not found!");
         }
 
         SendPersonFromLoginDTO sendPersonFromLoginDTO = new SendPersonFromLoginDTO(person.getUsername(),

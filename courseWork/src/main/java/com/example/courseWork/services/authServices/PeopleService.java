@@ -5,7 +5,7 @@ import com.example.courseWork.DTO.usersDTO.PeopleRequestDTO;
 import com.example.courseWork.DTO.usersDTO.PersonDTO;
 import com.example.courseWork.models.authModel.Person;
 import com.example.courseWork.repositories.authRepositories.PeopleRepository;
-import com.example.courseWork.util.PersonNotFoundException;
+import com.example.courseWork.util.exceptions.personException.PersonNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -77,12 +77,12 @@ public class PeopleService {
 
     public Person findPersonByEmail(String email){
         Optional<Person> person = peopleRepository.findByEmail(email);
-        return person.orElse(null);
+        return person.orElseThrow(() -> new PersonNotFoundException("Person not found with this email:" + email));
     }
 
     public Person findPersonById(int id){
         Optional<Person> person = peopleRepository.findById(id);
-        return person.orElse(null);
+        return person.orElseThrow(() -> new PersonNotFoundException("Person not found with this id:" + id));
     }
     @Transactional
     public void updatePassword(int id,String password){
@@ -132,12 +132,9 @@ public class PeopleService {
         return personDTO;
     }
 
-
     public Person findOne(String username) {
         Optional<Person> person = peopleRepository.findByUsername(username);
         return person.orElseThrow(() -> new PersonNotFoundException("Person not found with username: " + username));
     }
-
-
 
 }

@@ -229,6 +229,7 @@ public class GamesService {
             gameStateParameter.setGameStateParameterType(gameStateParameterType);
 
             if(gameStateParameterDTO.getCommonParameterId()>0){
+
                 CommonParameter commonParameter = commonParametersService.findById(
                         gameStateParameterDTO.getCommonParameterId()
                 );

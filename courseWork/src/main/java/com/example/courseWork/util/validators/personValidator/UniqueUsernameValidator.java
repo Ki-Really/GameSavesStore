@@ -1,4 +1,4 @@
-package com.example.courseWork.util;
+package com.example.courseWork.util.validators.personValidator;
 
 import com.example.courseWork.models.authModel.Person;
 import com.example.courseWork.services.authServices.PersonDetailsService;
@@ -9,11 +9,11 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
 @Component
-public class PersonValidator implements Validator {
+public class UniqueUsernameValidator implements Validator {
     private PersonDetailsService personDetailsService;
 
     @Autowired
-    public PersonValidator(PersonDetailsService personDetailsService) {
+    public UniqueUsernameValidator(PersonDetailsService personDetailsService) {
         this.personDetailsService = personDetailsService;
     }
 

@@ -3,7 +3,10 @@ package com.example.courseWork.services.gameStateServices;
 import com.example.courseWork.DTO.entityDTO.EntitiesResponseDTO;
 import com.example.courseWork.DTO.gameDTO.GameStateParameterTypeDTO;
 import com.example.courseWork.DTO.gameSaveDTO.*;
+import com.example.courseWork.converter.GenderConverter;
+import com.example.courseWork.converter.TimeConverter;
 import com.example.courseWork.models.authModel.Person;
+import com.example.courseWork.models.gameModel.GameStateParameter;
 import com.example.courseWork.models.gameModel.GameStateParameterType;
 import com.example.courseWork.models.gameSaveModel.GameState;
 import com.example.courseWork.models.gameSaveModel.GameStateValue;
@@ -34,14 +37,20 @@ public class GameStatesService {
     private final PeopleService peopleService;
     private final ImagesService imagesService;
     private final EntityManager entityManager;
+    private final GameStateParametersService gameStateParametersService;
+    private final TimeConverter timeConverter;
+    private final GenderConverter genderConverter;
     @Autowired
-    public GameStatesService(GameStatesRepository gameStatesRepository, GamesService gamesService, ArchivesService archivesService, PeopleService peopleService, ImagesService imagesService, EntityManager entityManager) {
+    public GameStatesService(GameStatesRepository gameStatesRepository, GamesService gamesService, ArchivesService archivesService, PeopleService peopleService, ImagesService imagesService, EntityManager entityManager, GameStateParametersService gameStateParametersService, TimeConverter timeConverter, GenderConverter genderConverter) {
         this.gameStatesRepository = gameStatesRepository;
         this.gamesService = gamesService;
         this.archivesService = archivesService;
         this.peopleService = peopleService;
         this.imagesService = imagesService;
         this.entityManager = entityManager;
+        this.gameStateParametersService = gameStateParametersService;
+        this.timeConverter = timeConverter;
+        this.genderConverter = genderConverter;
     }
     public GameState findByName(String name){
         return gameStatesRepository.findByName(name).orElse(null);
@@ -81,59 +90,32 @@ public class GameStatesService {
     public EntitiesResponseDTO<GameStateDTO> findAllPublic(GameStatesRequestDTO gameStatesRequestDTO){
         Page<GameState> page;
 
-        if(gameStatesRequestDTO.getSearchQuery()!=null && !gameStatesRequestDTO.getSearchQuery().isEmpty()) {
-            if(gameStatesRequestDTO.getSearchGameId()>0 && gameStatesRequestDTO.getSearchGameName()!=null){
-                page = gameStatesRepository.findByNameContainingAndGameIdAndGameNameContaining(gameStatesRequestDTO.getSearchQuery(),
-                        gameStatesRequestDTO.getSearchGameId(),gameStatesRequestDTO.getSearchGameName(),
-                        PageRequest.of(
-                        gameStatesRequestDTO.getPageNumber() - 1,
-                        gameStatesRequestDTO.getPageSize(),
-                        Sort.by(Sort.Direction.DESC, "id")
-                ));
-            }else if(gameStatesRequestDTO.getSearchGameId()>0 && gameStatesRequestDTO.getSearchGameName()==null){
-                page = gameStatesRepository.findByNameContainingAndGameId(gameStatesRequestDTO.getSearchQuery(),
-                        gameStatesRequestDTO.getSearchGameId(),
-                        PageRequest.of(
-                                gameStatesRequestDTO.getPageNumber() - 1,
-                                gameStatesRequestDTO.getPageSize(),
-                                Sort.by(Sort.Direction.DESC, "id")
-                        ));
-            }else if(gameStatesRequestDTO.getSearchGameId()<=0 && gameStatesRequestDTO.getSearchGameName()!=null){
-                page = gameStatesRepository.findByNameContainingAndGameNameContaining(gameStatesRequestDTO.getSearchQuery(),
-                        gameStatesRequestDTO.getSearchGameName(),
-                        PageRequest.of(
-                                gameStatesRequestDTO.getPageNumber() - 1,
-                                gameStatesRequestDTO.getPageSize(),
-                                Sort.by(Sort.Direction.DESC, "id")
-                        ));
-            }
-            else {
-                page = gameStatesRepository.findByNameContaining(gameStatesRequestDTO.getSearchQuery(), PageRequest.of(
-                        gameStatesRequestDTO.getPageNumber() - 1,
-                        gameStatesRequestDTO.getPageSize(),
-                        Sort.by(Sort.Direction.DESC, "id")
-                ));
-            }
-        }
-        else if(gameStatesRequestDTO.getSearchGameId() > 0 && gameStatesRequestDTO.getSearchGameName()!=null){
-            page = gameStatesRepository.findByGameIdAndGameNameContaining(
+        if(gameStatesRequestDTO.getSearchQuery()!=null && !gameStatesRequestDTO.getSearchQuery().isEmpty() && gameStatesRequestDTO.getSearchGameId()>0) {
+            page = gameStatesRepository.findByNameContainingAndGameIdAndGameNameContaining(
+                    gameStatesRequestDTO.getSearchQuery(),
                     gameStatesRequestDTO.getSearchGameId(),
-                    gameStatesRequestDTO.getSearchGameName(),
+                    gameStatesRequestDTO.getSearchQuery(),
                     PageRequest.of(
                     gameStatesRequestDTO.getPageNumber() - 1,
                     gameStatesRequestDTO.getPageSize(),
                     Sort.by(Sort.Direction.DESC, "id")
             ));
         }
-        else if(gameStatesRequestDTO.getSearchGameId() > 0 && gameStatesRequestDTO.getSearchGameName()==null){
-            page = gameStatesRepository.findByGameId(gameStatesRequestDTO.getSearchGameId(), PageRequest.of(
+        else if(gameStatesRequestDTO.getSearchQuery()!=null && !gameStatesRequestDTO.getSearchQuery().isEmpty() && gameStatesRequestDTO.getSearchGameId()<=0){
+            page = gameStatesRepository.findByNameContainingAndGameNameContaining(
+                    gameStatesRequestDTO.getSearchQuery(),
+                    gameStatesRequestDTO.getSearchQuery(),
+                    PageRequest.of(
                     gameStatesRequestDTO.getPageNumber() - 1,
                     gameStatesRequestDTO.getPageSize(),
                     Sort.by(Sort.Direction.DESC, "id")
             ));
         }
-        else if(gameStatesRequestDTO.getSearchGameId() <= 0 && gameStatesRequestDTO.getSearchGameName()!=null){
-            page = gameStatesRepository.findByGameNameContaining(gameStatesRequestDTO.getSearchGameName(), PageRequest.of(
+        else if((gameStatesRequestDTO.getSearchQuery()==null || gameStatesRequestDTO.getSearchQuery().isEmpty()) && gameStatesRequestDTO.getSearchGameId()>0){
+            page = gameStatesRepository.findByNameContainingAndGameId(
+                    gameStatesRequestDTO.getSearchQuery(),
+                    gameStatesRequestDTO.getSearchGameId(),
+                    PageRequest.of(
                     gameStatesRequestDTO.getPageNumber() - 1,
                     gameStatesRequestDTO.getPageSize(),
                     Sort.by(Sort.Direction.DESC, "id")
@@ -368,12 +350,31 @@ public class GameStatesService {
 ////??????????????????????????????????????????????????????????????????\/\/\/
     private List<GameStateValue> convertToGameStateValues(List<GameStateValueDTO> gameStateValueDTOS,int gameId,GameState gameState){
         List<GameStateValue> listToReturn = new LinkedList<>();
+        String convertedValueInSeconds;
+        String convertedValueGender;
+        GameStateValue gameStateValue = new GameStateValue();
         for(int i = 0; i<gameStateValueDTOS.size();i++){
             GameStateValueDTO gameStateValueDTO = gameStateValueDTOS.get(i);
-            GameStateValue gameStateValue = new GameStateValue(
-                    gameStateValueDTO.getValue(),
-                    gamesService.findOne(gameId).getScheme().getGameStateParameters().get(i)
-            );
+            Optional<GameStateParameter> optionalGameStateParameter = gameStateParametersService.findById(gameStateValueDTO.getGameStateParameterId());
+
+            if(optionalGameStateParameter.isPresent()){
+                GameStateParameter gameStateParameter = optionalGameStateParameter.get();
+                if(gameStateParameter.getCommonParameter() != null && gameStateParameter.getCommonParameter().getGameStateParameterType().getType().equals("time_seconds")){
+                    convertedValueInSeconds = timeConverter.convert(gameStateParameter.getGameStateParameterType().getType(),gameStateValueDTO.getValue());
+                    gameStateValue.setValue(convertedValueInSeconds);
+                }else if(gameStateParameter.getCommonParameter() != null && gameStateParameter.getCommonParameter().getGameStateParameterType().getType().equals("gender")){
+                    convertedValueGender = genderConverter.convert(gameStateValueDTO.getValue());
+                    gameStateValue.setValue(convertedValueGender);
+                }
+                    else{
+                    gameStateValue.setValue(gameStateValue.getValue());
+                }
+            }
+            //найти по id gameStateParameter
+            //проверить есть ли commonParameter с id у найденного gameStateParameter.
+            //сконвертировать все данные с gameStateParameter в тип commonParameter и создать gameStateValue\/\/\/
+
+            gameStateValue.setGameStateParameter(gamesService.findOne(gameId).getScheme().getGameStateParameters().get(i));
             gameStateValue.setGameState(gameState);
             if(gameStateValueDTO.getId() != 0){
                 gameStateValue.setId(gameStateValueDTO.getId());
