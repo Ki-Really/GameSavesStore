@@ -6,6 +6,7 @@ import com.example.courseWork.DTO.graphicCommonDTO.GraphicCommonRequestDTO;
 import com.example.courseWork.DTO.graphicCommonDTO.GraphicCommonsRequestDTO;
 import com.example.courseWork.DTO.graphicCommonDataDTO.GraphicCommonHistogramTimeResponseDataDTO;
 import com.example.courseWork.DTO.graphicCommonDataDTO.GraphicCommonPieChartGenderResponseDataDTO;
+import com.example.courseWork.DTO.graphicCommonDataDTO.GraphicDataResponse;
 import com.example.courseWork.services.graphicCommonServices.GraphicCommonsService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,7 +64,7 @@ public class GraphicCommonsController {
         return ResponseEntity.ok(graphicCommonResponseDTO);
     }
 
-    @GetMapping("/graphic-data/histogram/common/{id}")
+    /*@GetMapping("/graphic-data/histogram/common/{id}")
     private ResponseEntity<GraphicCommonHistogramTimeResponseDataDTO> getHistogramData(@PathVariable(name = "id") int id){
         GraphicCommonHistogramTimeResponseDataDTO graphicCommonDataDTO = graphicCommonsService.getHistogramTimeData(id);
         return ResponseEntity.ok(graphicCommonDataDTO);
@@ -73,5 +74,18 @@ public class GraphicCommonsController {
     private ResponseEntity<GraphicCommonPieChartGenderResponseDataDTO> getPieChartData(@PathVariable(name = "id") int id){
         GraphicCommonPieChartGenderResponseDataDTO graphicCommonDataDTO = graphicCommonsService.getPieChartGenderData(id);
         return ResponseEntity.ok(graphicCommonDataDTO);
+    }*/
+
+    @GetMapping("/graphic-data/common/{id}")
+    private ResponseEntity<GraphicDataResponse> getGraphicData(@PathVariable(name = "id") int id) {
+       GraphicDataResponse graphicDataResponse;
+       if(graphicCommonsService.findVisualTypeById(id).equals("histogram")){
+           graphicDataResponse = graphicCommonsService.getHistogramTimeData(id);
+       }else if(graphicCommonsService.findVisualTypeById(id).equals("pie_chart")){
+           graphicDataResponse = graphicCommonsService.getPieChartGenderData(id);
+       }else{
+           graphicDataResponse = null;
+       }
+        return ResponseEntity.ok(graphicDataResponse);
     }
 }

@@ -33,7 +33,7 @@ public class GameStateParameter {
 
     @OneToMany(mappedBy = "gameStateParameter")
     private List<GameStateValue> gameStateValues;
-    @ManyToOne(cascade = {CascadeType.PERSIST,CascadeType.MERGE,CascadeType.REMOVE,CascadeType.DETACH})
+    @ManyToOne(cascade = {CascadeType.PERSIST,CascadeType.MERGE,CascadeType.DETACH})
     @JoinColumn(name = "fk_common_parameter_id",referencedColumnName = "id")
     private CommonParameter commonParameter;
 

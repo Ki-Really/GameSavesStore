@@ -22,7 +22,7 @@ public class UniqueEmailValidator implements Validator {
     @Override
     public void validate(Object target, Errors errors) {
         Person person = (Person)target;
-        if(peopleService.findPersonByEmail(person.getEmail())!=null){
+        if(peopleService.checkPersonPresentByEmail(person.getEmail())!=null){
             errors.rejectValue("email","","Person with this email already exists!");
         }
     }

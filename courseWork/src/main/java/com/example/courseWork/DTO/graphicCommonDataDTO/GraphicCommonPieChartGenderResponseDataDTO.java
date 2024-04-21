@@ -4,7 +4,7 @@ import com.example.courseWork.DTO.commonParameterDTO.CommonParameterDTO;
 
 import java.util.List;
 
-public class GraphicCommonPieChartGenderResponseDataDTO {
+public class GraphicCommonPieChartGenderResponseDataDTO implements GraphicDataResponse {
     private int id;
 
     private String visualType;

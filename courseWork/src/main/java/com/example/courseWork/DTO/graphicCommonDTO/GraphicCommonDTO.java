@@ -1,14 +1,16 @@
 package com.example.courseWork.DTO.graphicCommonDTO;
 
+import com.example.courseWork.DTO.commonParameterDTO.CommonParameterDTO;
+
 public class GraphicCommonDTO {
     private int id;
     private String visualType;
-    private int commonParameterId;
+    private CommonParameterDTO commonParameterDTO;
 
-    public GraphicCommonDTO(int id, String visualType, int commonParameterId) {
+    public GraphicCommonDTO(int id, String visualType, CommonParameterDTO commonParameterDTO) {
         this.id = id;
         this.visualType = visualType;
-        this.commonParameterId = commonParameterId;
+        this.commonParameterDTO = commonParameterDTO;
     }
 
     public GraphicCommonDTO() {
@@ -30,11 +32,11 @@ public class GraphicCommonDTO {
         this.visualType = visualType;
     }
 
-    public int getCommonParameterId() {
-        return commonParameterId;
+    public CommonParameterDTO getCommonParameterDTO() {
+        return commonParameterDTO;
     }
 
-    public void setCommonParameterId(int commonParameterId) {
-        this.commonParameterId = commonParameterId;
+    public void setCommonParameterDTO(CommonParameterDTO commonParameterDTO) {
+        this.commonParameterDTO = commonParameterDTO;
     }
 }

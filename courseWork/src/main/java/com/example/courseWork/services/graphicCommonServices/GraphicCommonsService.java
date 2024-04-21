@@ -13,6 +13,7 @@ import com.example.courseWork.DTO.graphicCommonDataDTO.GraphicCommonPieChartGend
 import com.example.courseWork.models.commonParameters.CommonParameter;
 import com.example.courseWork.models.gameModel.GameStateParameter;
 import com.example.courseWork.models.gameModel.GameStateParameterType;
+import com.example.courseWork.models.gameSaveModel.GameStateValue;
 import com.example.courseWork.models.graphicCommonModel.GraphicCommon;
 import com.example.courseWork.repositories.graphicCommonRepositories.GraphicCommonsRepository;
 import com.example.courseWork.services.commonParameterServices.CommonParametersService;
@@ -23,9 +24,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @Transactional
@@ -56,6 +55,15 @@ public class GraphicCommonsService {
             updatedGraphicCommon.setId(graphicCommonToUpdate.getId());
             graphicCommonsRepository.save(updatedGraphicCommon);
             return constructGraphicCommonDTO(updatedGraphicCommon);
+        }
+        return null;
+    }
+
+    public String findVisualTypeById(int id){
+        Optional<GraphicCommon> optionalGraphicCommon = graphicCommonsRepository.findById(id);
+        if(optionalGraphicCommon.isPresent()){
+            GraphicCommon graphicCommon = optionalGraphicCommon.get();
+            return graphicCommon.getVisualType();
         }
         return null;
     }
@@ -106,7 +114,7 @@ public class GraphicCommonsService {
         GraphicCommonDTO graphicCommonDTO = new GraphicCommonDTO();
         graphicCommonDTO.setId(graphicCommon.getId());
         graphicCommonDTO.setVisualType(graphicCommon.getVisualType());
-        graphicCommonDTO.setCommonParameterId(graphicCommon.getCommonParameter().getId());
+        graphicCommonDTO.setCommonParameterDTO(convertToCommonParameterDTO(graphicCommon.getCommonParameter()));
         return graphicCommonDTO;
     }
  /*   public GraphicCommon graphicCommon(int id){
@@ -191,40 +199,35 @@ public class GraphicCommonsService {
             graphicCommonResponseDataDTO.setCommonParameter(convertToCommonParameterDTO(graphicCommon.getCommonParameter()));
 
             List<String> extractedValues = new LinkedList<>();
-            GameStateParameter gameStateParameter;
-
-            int gameStateParametersSize = graphicCommon.getCommonParameter().getGameStateParameters().size();
-            int gameStateValuesSize;
-            for(int i = 0; i<gameStateParametersSize;i++){
-                gameStateParameter = graphicCommon.getCommonParameter().getGameStateParameters().get(i);
-                gameStateValuesSize = gameStateParameter.getGameStateValues().size();
-                for(int j = 0; j<gameStateValuesSize;j++){
-                    extractedValues.add(String.valueOf(gameStateParameter.getGameStateValues().get(j).getValue()));
-                }
-            }
-            int commonSizeElements = extractedValues.size();
-            int maleCounter = 0;
-            for(String value : extractedValues){
-                if(value.equals("male")){
-                    maleCounter ++;
-                }
-            }
-            double percentageOfMen = ((double)maleCounter / commonSizeElements) * 100;
-            double percentageOfWomen = 100 - percentageOfMen;
             List<CommonPieChartDataDTO> commonList = new LinkedList<>();
-            CommonPieChartDataDTO commonPieChartDataWomenDTO = new CommonPieChartDataDTO((int)percentageOfWomen,"women");
-            CommonPieChartDataDTO commonPieChartDataMenDTO = new CommonPieChartDataDTO((int)percentageOfMen,"men");
-            commonList.add(commonPieChartDataWomenDTO);
-            commonList.add(commonPieChartDataMenDTO);
+
+            int totalValuesCount = 0;
+            Map<String, Integer> valueCounts = new HashMap<>();
+
+            for (GameStateParameter gameStateParameter : graphicCommon.getCommonParameter().getGameStateParameters()) {
+                for (GameStateValue gameStateValue : gameStateParameter.getGameStateValues()) {
+                    String value = String.valueOf(gameStateValue.getValue());
+                    extractedValues.add(value);
+                    totalValuesCount++;
+
+                    // Increment count for this value
+                    valueCounts.put(value, valueCounts.getOrDefault(value, 0) + 1);
+                }
+            }
+
+            // Calculate percentage for each value
+            for (Map.Entry<String, Integer> entry : valueCounts.entrySet()) {
+                String value = entry.getKey();
+                int count = entry.getValue();
+                double percentage = ((double) count / totalValuesCount) * 100;
+                commonList.add(new CommonPieChartDataDTO((int) percentage, value));
+            }
 
             graphicCommonResponseDataDTO.setId(graphicCommon.getId());
-            graphicCommonResponseDataDTO.setVisualType(graphicCommon.getVisualType());
-            graphicCommonResponseDataDTO.setCommonParameter(convertToCommonParameterDTO(graphicCommon.getCommonParameter()));
             graphicCommonResponseDataDTO.setData(commonList);
-            System.out.println(graphicCommonResponseDataDTO);
+
             return graphicCommonResponseDataDTO;
-        }
-        else {
+        } else {
             return null;
         }
     }

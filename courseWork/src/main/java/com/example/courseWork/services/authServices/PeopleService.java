@@ -79,6 +79,10 @@ public class PeopleService {
         Optional<Person> person = peopleRepository.findByEmail(email);
         return person.orElseThrow(() -> new PersonNotFoundException("Person not found with this email:" + email));
     }
+    public Person checkPersonPresentByEmail(String email){
+        Optional<Person> person = peopleRepository.findByEmail(email);
+        return person.orElse(null);
+    }
 
     public Person findPersonById(int id){
         Optional<Person> person = peopleRepository.findById(id);

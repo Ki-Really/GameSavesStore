@@ -4,7 +4,7 @@ import com.example.courseWork.DTO.commonParameterDTO.CommonParameterDTO;
 
 import java.util.List;
 
-public class GraphicCommonHistogramTimeResponseDataDTO {
+public class GraphicCommonHistogramTimeResponseDataDTO implements GraphicDataResponse {
     private int id;
 
     private String visualType;
