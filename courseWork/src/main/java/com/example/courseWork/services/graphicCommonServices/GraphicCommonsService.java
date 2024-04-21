@@ -114,7 +114,7 @@ public class GraphicCommonsService {
         GraphicCommonDTO graphicCommonDTO = new GraphicCommonDTO();
         graphicCommonDTO.setId(graphicCommon.getId());
         graphicCommonDTO.setVisualType(graphicCommon.getVisualType());
-        graphicCommonDTO.setCommonParameterDTO(convertToCommonParameterDTO(graphicCommon.getCommonParameter()));
+        graphicCommonDTO.setCommonParameter(convertToCommonParameterDTO(graphicCommon.getCommonParameter()));
         return graphicCommonDTO;
     }
  /*   public GraphicCommon graphicCommon(int id){

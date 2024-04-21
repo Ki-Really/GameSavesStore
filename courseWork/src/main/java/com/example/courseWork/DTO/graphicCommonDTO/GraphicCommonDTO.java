@@ -5,12 +5,12 @@ import com.example.courseWork.DTO.commonParameterDTO.CommonParameterDTO;
 public class GraphicCommonDTO {
     private int id;
     private String visualType;
-    private CommonParameterDTO commonParameterDTO;
+    private CommonParameterDTO commonParameter;
 
     public GraphicCommonDTO(int id, String visualType, CommonParameterDTO commonParameterDTO) {
         this.id = id;
         this.visualType = visualType;
-        this.commonParameterDTO = commonParameterDTO;
+        this.commonParameter = commonParameterDTO;
     }
 
     public GraphicCommonDTO() {
@@ -32,11 +32,11 @@ public class GraphicCommonDTO {
         this.visualType = visualType;
     }
 
-    public CommonParameterDTO getCommonParameterDTO() {
-        return commonParameterDTO;
+    public CommonParameterDTO getCommonParameter() {
+        return commonParameter;
     }
 
-    public void setCommonParameterDTO(CommonParameterDTO commonParameterDTO) {
-        this.commonParameterDTO = commonParameterDTO;
+    public void setCommonParameter(CommonParameterDTO commonParameterDTO) {
+        this.commonParameter = commonParameterDTO;
     }
 }

@@ -262,11 +262,12 @@ public class GameStatesService {
         return gameStatesDTO;
     }
     @Transactional
-    public void save(GameStateRequestDTO gameStateRequestDTO, MultipartFile file, Principal principal) {
+    public int save(GameStateRequestDTO gameStateRequestDTO, MultipartFile file, Principal principal) {
         String fileName = generateFilename(file);
         archivesService.upload(file,fileName);
         GameState gameState = convertGameState(gameStateRequestDTO,file,fileName,principal);
         gameStatesRepository.save(gameState);
+        return gameState.getId();
     }
     @Transactional
     public void deleteById(int id,Principal principal){

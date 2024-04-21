@@ -77,14 +77,14 @@ public class GraphicCommonsController {
     }*/
 
     @GetMapping("/graphic-data/common/{id}")
-    private ResponseEntity<GraphicDataResponse> getGraphicData(@PathVariable(name = "id") int id) {
+    private ResponseEntity<GraphicDataResponse> getGraphicData(@PathVariable(name = "id") int id) throws Exception {
        GraphicDataResponse graphicDataResponse;
        if(graphicCommonsService.findVisualTypeById(id).equals("histogram")){
            graphicDataResponse = graphicCommonsService.getHistogramTimeData(id);
        }else if(graphicCommonsService.findVisualTypeById(id).equals("pie_chart")){
            graphicDataResponse = graphicCommonsService.getPieChartGenderData(id);
        }else{
-           graphicDataResponse = null;
+           throw new Exception("Internal");
        }
         return ResponseEntity.ok(graphicDataResponse);
     }

@@ -34,9 +34,9 @@ public class GameStatesController {
                                                      @RequestParam("gameStateData") String gameStatesData, Principal principal) throws JsonProcessingException {
         GameStateRequestDTO addGameStateDTO = objectMapper.readValue(gameStatesData, GameStateRequestDTO.class);
 
-        gameStatesService.save(addGameStateDTO,file,principal);
+        int gameStateId = gameStatesService.save(addGameStateDTO,file,principal);
 
-        GameState gameState = gameStatesService.findByName(addGameStateDTO.getName());
+        GameState gameState = gameStatesService.findById(gameStateId);
         GameStateDTO gameStateDTO = gameStatesService.constructGameStateDTO(gameState);
 
         return ResponseEntity.ok(gameStateDTO);
