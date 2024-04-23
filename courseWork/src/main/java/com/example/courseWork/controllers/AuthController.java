@@ -139,23 +139,7 @@ public class AuthController {
     @PostMapping("/recover-password")
     private ResponseEntity<HttpStatus> recoverPassword(@RequestBody @Valid PersonPasswordRecoveryDTO personPasswordRecoveryDTO){
         String email = personPasswordRecoveryDTO.getEmail();
-        UUID uuid = UUID.randomUUID();
-
-        String generatedToken = uuid.toString();
-        String emailText = "https://cloud-saves://reset-password?token="+ generatedToken;
-        String emailHtmlContent = "<html><body>"
-                + "<h1>Password Recovery</h1>"
-                + "<p>You can paste this link to the search bar!</p>"
-                + "<p><a href=\"" + emailText + "\">" + emailText + "</a></p>"
-                + "</body></html>";
-        MailStructure mailStructure = new MailStructure("Password Recovery", emailHtmlContent);
-        mailService.sendMail(email,mailStructure);
-
-        Person person = peopleService.findPersonByEmail(email);
-        PasswordRecoveryTokenEntity passwordRecoveryTokenEntity = new PasswordRecoveryTokenEntity();
-        passwordRecoveryTokenEntity.setToken(generatedToken);
-        passwordRecoveryTokenEntity.setPerson(person);
-        passwordRecoveryTokenService.save(passwordRecoveryTokenEntity);
+        peopleService.sendMailForChangingPasswordUnauthorized(email);
 
         return ResponseEntity.ok(HttpStatus.OK);
     }
@@ -179,12 +163,8 @@ public class AuthController {
     @PostMapping("/auth-change-password")
     private ResponseEntity<HttpStatus> changePasswordAuth(@RequestBody @Valid PersonAuthChangePasswordDTO personAuthChangePasswordDTO, Principal principal){
         Person person = peopleService.findOne(principal.getName());
-        if(personAuthChangePasswordDTO.getPassword().equals(personAuthChangePasswordDTO.getRepeatedPassword())){
-            peopleService.updatePassword(person.getId(), personAuthChangePasswordDTO.getPassword());
-            return ResponseEntity.ok(HttpStatus.OK);
-        }else{
-            return ResponseEntity.badRequest().build();
-        }
+        peopleService.changePasswordForAuthenticated(personAuthChangePasswordDTO,person);
+        return ResponseEntity.ok(HttpStatus.OK);
     }
 
    /* @ExceptionHandler

@@ -58,8 +58,6 @@ public class GamesController {
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
-
-
     @GetMapping
     private ResponseEntity<EntitiesResponseDTO<GameResponseDTO>> findGames(
         @RequestParam(value = "searchQuery") String searchQuery,

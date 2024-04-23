@@ -61,7 +61,33 @@ public class GameStatesService {
         return gameState.orElse(null);
     }
 
-    public EntitiesResponseDTO<GameStateDTO> findAll(GameStatesRequestDTO gameStatesRequestDTO, Principal principal){
+    public EntitiesResponseDTO<GameStateDTO> findAll(GameStatesRequestDTO gameStatesRequestDTO){
+        Page<GameState> page;
+        if(gameStatesRequestDTO.getSearchQuery()!=null && !gameStatesRequestDTO.getSearchQuery().isEmpty()){
+            page = gameStatesRepository.findByNameContaining(gameStatesRequestDTO.getSearchQuery(), PageRequest.of(
+                    gameStatesRequestDTO.getPageNumber() - 1,
+                    gameStatesRequestDTO.getPageSize(),
+                    Sort.by(Sort.Direction.DESC, "id")
+            ));
+        }else{
+            page = gameStatesRepository.findAll(PageRequest.of(
+                    gameStatesRequestDTO.getPageNumber() - 1,
+                    gameStatesRequestDTO.getPageSize(),
+                    Sort.by(Sort.Direction.DESC, "id")
+            ));
+        }
+
+        EntitiesResponseDTO<GameStateDTO> gameStatesDTO = new EntitiesResponseDTO<>();
+
+        gameStatesDTO.setItems(page.getContent().stream().map(
+                this::constructGameStateDTO
+        ).toList());
+        gameStatesDTO.setTotalCount(page.getTotalElements());
+
+        return gameStatesDTO;
+    }
+
+    public EntitiesResponseDTO<GameStateDTO> findAllByPerson(GameStatesRequestDTO gameStatesRequestDTO, Principal principal){
         Person person = peopleService.findOne(principal.getName());
         Page<GameState> page;
         if(gameStatesRequestDTO.getSearchQuery()!=null && !gameStatesRequestDTO.getSearchQuery().isEmpty()){
@@ -87,11 +113,12 @@ public class GameStatesService {
 
         return gameStatesDTO;
     }
+
     public EntitiesResponseDTO<GameStateDTO> findAllPublic(GameStatesRequestDTO gameStatesRequestDTO){
         Page<GameState> page;
 
         if(gameStatesRequestDTO.getSearchQuery()!=null && !gameStatesRequestDTO.getSearchQuery().isEmpty() && gameStatesRequestDTO.getSearchGameId()>0) {
-            page = gameStatesRepository.findByNameContainingAndGameIdAndGameNameContaining(
+            page = gameStatesRepository.findByNameContainingAndGameIdAndGameNameContainingAndIsPublicTrue(
                     gameStatesRequestDTO.getSearchQuery(),
                     gameStatesRequestDTO.getSearchGameId(),
                     gameStatesRequestDTO.getSearchQuery(),
@@ -102,7 +129,7 @@ public class GameStatesService {
             ));
         }
         else if(gameStatesRequestDTO.getSearchQuery()!=null && !gameStatesRequestDTO.getSearchQuery().isEmpty() && gameStatesRequestDTO.getSearchGameId()<=0){
-            page = gameStatesRepository.findByNameContainingAndGameNameContaining(
+            page = gameStatesRepository.findByNameContainingAndGameNameContainingAndIsPublicTrue(
                     gameStatesRequestDTO.getSearchQuery(),
                     gameStatesRequestDTO.getSearchQuery(),
                     PageRequest.of(
@@ -112,7 +139,7 @@ public class GameStatesService {
             ));
         }
         else if((gameStatesRequestDTO.getSearchQuery()==null || gameStatesRequestDTO.getSearchQuery().isEmpty()) && gameStatesRequestDTO.getSearchGameId()>0){
-            page = gameStatesRepository.findByNameContainingAndGameId(
+            page = gameStatesRepository.findByNameContainingAndGameIdAndIsPublicTrue(
                     gameStatesRequestDTO.getSearchQuery(),
                     gameStatesRequestDTO.getSearchGameId(),
                     PageRequest.of(
@@ -122,19 +149,19 @@ public class GameStatesService {
             ));
         }
         else {
-            page = gameStatesRepository.findAll(PageRequest.of(
+            page = gameStatesRepository.findByIsPublicTrue(PageRequest.of(
                     gameStatesRequestDTO.getPageNumber() - 1,
                     gameStatesRequestDTO.getPageSize(),
                     Sort.by(Sort.Direction.DESC, "id")
             ));
         }
 
-        List<GameState> searched = page.getContent().stream().filter(GameState::getIsPublic).toList();
+        //List<GameState> searched = page.getContent().stream().filter(GameState::getIsPublic).toList();
 
         /*List<GameState> filtered = filterGameStates(searched,gameStatesRequestDTO);*/
 
         EntitiesResponseDTO<GameStateDTO> gameStatesDTO = new EntitiesResponseDTO<>();
-        gameStatesDTO.setItems(searched.stream().map(
+        gameStatesDTO.setItems(page.stream().map(
                 this::constructGameStateDTO
         ).toList());
         gameStatesDTO.setTotalCount(page.getTotalElements());

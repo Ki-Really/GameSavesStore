@@ -1,8 +1,11 @@
 package com.example.courseWork.services.authServices;
 
+import com.example.courseWork.DTO.authDTO.PersonAuthChangePasswordDTO;
 import com.example.courseWork.DTO.entityDTO.EntitiesResponseDTO;
 import com.example.courseWork.DTO.usersDTO.PeopleRequestDTO;
 import com.example.courseWork.DTO.usersDTO.PersonDTO;
+import com.example.courseWork.models.authModel.MailStructure;
+import com.example.courseWork.models.authModel.PasswordRecoveryTokenEntity;
 import com.example.courseWork.models.authModel.Person;
 import com.example.courseWork.repositories.authRepositories.PeopleRepository;
 import com.example.courseWork.util.exceptions.personException.PersonNotFoundException;
@@ -17,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 
 @Service
@@ -25,12 +29,16 @@ public class PeopleService {
     private final PeopleRepository peopleRepository;
     private final PasswordEncoder passwordEncoder;
     private final RolesService rolesService;
+    private final MailService mailService;
+    private final PasswordRecoveryTokenService passwordRecoveryTokenService;
 
     @Autowired
-    public PeopleService(PeopleRepository peopleRepository, PasswordEncoder passwordEncoder, RolesService rolesService) {
+    public PeopleService(PeopleRepository peopleRepository, PasswordEncoder passwordEncoder, RolesService rolesService, MailService mailService, PasswordRecoveryTokenService passwordRecoveryTokenService) {
         this.peopleRepository = peopleRepository;
         this.passwordEncoder = passwordEncoder;
         this.rolesService = rolesService;
+        this.mailService = mailService;
+        this.passwordRecoveryTokenService = passwordRecoveryTokenService;
     }
 
     @Transactional
@@ -61,6 +69,36 @@ public class PeopleService {
             peopleRepository.save(person);
         }
 
+    }
+
+    public void changePasswordForAuthenticated(PersonAuthChangePasswordDTO personAuthChangePasswordDTO, Person person) {
+        if (passwordEncoder.matches(personAuthChangePasswordDTO.getOldPassword(),person.getPassword())){
+            if (personAuthChangePasswordDTO.getPassword().equals(personAuthChangePasswordDTO.getRepeatedPassword())){
+                updatePassword(person.getId(), personAuthChangePasswordDTO.getPassword());
+            }
+        }
+    }
+
+    @Transactional
+    public void sendMailForChangingPasswordUnauthorized(String email){
+        if(findPersonByEmail(email) != null){
+            UUID uuid = UUID.randomUUID();
+
+            String generatedToken = uuid.toString();
+            String emailText = "https://cloud-saves://reset-password?token="+ generatedToken;
+            String emailHtmlContent = "<html><body>"
+                    + "<h1>Password Recovery</h1>"
+                    + "<p>You can paste this link to the search bar!</p>"
+                    + "<p><a href=\"" + emailText + "\">" + emailText + "</a></p>"
+                    + "</body></html>";
+            MailStructure mailStructure = new MailStructure("Password Recovery", emailHtmlContent);
+            mailService.sendMail(email,mailStructure);
+            Person person = findPersonByEmail(email);
+            PasswordRecoveryTokenEntity passwordRecoveryTokenEntity = new PasswordRecoveryTokenEntity();
+            passwordRecoveryTokenEntity.setToken(generatedToken);
+            passwordRecoveryTokenEntity.setPerson(person);
+            passwordRecoveryTokenService.save(passwordRecoveryTokenEntity);
+        }
     }
 
     public Person checkCredentials(String username,String password){

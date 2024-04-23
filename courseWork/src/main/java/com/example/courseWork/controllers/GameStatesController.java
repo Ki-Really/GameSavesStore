@@ -43,7 +43,7 @@ public class GameStatesController {
     }
 
     @DeleteMapping("/{id}")
-    private ResponseEntity<HttpStatus> deleteGameState(@PathVariable(name ="id") int id,Principal principal) throws IOException {
+    private ResponseEntity<HttpStatus> deleteGameState(@PathVariable(name ="id") int id,Principal principal){
         gameStatesService.deleteById(id,principal);
         return ResponseEntity.ok(HttpStatus.OK);
     }
@@ -68,16 +68,27 @@ public class GameStatesController {
         GameStateDTO gameStateDTO = gameStatesService.constructGameStateDTO(gameState);
         return ResponseEntity.ok(gameStateDTO);
     }
+    @GetMapping
+    private ResponseEntity<EntitiesResponseDTO<GameStateDTO>> findAllGameStates(
+            @RequestParam(value = "searchQuery") String searchQuery,
+            @RequestParam(value = "pageSize") Integer pageSize,
+            @RequestParam(value = "pageNumber") Integer pageNumber){
+        GameStatesRequestDTO gameStatesRequestDTO = new GameStatesRequestDTO(
+                searchQuery, pageSize, pageNumber);
+        EntitiesResponseDTO<GameStateDTO> gameStatesDTO = gameStatesService.findAll(gameStatesRequestDTO);
+
+        return ResponseEntity.ok(gameStatesDTO);
+    }
 
     @GetMapping
-    private ResponseEntity<EntitiesResponseDTO> findGameStates(
+    private ResponseEntity<EntitiesResponseDTO<GameStateDTO>> findGameStatesByPerson(
             @RequestParam(value = "searchQuery") String searchQuery,
             @RequestParam(value = "pageSize") Integer pageSize,
             @RequestParam(value = "pageNumber") Integer pageNumber,
             Principal principal){
         GameStatesRequestDTO gameStatesRequestDTO = new GameStatesRequestDTO(
                 searchQuery, pageSize, pageNumber);
-        EntitiesResponseDTO<GameStateDTO> gameStatesDTO = gameStatesService.findAll(gameStatesRequestDTO,principal);
+        EntitiesResponseDTO<GameStateDTO> gameStatesDTO = gameStatesService.findAllByPerson(gameStatesRequestDTO,principal);
 
         return ResponseEntity.ok(gameStatesDTO);
     }
