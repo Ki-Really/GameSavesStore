@@ -2,11 +2,12 @@
 My diplom project. Here I wrote a server app, my colleague and friend Marsel wrote client part. This is a project where people can add, update, delete their 
 game saves. User can register, login, change password, add game save files of chosen game. In a client this game state divides on parameters, which used for making a graphics.
 This app supposed to be serving by admins, whose tasks are fill the existing games, form game state parameters for them and mark common parameters which will help in graphic building.
-User can be banned and unbanned by admin.
+User can be banned and unbanned by admin. Users can share by their game saves with another users. User can make his game states public in order to every user could see, download and use his game save files.
+
 
 Server part consists of: 
 - controllers (here i define endpoints and recieve and response data using REST API)
-- repositories (comminicating with database)
+- repositories (communicating with database)
 - services (responsible for business logic. Here occurs pagination, logic of saving, updating, deleting data in database)
 - DTO's (files which help client and server share only required data)
 - models (classes of entities, where defined fields related with database tables)
