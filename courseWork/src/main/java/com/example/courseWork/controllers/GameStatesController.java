@@ -6,16 +6,21 @@ import com.example.courseWork.DTO.gameSaveDTO.GameStateDTO;
 import com.example.courseWork.DTO.gameSaveDTO.GameStatesRequestDTO;
 import com.example.courseWork.models.gameSaveModel.GameState;
 import com.example.courseWork.services.gameStateServices.GameStatesService;
+import com.example.courseWork.util.exceptions.gameException.GameBadRequestException;
+import com.example.courseWork.util.exceptions.gameStateException.GameStateBadRequestException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.security.Principal;
+import java.util.LinkedList;
+import java.util.List;
 
 @RestController
 @RequestMapping("/game-saves")
@@ -31,8 +36,22 @@ public class GameStatesController {
 
     @PostMapping
     private ResponseEntity<GameStateDTO> addGameState(@RequestPart("archive") MultipartFile file,
-                                                     @RequestParam("gameStateData") String gameStatesData, Principal principal) throws JsonProcessingException {
-        GameStateRequestDTO addGameStateDTO = objectMapper.readValue(gameStatesData, GameStateRequestDTO.class);
+                                                      @RequestParam("gameStateData") String gameStatesData,
+                                                      BindingResult bindingResult, Principal principal) {
+        if(bindingResult.hasErrors()){
+            List<FieldError> errors = bindingResult.getFieldErrors();
+            List<String> stringErrors = new LinkedList<>();
+            for(FieldError error : errors){
+                stringErrors.add(error.getField() + " - " + error.getDefaultMessage()+";");
+            }
+            throw new GameStateBadRequestException("Game state adding failed!", stringErrors);
+        }
+        GameStateRequestDTO addGameStateDTO;
+        try {
+            addGameStateDTO = objectMapper.readValue(gameStatesData, GameStateRequestDTO.class);
+        } catch (JsonProcessingException e){
+            throw new RuntimeException(e);
+        }
 
         int gameStateId = gameStatesService.save(addGameStateDTO,file,principal);
 
@@ -51,8 +70,24 @@ public class GameStatesController {
     @PatchMapping("/{id}")
     private ResponseEntity<GameStateDTO> updateGameState(@RequestPart("archive") MultipartFile file,
                                                @RequestParam("gameStateData") String gameStateData,
-                                               @PathVariable(name ="id") int id,Principal principal) throws IOException {
-        GameStateRequestDTO gameStateRequestDTO = objectMapper.readValue(gameStateData, GameStateRequestDTO.class);
+                                               @PathVariable(name ="id") int id, BindingResult bindingResult,
+                                               Principal principal){
+        if(bindingResult.hasErrors()){
+            List<FieldError> errors = bindingResult.getFieldErrors();
+            List<String> stringErrors = new LinkedList<>();
+            for(FieldError error : errors){
+                stringErrors.add(error.getField() + " - " + error.getDefaultMessage()+";");
+            }
+            throw new GameStateBadRequestException("Game state updating failed!", stringErrors);
+        }
+
+        GameStateRequestDTO gameStateRequestDTO;
+
+        try {
+            gameStateRequestDTO = objectMapper.readValue(gameStateData, GameStateRequestDTO.class);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
         gameStatesService.update(gameStateRequestDTO,file,id,principal);
 
         GameState gameState = gameStatesService.findById(id);
@@ -68,6 +103,7 @@ public class GameStatesController {
         GameStateDTO gameStateDTO = gameStatesService.constructGameStateDTO(gameState);
         return ResponseEntity.ok(gameStateDTO);
     }
+
     @GetMapping
     private ResponseEntity<EntitiesResponseDTO<GameStateDTO>> findAllGameStates(
             @RequestParam(value = "searchQuery") String searchQuery,
@@ -80,7 +116,7 @@ public class GameStatesController {
         return ResponseEntity.ok(gameStatesDTO);
     }
 
-    @GetMapping
+    @GetMapping("/admin")
     private ResponseEntity<EntitiesResponseDTO<GameStateDTO>> findGameStatesByPerson(
             @RequestParam(value = "searchQuery") String searchQuery,
             @RequestParam(value = "pageSize") Integer pageSize,
@@ -107,7 +143,6 @@ public class GameStatesController {
         return ResponseEntity.ok(gameStatesDTO);
     }
 
-
     @GetMapping("/received-game-state-shares")
     private ResponseEntity<EntitiesResponseDTO<GameStateDTO>> findReceivedGameStates(
             @RequestParam(value = "searchQuery") String searchQuery,
@@ -119,7 +154,4 @@ public class GameStatesController {
 
         return ResponseEntity.ok(gameStatesDTO);
     }
-
-
-
 }

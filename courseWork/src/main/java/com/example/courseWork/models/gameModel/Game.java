@@ -3,6 +3,7 @@ package com.example.courseWork.models.gameModel;
 import com.example.courseWork.models.gameSaveModel.GameState;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
 
 import java.util.List;
 
@@ -14,9 +15,11 @@ public class Game {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     @NotEmpty(message ="Название игры не должно быть пустым!")
+    @Size(min = 2, max = 50, message = "Название игры должно быть от 2 до 50 символов в длину!")
     @Column(name = "name")
     private String name;
     @Column(name = "description")
+    @Size(min = 2, max = 255, message = "Описание игры должно быть от 2 до 50 символов в длину!")
     private String description;
 
     @OneToMany(mappedBy = "game", cascade = {CascadeType.PERSIST,CascadeType.MERGE,CascadeType.REMOVE,CascadeType.DETACH}, orphanRemoval = true)
@@ -34,14 +37,12 @@ public class Game {
     @OneToMany(mappedBy = "game", cascade = {CascadeType.PERSIST,CascadeType.MERGE,CascadeType.REMOVE,CascadeType.DETACH})
     private List<GameState> gameStates;
 
-
     public Game(String name, String description) {
         this.name = name;
         this.description = description;
     }
-    public Game(){
 
-    }
+    public Game(){}
 
     public int getId() {
         return id;
@@ -91,8 +92,6 @@ public class Game {
         this.scheme = scheme;
     }
 
-
-
     public void addSchemesToGame(Scheme scheme){
         scheme.setGame(this);
     }
@@ -112,5 +111,4 @@ public class Game {
     public void setGameStates(List<GameState> gameStates) {
         this.gameStates = gameStates;
     }
-
 }

@@ -1,13 +1,12 @@
 package com.example.courseWork.controllers;
 
 import com.example.courseWork.DTO.authDTO.*;
-import com.example.courseWork.models.authModel.MailStructure;
 import com.example.courseWork.models.authModel.PasswordRecoveryTokenEntity;
 import com.example.courseWork.models.authModel.Person;
-import com.example.courseWork.services.authServices.MailService;
 import com.example.courseWork.services.authServices.PasswordRecoveryTokenService;
 import com.example.courseWork.services.authServices.PeopleService;
 import com.example.courseWork.util.exceptions.personException.LoginFailedException;
+import com.example.courseWork.util.exceptions.personException.PasswordsNotMatchException;
 import com.example.courseWork.util.exceptions.personException.PersonBadCredentialsException;
 import com.example.courseWork.util.exceptions.personException.PersonNotFoundException;
 import com.example.courseWork.util.validators.personValidator.UniqueEmailValidator;
@@ -25,93 +24,54 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
-
     private final PeopleService peopleService;
-    private final MailService mailService;
     private final PasswordRecoveryTokenService passwordRecoveryTokenService;
     private final UniqueUsernameValidator uniqueUsernameValidator;
     private final UniqueEmailValidator uniqueEmailValidator;
 
     @Autowired
-    public AuthController(PeopleService peopleService, MailService mailService, PasswordRecoveryTokenService passwordRecoveryTokenService, UniqueUsernameValidator uniqueUsernameValidator, UniqueEmailValidator uniqueEmailValidator) {
+    public AuthController(PeopleService peopleService, PasswordRecoveryTokenService passwordRecoveryTokenService,
+                          UniqueUsernameValidator uniqueUsernameValidator, UniqueEmailValidator uniqueEmailValidator){
         this.peopleService = peopleService;
-        this.mailService = mailService;
         this.passwordRecoveryTokenService = passwordRecoveryTokenService;
         this.uniqueUsernameValidator = uniqueUsernameValidator;
         this.uniqueEmailValidator = uniqueEmailValidator;
     }
 
     @PostMapping("/registration")
-    private ResponseEntity<HttpStatus> create(@RequestBody @Valid Person person,
-                                              BindingResult bindingResult){
+    private ResponseEntity<HttpStatus> create(@RequestBody @Valid Person person, BindingResult bindingResult){
         uniqueUsernameValidator.validate(person,bindingResult);
         uniqueEmailValidator.validate(person,bindingResult);
 
         if(bindingResult.hasErrors()){
-           // StringBuilder errorMsg = new StringBuilder();
-
             List<FieldError> errors = bindingResult.getFieldErrors();
             List<String> stringErrors = new LinkedList<>();
             for(FieldError error : errors){
                 stringErrors.add(error.getField() +" - " + error.getDefaultMessage()+";");
-                /*errorMsg.append(error.getField())
-                        .append(" - ")
-                        .append(error.getDefaultMessage())
-                        .append(";");*/
             }
-
             throw new PersonBadCredentialsException("Registration failed", stringErrors);
         }
         peopleService.save(person);
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
-    /*@PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody @Valid PersonLoginDTO personLoginDTO) {
-        try {
-            // Попытка аутентификации пользователя
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(personLoginDTO.getUsername(), personLoginDTO.getPassword())
-            );
-
-            // Установка аутентификации в контекст безопасности
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-
-            UserDetails userDetails = personDetailsService.loadUserByUsername(personLoginDTO.getUsername());
-
-            return ResponseEntity.ok("Login successful!");
-        } catch (UsernameNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
-        } catch (AuthenticationException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authentication failed");
-        }
-    }*/
-  /*  @ExceptionHandler(LoginFailedException.class)
-    public ResponseEntity<String> handleLoginFailedException(LoginFailedException ex) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
-    }*/
-
     @PostMapping("/login")
     private ResponseEntity<SendPersonFromLoginDTO> login(
         @RequestBody @Valid PersonLoginDTO personLoginDTO,
         BindingResult bindingResult,
-        HttpServletRequest request
-    ) {
+        HttpServletRequest request) {
         if(bindingResult.hasErrors()){
             List<String> stringErrors = new LinkedList<>();
             List<FieldError> errors = bindingResult.getFieldErrors();
             for(FieldError error : errors){
                 stringErrors.add(error.getField() +" - " + error.getDefaultMessage()+";");
-
             }
             throw new PersonBadCredentialsException("Bad credentials",stringErrors);
         }
-
         try{
             request.login(personLoginDTO.getUsername(), personLoginDTO.getPassword());
         }catch(ServletException e){
@@ -121,7 +81,6 @@ public class AuthController {
         if(person == null){
             throw new PersonNotFoundException("User not found!");
         }
-
         SendPersonFromLoginDTO sendPersonFromLoginDTO = new SendPersonFromLoginDTO(person.getUsername(),
                 person.getEmail(),person.getRole().getName());
         return ResponseEntity.ok(sendPersonFromLoginDTO);
@@ -140,7 +99,6 @@ public class AuthController {
     private ResponseEntity<HttpStatus> recoverPassword(@RequestBody @Valid PersonPasswordRecoveryDTO personPasswordRecoveryDTO){
         String email = personPasswordRecoveryDTO.getEmail();
         peopleService.sendMailForChangingPasswordUnauthorized(email);
-
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
@@ -154,7 +112,7 @@ public class AuthController {
                 passwordRecoveryTokenService.remove(passwordRecoveryTokenEntity);
                 return ResponseEntity.ok(HttpStatus.OK);
             }else{
-                return ResponseEntity.badRequest().build();
+                throw new PasswordsNotMatchException("Passwords not equal!");
             }
         }
         return ResponseEntity.badRequest().build();
@@ -180,7 +138,4 @@ public class AuthController {
                 System.currentTimeMillis());
         return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
     }*/
-
-
-
 }

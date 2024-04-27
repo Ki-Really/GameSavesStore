@@ -24,16 +24,7 @@ public class PathsService {
         this.pathsRepository = pathsRepository;
         this.imagesService = imagesService;
     }
-    /*public Path findById(int id){
-        Optional<Path> path = pathsRepository.findById(id);
-        return path.orElse(null);
-    }
-    public Page<Path> findByPath(String path, Pageable pageable){
-        return pathsRepository.findByPathContaining(path,pageable);
-    }
-    public Page<Path> findAll(Pageable pageable){
-        return pathsRepository.findAll(pageable);
-    }*/
+
     public EntitiesResponseDTO<GamePathDTO> findPaths(GamePathsRequestDTO gamePathsRequestDTO){
         Page<Path> page;
         if(gamePathsRequestDTO.getSearchQuery()!=null && !gamePathsRequestDTO.getSearchQuery().isEmpty()){
@@ -56,18 +47,17 @@ public class PathsService {
 
         return gamePathsResponseDTO;
     }
+
     private List<GamePathDTO> constructGamePath(List<Path> paths){
 
         List<GamePathDTO> gamePaths = new LinkedList<>();
         for(Path path : paths){
-
             GamePathDTO gamePathDTO = new GamePathDTO();
             gamePathDTO.setGameId(path.getGame().getId());
             gamePathDTO.setGameName(path.getGame().getName());
             gamePathDTO.setGameIconUrl(imagesService.getFileUrl(path.getGame().getImage().getId()));
             gamePathDTO.setId(path.getId());
             gamePathDTO.setPath(path.getPath());
-
             gamePaths.add(gamePathDTO);
         }
         return gamePaths;

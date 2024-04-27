@@ -17,6 +17,7 @@ import com.example.courseWork.models.gameSaveModel.GameStateValue;
 import com.example.courseWork.models.graphicCommonModel.GraphicCommon;
 import com.example.courseWork.repositories.graphicCommonRepositories.GraphicCommonsRepository;
 import com.example.courseWork.services.commonParameterServices.CommonParametersService;
+import com.example.courseWork.util.exceptions.graphicCommonException.GraphicCommonNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -44,7 +45,11 @@ public class GraphicCommonsService {
     }
     @Transactional
     public void delete(int id){
-        graphicCommonsRepository.deleteById(id);
+        Optional<GraphicCommon> optionalGraphicCommon = graphicCommonsRepository.findById(id);
+        if(optionalGraphicCommon.isPresent()){
+            GraphicCommon graphicCommon = optionalGraphicCommon.get();
+            graphicCommonsRepository.delete(graphicCommon);
+        }
     }
     @Transactional
     public GraphicCommonDTO update(int id, GraphicCommonRequestDTO graphicCommonRequestDTO){
@@ -55,8 +60,9 @@ public class GraphicCommonsService {
             updatedGraphicCommon.setId(graphicCommonToUpdate.getId());
             graphicCommonsRepository.save(updatedGraphicCommon);
             return constructGraphicCommonDTO(updatedGraphicCommon);
+        }else {
+            throw new GraphicCommonNotFoundException("Graphic with this id was not found!");
         }
-        return null;
     }
 
     public String findVisualTypeById(int id){
@@ -97,8 +103,7 @@ public class GraphicCommonsService {
 
     public GraphicCommonDTO findById(int id) {
         Optional<GraphicCommon> optionalGraphicCommon = graphicCommonsRepository.findById(id);
-        GraphicCommon graphicCommon = optionalGraphicCommon.orElseThrow();
-
+        GraphicCommon graphicCommon = optionalGraphicCommon.orElseThrow(()->new GraphicCommonNotFoundException("Graphic with this id was not found!"));
         return constructGraphicCommonDTO(graphicCommon);
     }
 
@@ -110,6 +115,7 @@ public class GraphicCommonsService {
         commonParameter.getGraphicCommons().add(graphicCommon);
         return graphicCommon;
     }
+
     private GraphicCommonDTO constructGraphicCommonDTO(GraphicCommon graphicCommon) {
         GraphicCommonDTO graphicCommonDTO = new GraphicCommonDTO();
         graphicCommonDTO.setId(graphicCommon.getId());
@@ -117,6 +123,7 @@ public class GraphicCommonsService {
         graphicCommonDTO.setCommonParameter(convertToCommonParameterDTO(graphicCommon.getCommonParameter()));
         return graphicCommonDTO;
     }
+
  /*   public GraphicCommon graphicCommon(int id){
         graphicCommonsRepository.findById(id);
     }*/

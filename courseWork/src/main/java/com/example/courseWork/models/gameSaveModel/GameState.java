@@ -4,6 +4,8 @@ import com.example.courseWork.models.authModel.Person;
 import com.example.courseWork.models.gameModel.Game;
 import com.example.courseWork.models.sharedSave.SharedSave;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -15,11 +17,15 @@ public class GameState {
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    @NotEmpty(message = "Name of game save should not be empty!")
+    @Size(min = 2, max = 50, message = "The name of the game save must be from 2 to 50 characters in length!")
     @Column(name = "name")
     private String name;
     @Column(name = "local_path")
+    @NotEmpty(message = "Local path of game save should not be empty!")
     private String localPath;
     @Column(name = "archive_name")
+    @NotEmpty(message = "Archive name of game save should not be empty!")
     private String archiveName;
     @Column(name = "size_in_bytes")
     private long sizeInBytes;

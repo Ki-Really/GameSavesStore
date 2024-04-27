@@ -20,7 +20,6 @@ public class GamePathsController {
         this.pathsService = pathsService;
     }
 
-
     @GetMapping
     private ResponseEntity<EntitiesResponseDTO<GamePathDTO>> findGamePaths(
             @RequestParam(value = "searchQuery") String searchQuery,
@@ -30,7 +29,6 @@ public class GamePathsController {
                 searchQuery, pageSize, pageNumber
         );
         EntitiesResponseDTO<GamePathDTO> gamePathsResponseDTO = pathsService.findPaths(gamePathsRequestDTO);
-
         return ResponseEntity.ok(gamePathsResponseDTO);
     }
 }

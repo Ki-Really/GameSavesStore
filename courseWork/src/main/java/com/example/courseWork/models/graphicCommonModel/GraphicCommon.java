@@ -2,6 +2,7 @@ package com.example.courseWork.models.graphicCommonModel;
 
 import com.example.courseWork.models.commonParameters.CommonParameter;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
 
 @Entity
 @Table(schema ="cloud_game_saves",name = "graphic_common")
@@ -11,6 +12,7 @@ public class GraphicCommon {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @NotEmpty(message = "Type of graphic should not be empty!")
     @Column(name="visual_type")
     private String visualType;
 

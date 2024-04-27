@@ -4,6 +4,7 @@ import com.example.courseWork.models.gameModel.GameStateParameter;
 import com.example.courseWork.models.gameModel.GameStateParameterType;
 import com.example.courseWork.models.graphicCommonModel.GraphicCommon;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
 
 import java.util.List;
 
@@ -15,10 +16,13 @@ public class CommonParameter {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @NotEmpty(message = "Label should not be empty!")
     @Column(name="label")
     private String label;
+
     @Column(name="description")
     private String description;
+
     @ManyToOne(cascade = {CascadeType.PERSIST,CascadeType.MERGE})
     @JoinColumn(name = "fk_game_state_parameter_type",referencedColumnName = "id")
     private GameStateParameterType gameStateParameterType;

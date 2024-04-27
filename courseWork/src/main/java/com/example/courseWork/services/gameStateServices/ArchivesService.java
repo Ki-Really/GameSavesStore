@@ -1,7 +1,5 @@
 package com.example.courseWork.services.gameStateServices;
 
-import com.example.courseWork.models.gameModel.Game;
-import com.example.courseWork.models.gameModel.Image;
 import com.example.courseWork.models.gameSaveModel.GameState;
 import com.example.courseWork.services.props.MinioProperties;
 import io.minio.*;

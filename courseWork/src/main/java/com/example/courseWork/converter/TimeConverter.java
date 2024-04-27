@@ -24,7 +24,7 @@ public class TimeConverter {
                 }
                 case "time_date_format" -> {
                     SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
-                    Date date = null;
+                    Date date;
                     try {
                         date = dateFormat.parse(value);
                     } catch (ParseException e) {

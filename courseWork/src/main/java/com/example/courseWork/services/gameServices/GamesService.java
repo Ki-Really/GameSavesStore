@@ -7,6 +7,7 @@ import com.example.courseWork.models.commonParameters.CommonParameter;
 import com.example.courseWork.models.gameModel.*;
 import com.example.courseWork.repositories.gameRepositories.GamesRepository;
 import com.example.courseWork.services.commonParameterServices.CommonParametersService;
+import com.example.courseWork.util.exceptions.gameException.GameNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,14 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
-/*
-delete from path;
-        delete from extractionpipeline;
-        delete from image;
-        delete from game_state_parameter;
-        delete from scheme;
-        delete from game;
-        */
 
 @Service
 @Transactional
@@ -34,22 +27,28 @@ public class GamesService {
     private final GameStateParameterTypesService gameStateParameterTypesService;
 
     private final CommonParametersService commonParametersService;
-    private final PathsService pathsService;
+
     @Autowired
-    public GamesService(GamesRepository gamesRepository, ImagesService imagesService, GameStateParameterTypesService gameStateParameterTypesService, PathsService pathsService, CommonParametersService commonParametersService) {
+    public GamesService(GamesRepository gamesRepository, ImagesService imagesService,
+                        GameStateParameterTypesService gameStateParameterTypesService,
+                        CommonParametersService commonParametersService){
         this.gamesRepository = gamesRepository;
         this.imagesService = imagesService;
         this.gameStateParameterTypesService = gameStateParameterTypesService;
-        this.pathsService = pathsService;
         this.commonParametersService = commonParametersService;
     }
 
     public Game findByName(String name){
         Optional<Game> game = gamesRepository.findByName(name);
-        return game.orElse(null);
+        return game.orElseThrow(()->new GameNotFoundException("Game with name "+name+" not found!"));
     }
     public Game findOne(int id){
         Optional<Game> game = gamesRepository.findById(id);
+        return game.orElseThrow(() -> new GameNotFoundException("Game with this id was not found!"));
+    }
+
+    public Game checkGamePresentByName(String name){
+        Optional<Game> game = gamesRepository.findByName(name);
         return game.orElse(null);
     }
 
@@ -78,18 +77,17 @@ public class GamesService {
         return gamesResponseDTO;
     }
 
-
-
     @Transactional
     public void deleteById(int id) {
         Optional<Game> optionalGame = gamesRepository.findById(id);
-
         if(optionalGame.isPresent()){
             Game game = optionalGame.get();
             if(game.getImage() != null){
                 imagesService.removeFile(game.getImage());
             }
             gamesRepository.delete(game);
+        }else{
+            throw new GameNotFoundException("Game with this id was not found!");
         }
     }
 
@@ -168,11 +166,11 @@ public class GamesService {
         image.setGame(game);
         return game;
     }
+
     private String generateFilename(MultipartFile file){
         if (file == null) {
             return  "";
         }
-
         String extension = getExtension(file);
         return UUID.randomUUID() + "." + extension;
     }
@@ -195,12 +193,11 @@ public class GamesService {
 
     private List<ExtractionPipeline> convertToExtractionPipeline(List<ExtractionPipelineDTO> extractionPipelineDTOS,Game game){
         List<ExtractionPipeline> listToReturn = new LinkedList<>();
-        for(int i = 0; i<extractionPipelineDTOS.size(); i++){
-            ExtractionPipelineDTO pipelineDTO = extractionPipelineDTOS.get(i);
+        for (ExtractionPipelineDTO pipelineDTO : extractionPipelineDTOS) {
             ExtractionPipeline pipeline = new ExtractionPipeline(pipelineDTO.getType(),
                     pipelineDTO.getInputFilename(),
                     pipelineDTO.getOutputFilename());
-            if(pipelineDTO.getId() != 0){
+            if (pipelineDTO.getId() != 0) {
                 pipeline.setId(pipelineDTO.getId());
             }
             pipeline.setGame(game);
@@ -211,15 +208,14 @@ public class GamesService {
 
     private List<GameStateParameter> convertToGameStateParameter(List<GameStateParameterDTO> gameStateParameterDTOS, Scheme scheme){
         List<GameStateParameter> listToReturn = new LinkedList<>();
-        for(int i = 0; i<gameStateParameterDTOS.size(); i++){
-            GameStateParameterDTO gameStateParameterDTO = gameStateParameterDTOS.get(i);
+        for (GameStateParameterDTO gameStateParameterDTO : gameStateParameterDTOS) {
             GameStateParameter gameStateParameter = new GameStateParameter(
                     gameStateParameterDTO.getKey(),
                     gameStateParameterDTO.getLabel(),
                     gameStateParameterDTO.getDescription()
             );
 
-            if(gameStateParameterDTO.getId() != 0){
+            if (gameStateParameterDTO.getId() != 0) {
                 gameStateParameter.setId(gameStateParameterDTO.getId());
             }
 
@@ -228,7 +224,7 @@ public class GamesService {
             GameStateParameterType gameStateParameterType = gameStateParameterTypesService.findByType(gameStateParameterDTO.getType());
             gameStateParameter.setGameStateParameterType(gameStateParameterType);
 
-            if(gameStateParameterDTO.getCommonParameterId()>0){
+            if (gameStateParameterDTO.getCommonParameterId() > 0) {
 
                 CommonParameter commonParameter = commonParametersService.findById(
                         gameStateParameterDTO.getCommonParameterId()
@@ -237,9 +233,9 @@ public class GamesService {
             }
 
             List<GameStateParameter> gameStateParameters;
-            if(gameStateParameterType.getGameStateParameters() != null){
+            if (gameStateParameterType.getGameStateParameters() != null) {
                 gameStateParameters = gameStateParameterType.getGameStateParameters();
-            }else{
+            } else {
                 gameStateParameters = new LinkedList<>();
             }
             gameStateParameters.add(gameStateParameter);
@@ -309,8 +305,7 @@ public class GamesService {
     }
     private List<ExtractionPipelineDTO> convertToExtractionPipelineDTO(List<ExtractionPipeline> extractionPipelines){
         List<ExtractionPipelineDTO> listToReturn = new LinkedList<>();
-        for(int i = 0; i<extractionPipelines.size(); i++){
-            ExtractionPipeline extractionPipeline = extractionPipelines.get(i);
+        for (ExtractionPipeline extractionPipeline : extractionPipelines) {
             ExtractionPipelineDTO extractionPipelineDTO = new ExtractionPipelineDTO(
                     extractionPipeline.getType(),
                     extractionPipeline.getInputFilename(),
@@ -320,6 +315,7 @@ public class GamesService {
         }
         return listToReturn;
     }
+
     private CommonParameterDTO constructCommonParameterDTO(CommonParameter commonParameter){
         CommonParameterDTO commonParameterDTO = new CommonParameterDTO();
         commonParameterDTO.setLabel(commonParameter.getLabel());

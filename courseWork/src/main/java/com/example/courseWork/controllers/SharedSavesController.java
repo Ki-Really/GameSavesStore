@@ -5,11 +5,16 @@ import com.example.courseWork.DTO.sharedSaveDTO.ShareWithDTO;
 import com.example.courseWork.models.sharedSave.SharedSave;
 import com.example.courseWork.DTO.sharedSaveDTO.GameStateShareResponseDTO;
 import com.example.courseWork.services.gameStateSharesServices.GameStateSharesService;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.example.courseWork.util.exceptions.gameException.GameBadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.LinkedList;
+import java.util.List;
 
 @RestController
 @RequestMapping("/game-state-shares")
@@ -24,7 +29,16 @@ public class SharedSavesController{
     }
 
     @PostMapping
-    private ResponseEntity<GameStateShareResponseDTO> addGameStateShare(@RequestBody ShareWithDTO shareWithDTO) throws JsonProcessingException {
+    private ResponseEntity<GameStateShareResponseDTO> addGameStateShare(@RequestBody ShareWithDTO shareWithDTO,
+                                                                        BindingResult bindingResult){
+        if(bindingResult.hasErrors()){
+            List<FieldError> errors = bindingResult.getFieldErrors();
+            List<String> stringErrors = new LinkedList<>();
+            for(FieldError error : errors){
+                stringErrors.add(error.getField() + " - " + error.getDefaultMessage()+";");
+            }
+            throw new GameBadRequestException("Shared save adding failed!", stringErrors);
+        }
         SharedSave sharedSave = gameStateSharesService.save(shareWithDTO);
 
         GameStateShareResponseDTO gameStateShareResponseDTO = gameStateSharesService.constructResponseDTO(sharedSave);

@@ -4,15 +4,18 @@ import com.example.courseWork.DTO.entityDTO.EntitiesResponseDTO;
 import com.example.courseWork.DTO.graphicCommonDTO.GraphicCommonDTO;
 import com.example.courseWork.DTO.graphicCommonDTO.GraphicCommonRequestDTO;
 import com.example.courseWork.DTO.graphicCommonDTO.GraphicCommonsRequestDTO;
-import com.example.courseWork.DTO.graphicCommonDataDTO.GraphicCommonHistogramTimeResponseDataDTO;
-import com.example.courseWork.DTO.graphicCommonDataDTO.GraphicCommonPieChartGenderResponseDataDTO;
 import com.example.courseWork.DTO.graphicCommonDataDTO.GraphicDataResponse;
 import com.example.courseWork.services.graphicCommonServices.GraphicCommonsService;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.example.courseWork.util.exceptions.graphicCommonException.GraphicCommonBadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.LinkedList;
+import java.util.List;
 
 @RestController
 @RequestMapping
@@ -24,10 +27,19 @@ public class GraphicCommonsController {
         this.graphicCommonsService = graphicCommonsService;
     }
     @PostMapping("/graphic/common")
-    private ResponseEntity<GraphicCommonDTO> addCommonGraphic(@RequestBody GraphicCommonRequestDTO graphicCommonRequestDTO) throws JsonProcessingException {
+    private ResponseEntity<GraphicCommonDTO> addCommonGraphic(@RequestBody GraphicCommonRequestDTO graphicCommonRequestDTO, BindingResult bindingResult){
+        if(bindingResult.hasErrors()){
+            List<FieldError> errors = bindingResult.getFieldErrors();
+            List<String> stringErrors = new LinkedList<>();
+            for(FieldError error : errors){
+                stringErrors.add(error.getField() + " - " + error.getDefaultMessage()+";");
+            }
+            throw new GraphicCommonBadRequestException("Graphic adding failed!", stringErrors);
+        }
         GraphicCommonDTO graphicCommonDTO = graphicCommonsService.save(graphicCommonRequestDTO);
         return ResponseEntity.ok(graphicCommonDTO);
     }
+
     @PatchMapping("/graphic/common/{id}")
     private ResponseEntity<GraphicCommonDTO> updateCommonGraphic(
             @PathVariable(name = "id") int id,

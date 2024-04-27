@@ -1,6 +1,7 @@
 package com.example.courseWork.models.gameModel;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
 
 @Entity
 @Table(name="Image")
@@ -10,6 +11,7 @@ public class Image {
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    @NotEmpty(message = "Game name should not be empty!")
     @Column(name = "name")
     private String name;
     @OneToOne

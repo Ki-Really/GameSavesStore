@@ -32,7 +32,6 @@ public class Person implements Serializable {
     private String email;
 
     @NotEmpty(message ="Поле пароль не должно быть пустым!")
-    /*@Size(min = 3, max = 50, message = "Поле пароль должно быть от 3 до 50 символов в длину!")*/
     @Column(name = "password")
     private String password;
 
@@ -42,6 +41,7 @@ public class Person implements Serializable {
 
     @Column(name = "is_blocked")
     private boolean isBlocked;
+
     @OneToOne(mappedBy = "person")
     private PasswordRecoveryTokenEntity passwordRecoveryTokenEntity;
 
@@ -50,8 +50,10 @@ public class Person implements Serializable {
 
     @OneToMany(mappedBy = "person",cascade = {CascadeType.PERSIST,CascadeType.MERGE,CascadeType.REMOVE,CascadeType.DETACH})
     private List<SharedSave> sharedSaves;
+
     public Person() {
     }
+
     public Person(String username, String email, String password, boolean isBlocked) {
         this.username = username;
         this.email = email;

@@ -2,6 +2,7 @@ package com.example.courseWork.models.authModel;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
 
 import java.io.Serializable;
 import java.util.List;
@@ -13,7 +14,7 @@ public class Role implements Serializable {
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-
+    @NotEmpty(message ="Название роли не должно быть пустым!")
     @Column(name = "name", unique = true)
     private String name;
 

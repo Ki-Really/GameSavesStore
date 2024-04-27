@@ -1,6 +1,7 @@
 package com.example.courseWork.models.gameModel;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
 
 @Entity
 @Table(name ="extraction_pipeline")
@@ -9,11 +10,13 @@ public class ExtractionPipeline {
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-
+    @NotEmpty(message="Type should not be empty!")
     @Column(name = "type")
     private String type;
+    @NotEmpty(message="Input filename should not be empty!")
     @Column(name = "input_filename")
     private String inputFilename;
+    @NotEmpty(message="Output filename should not be empty!")
     @Column(name = "output_filename")
     private String outputFilename;
 

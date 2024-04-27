@@ -2,7 +2,10 @@ package com.example.courseWork.services.authServices;
 
 import com.example.courseWork.models.authModel.Role;
 import com.example.courseWork.repositories.authRepositories.RoleRepository;
+import com.example.courseWork.util.exceptions.personException.RoleNotExistsException;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class RolesService {
@@ -13,7 +16,11 @@ public class RolesService {
     }
 
     public Role assignRole(String roleName){
-        Role foundedRole = roleRepository.findByName(roleName);
-        return foundedRole;
+        Optional<Role> optionalFoundedRole = roleRepository.findByName(roleName);
+        if(optionalFoundedRole.isPresent()){
+            return optionalFoundedRole.get();
+        }else{
+            throw new RoleNotExistsException("Role " + roleName + " does not exists!");
+        }
     }
 }

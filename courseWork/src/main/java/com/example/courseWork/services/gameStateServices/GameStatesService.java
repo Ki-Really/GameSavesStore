@@ -15,6 +15,9 @@ import com.example.courseWork.repositories.gameSavesRepositories.GameStatesRepos
 import com.example.courseWork.services.authServices.PeopleService;
 import com.example.courseWork.services.gameServices.GamesService;
 import com.example.courseWork.services.gameServices.ImagesService;
+import com.example.courseWork.util.exceptions.gameException.GameNotFoundException;
+import com.example.courseWork.util.exceptions.gameStateException.GameStateNoAccessException;
+import com.example.courseWork.util.exceptions.gameStateException.GameStateNotFoundException;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,7 +61,7 @@ public class GameStatesService {
 
     public GameState findById(int id){
         Optional<GameState> gameState = gameStatesRepository.findById(id);
-        return gameState.orElse(null);
+        return gameState.orElseThrow(()->new GameNotFoundException("Game with this id was not found!"));
     }
 
     public EntitiesResponseDTO<GameStateDTO> findAll(GameStatesRequestDTO gameStatesRequestDTO){
@@ -288,6 +291,7 @@ public class GameStatesService {
         }
         return gameStatesDTO;
     }
+
     @Transactional
     public int save(GameStateRequestDTO gameStateRequestDTO, MultipartFile file, Principal principal) {
         String fileName = generateFilename(file);
@@ -296,6 +300,7 @@ public class GameStatesService {
         gameStatesRepository.save(gameState);
         return gameState.getId();
     }
+
     @Transactional
     public void deleteById(int id,Principal principal){
         Optional<GameState> optionalGameState = gameStatesRepository.findById(id);
@@ -307,8 +312,11 @@ public class GameStatesService {
                 }
                 gameStatesRepository.delete(gameState);
             }
+        }else{
+            throw new GameStateNotFoundException("Game state with this id was not found!");
         }
     }
+
     @Transactional
     public void update(GameStateRequestDTO gameStateRequestDTO,MultipartFile file, int id,Principal principal){
         Optional<GameState> optionalGameState = gameStatesRepository.findById(id);
@@ -323,6 +331,8 @@ public class GameStatesService {
                 archivesService.update(file,updatedGameState);
                 updatedGameState.setUpdatedAt(LocalDateTime.now());
                 gameStatesRepository.save(updatedGameState);
+            }else{
+                throw new GameStateNoAccessException("You have no roots to change not your data!");
             }
         }
     }
@@ -433,11 +443,11 @@ public class GameStatesService {
         }
         return listToReturn;
     }
+
     private GameStateParameterTypeDTO convertToGameStateParameterTypeDTO(GameStateParameterType gameStateParameterType){
         GameStateParameterTypeDTO gameStateParameterTypeDTO = new GameStateParameterTypeDTO();
         gameStateParameterTypeDTO.setId(gameStateParameterType.getId());
         gameStateParameterTypeDTO.setType(gameStateParameterType.getType());
         return gameStateParameterTypeDTO;
     }
-
 }

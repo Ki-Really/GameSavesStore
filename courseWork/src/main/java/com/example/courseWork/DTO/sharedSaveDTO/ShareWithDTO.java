@@ -1,7 +1,12 @@
 package com.example.courseWork.DTO.sharedSaveDTO;
 
+import jakarta.validation.constraints.NotNull;
+
 public class ShareWithDTO {
+    @NotNull(message = "Game state id should not be null!")
     private int gameStateId;
+
+    @NotNull(message = "Person's id should not be null!")
     private int shareWithId;
 
     public ShareWithDTO(int gameStateId, int shareWithId) {

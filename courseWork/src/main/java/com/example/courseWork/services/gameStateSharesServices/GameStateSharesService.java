@@ -9,11 +9,13 @@ import com.example.courseWork.models.sharedSave.SharedSave;
 import com.example.courseWork.repositories.gameStateSharesRepositories.GameStateSharesRepository;
 import com.example.courseWork.services.authServices.PeopleService;
 import com.example.courseWork.services.gameStateServices.GameStatesService;
+import com.example.courseWork.util.exceptions.sharedSaveException.SharedSaveNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -39,7 +41,13 @@ public class GameStateSharesService {
     }
     @Transactional
     public void deleteById(int id){
-        gameStateSharesRepository.deleteById(id);
+        Optional<SharedSave> optionalSharedSave = gameStateSharesRepository.findById(id);
+        if(optionalSharedSave.isPresent()){
+            gameStateSharesRepository.deleteById(id);
+        }
+        else {
+            throw new SharedSaveNotFoundException("Shared save with this id was not found!");
+        }
     }
 
     public EntitiesResponseDTO<GameStateShareResponseDTO> getGameStateShares(int id){
@@ -61,14 +69,10 @@ public class GameStateSharesService {
     private SharedSave convertToSharedSave(ShareWithDTO shareWithDTO){
         Person person = peopleService.findPersonById(shareWithDTO.getShareWithId());
         GameState gameState = gameStatesService.findById(shareWithDTO.getGameStateId());
-
-        if(gameState != null && person != null){
-            SharedSave sharedSave = new SharedSave(person,gameState);
-            person.getSharedSaves().add(sharedSave);
-            gameState.getSharedSaves().add(sharedSave);
-            return sharedSave;
-        }
-        return null;
+        SharedSave sharedSave = new SharedSave(person,gameState);
+        person.getSharedSaves().add(sharedSave);
+        gameState.getSharedSaves().add(sharedSave);
+        return sharedSave;
     }
     private GameStateShareResponseDTO convertToGameStateShareResponseDTO(SharedSave sharedSave){
         GameStateShareResponseDTO gameStateShareResponseDTO = new GameStateShareResponseDTO(sharedSave.getId(),
@@ -79,6 +83,4 @@ public class GameStateSharesService {
         return new GameStateShareResponseDTO(
                 sharedSave.getPerson().getId(),sharedSave.getPerson().getUsername());
     }
-
-
 }

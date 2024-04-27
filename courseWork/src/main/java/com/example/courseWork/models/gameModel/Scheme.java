@@ -12,18 +12,16 @@ public class Scheme {
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-   // @NotEmpty(message ="Путь не должен быть пустым!")
+
     @Column(name = "filename")
     private String filename;
 
-    @Unique
     @OneToOne
     @JoinColumn(name ="fk_game_id",referencedColumnName = "id")
     private Game game;
 
     @OneToMany(mappedBy="scheme", cascade = {CascadeType.PERSIST,CascadeType.MERGE,CascadeType.REMOVE,CascadeType.DETACH}, orphanRemoval = true)
     private List<GameStateParameter> gameStateParameters;
-
 
     public Scheme(String filename) {
         this.filename = filename;

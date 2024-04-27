@@ -18,8 +18,6 @@ public class Path {
     @JoinColumn(name ="fk_game_id",referencedColumnName = "id")
     private Game game;
 
-
-
     public Path() {
     }
 

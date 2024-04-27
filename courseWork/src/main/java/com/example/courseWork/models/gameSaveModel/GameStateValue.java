@@ -2,8 +2,7 @@ package com.example.courseWork.models.gameSaveModel;
 
 import com.example.courseWork.models.gameModel.GameStateParameter;
 import jakarta.persistence.*;
-
-import java.util.List;
+import jakarta.validation.constraints.NotEmpty;
 
 @Entity
 @Table(name= "game_state_value")
@@ -12,6 +11,7 @@ public class GameStateValue {
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    @NotEmpty(message = "Value should not be empty!")
     @Column(name="value")
     private String value;
     @ManyToOne
@@ -21,7 +21,6 @@ public class GameStateValue {
     @ManyToOne
     @JoinColumn(name="fk_game_state_id", referencedColumnName = "id")
     private GameState gameState;
-
 
     public GameStateValue(String value, GameStateParameter gameStateParameter) {
         this.value = value;
@@ -38,8 +37,6 @@ public class GameStateValue {
     public void setId(int id) {
         this.id = id;
     }
-
-
 
     public GameState getGameState() {
         return gameState;

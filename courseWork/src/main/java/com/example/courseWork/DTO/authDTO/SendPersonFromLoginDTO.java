@@ -1,7 +1,5 @@
 package com.example.courseWork.DTO.authDTO;
 
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Size;
 
 public class SendPersonFromLoginDTO {
 

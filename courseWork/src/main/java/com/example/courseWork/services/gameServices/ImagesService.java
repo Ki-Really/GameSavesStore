@@ -127,5 +127,4 @@ public class ImagesService {
             return "Error occurred while getting the file URL";
         }
     }
-
 }

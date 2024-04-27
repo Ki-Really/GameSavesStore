@@ -8,7 +8,9 @@ import com.example.courseWork.models.authModel.MailStructure;
 import com.example.courseWork.models.authModel.PasswordRecoveryTokenEntity;
 import com.example.courseWork.models.authModel.Person;
 import com.example.courseWork.repositories.authRepositories.PeopleRepository;
+import com.example.courseWork.util.exceptions.personException.PasswordsNotMatchException;
 import com.example.courseWork.util.exceptions.personException.PersonNotFoundException;
+import com.example.courseWork.util.exceptions.personException.WrongPasswordException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -18,6 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -31,14 +34,16 @@ public class PeopleService {
     private final RolesService rolesService;
     private final MailService mailService;
     private final PasswordRecoveryTokenService passwordRecoveryTokenService;
+    private final TokenCleanupScheduler tokenCleanupScheduler;
 
     @Autowired
-    public PeopleService(PeopleRepository peopleRepository, PasswordEncoder passwordEncoder, RolesService rolesService, MailService mailService, PasswordRecoveryTokenService passwordRecoveryTokenService) {
+    public PeopleService(PeopleRepository peopleRepository, PasswordEncoder passwordEncoder, RolesService rolesService, MailService mailService, PasswordRecoveryTokenService passwordRecoveryTokenService, TokenCleanupScheduler tokenCleanupScheduler) {
         this.peopleRepository = peopleRepository;
         this.passwordEncoder = passwordEncoder;
         this.rolesService = rolesService;
         this.mailService = mailService;
         this.passwordRecoveryTokenService = passwordRecoveryTokenService;
+        this.tokenCleanupScheduler = tokenCleanupScheduler;
     }
 
     @Transactional
@@ -68,14 +73,17 @@ public class PeopleService {
             person.setIsBlocked(false);
             peopleRepository.save(person);
         }
-
     }
 
     public void changePasswordForAuthenticated(PersonAuthChangePasswordDTO personAuthChangePasswordDTO, Person person) {
         if (passwordEncoder.matches(personAuthChangePasswordDTO.getOldPassword(),person.getPassword())){
             if (personAuthChangePasswordDTO.getPassword().equals(personAuthChangePasswordDTO.getRepeatedPassword())){
                 updatePassword(person.getId(), personAuthChangePasswordDTO.getPassword());
+            }else{
+                throw new PasswordsNotMatchException("Passwords are not equals!");
             }
+        }else{
+            throw new WrongPasswordException("Wrong password!");
         }
     }
 
@@ -83,7 +91,6 @@ public class PeopleService {
     public void sendMailForChangingPasswordUnauthorized(String email){
         if(findPersonByEmail(email) != null){
             UUID uuid = UUID.randomUUID();
-
             String generatedToken = uuid.toString();
             String emailText = "https://cloud-saves://reset-password?token="+ generatedToken;
             String emailHtmlContent = "<html><body>"
@@ -97,26 +104,18 @@ public class PeopleService {
             PasswordRecoveryTokenEntity passwordRecoveryTokenEntity = new PasswordRecoveryTokenEntity();
             passwordRecoveryTokenEntity.setToken(generatedToken);
             passwordRecoveryTokenEntity.setPerson(person);
+            passwordRecoveryTokenEntity.setExpiryDate(LocalDateTime.now().plusMinutes(1));
             passwordRecoveryTokenService.save(passwordRecoveryTokenEntity);
+            tokenCleanupScheduler.cleanupExpiredTokens();
         }
-    }
-
-    public Person checkCredentials(String username,String password){
-        Optional<Person> person = peopleRepository.findByUsername(username);
-        String encodedPassword = passwordEncoder.encode(password);
-
-        if(person.isPresent() && passwordEncoder.matches(password,person.get().getPassword())) {
-            System.out.println(encodedPassword);
-            System.out.println(person.get().getPassword());
-            return person.orElse(null);
-        }
-        return null;
     }
 
     public Person findPersonByEmail(String email){
         Optional<Person> person = peopleRepository.findByEmail(email);
         return person.orElseThrow(() -> new PersonNotFoundException("Person not found with this email:" + email));
     }
+
+    //Method supposed to return null if person not found.
     public Person checkPersonPresentByEmail(String email){
         Optional<Person> person = peopleRepository.findByEmail(email);
         return person.orElse(null);
@@ -126,6 +125,7 @@ public class PeopleService {
         Optional<Person> person = peopleRepository.findById(id);
         return person.orElseThrow(() -> new PersonNotFoundException("Person not found with this id:" + id));
     }
+
     @Transactional
     public void updatePassword(int id,String password){
         Optional<Person> person = peopleRepository.findById(id);
@@ -164,6 +164,7 @@ public class PeopleService {
 
         return peopleDTO;
     }
+
     private PersonDTO constructPersonDTO(Person person){
         PersonDTO personDTO = new PersonDTO();
         personDTO.setId(person.getId());

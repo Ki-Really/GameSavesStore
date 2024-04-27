@@ -32,7 +32,6 @@ public class UsersController {
         personDTO.setEmail(person.getEmail());
         personDTO.setRole(person.getRole().getName());
         personDTO.setIsBlocked(person.getIsBlocked());
-
         return ResponseEntity.ok(personDTO);
     }
 
@@ -46,7 +45,6 @@ public class UsersController {
         personDTO.setEmail(person.getEmail());
         personDTO.setRole(person.getRole().getName());
         personDTO.setIsBlocked(person.getIsBlocked());
-
         return ResponseEntity.ok(personDTO);
     }
 

@@ -2,6 +2,7 @@ package com.example.courseWork.models.gameModel;
 
 import com.example.courseWork.models.commonParameters.CommonParameter;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
 
 import java.util.List;
 
@@ -12,6 +13,7 @@ public class GameStateParameterType {
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    @NotEmpty(message = "Type should not be empty!")
     @Column(name="type")
     private String type;
     @OneToMany(mappedBy = "gameStateParameterType")

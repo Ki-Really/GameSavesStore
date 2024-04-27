@@ -14,13 +14,13 @@ public class GameStateParameter {
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    @NotEmpty(message ="Название игры не должно быть пустым!")
+    @NotEmpty(message ="Поле ключ игры не должно быть пустым!")
     @Column(name = "key")
     private String key;
     @NotEmpty(message ="Название игры не должно быть пустым!")
     @Column(name = "label")
     private String label;
-    @NotEmpty(message ="Название игры не должно быть пустым!")
+    @NotEmpty(message ="Описание игры не должно быть пустым!")
     @Column(name = "description")
     private String description;
 
@@ -61,7 +61,6 @@ public class GameStateParameter {
     public void setKey(String key) {
         this.key = key;
     }
-
 
     public String getLabel() {
         return label;

@@ -1,10 +1,7 @@
 package com.example.courseWork.controllerAdvice;
 
 import com.example.courseWork.util.*;
-import com.example.courseWork.util.exceptions.personException.LoginFailedException;
-import com.example.courseWork.util.exceptions.personException.PersonAlreadyExistsException;
-import com.example.courseWork.util.exceptions.personException.PersonBadCredentialsException;
-import com.example.courseWork.util.exceptions.personException.PersonNotFoundException;
+import com.example.courseWork.util.exceptions.personException.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +22,7 @@ public class AuthControllerAdvice {
         ErrorResponse response = new ErrorResponse(e.getMessage(),e.getErrors());
         return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
     }
+
     @ExceptionHandler(PersonAlreadyExistsException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ResponseEntity<ErrorResponse> handlePersonAlreadyExistsException(PersonAlreadyExistsException ex) {
@@ -37,5 +35,33 @@ public class AuthControllerAdvice {
     public ResponseEntity<ErrorResponse> handleLoginFailedException(LoginFailedException ex) {
         ErrorResponse response = new ErrorResponse(ex.getMessage());
         return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(InvalidTokenException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ResponseEntity<ErrorResponse> handleInvalidTokenException(InvalidTokenException ex){
+        ErrorResponse response = new ErrorResponse(ex.getMessage());
+        return new ResponseEntity<>(response,HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(PasswordsNotMatchException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<ErrorResponse> handlePasswordsNotMatchException(PasswordsNotMatchException ex){
+        ErrorResponse response = new ErrorResponse(ex.getMessage());
+        return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(WrongPasswordException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<ErrorResponse> handleWrongPasswordException(WrongPasswordException ex){
+        ErrorResponse response = new ErrorResponse(ex.getMessage());
+        return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(RoleNotExistsException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<ErrorResponse> handleRoleNotExistsException(RoleNotExistsException ex){
+        ErrorResponse response = new ErrorResponse(ex.getMessage());
+        return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
     }
 }
