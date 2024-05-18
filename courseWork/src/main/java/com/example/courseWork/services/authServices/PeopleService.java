@@ -92,11 +92,11 @@ public class PeopleService {
         if(findPersonByEmail(email) != null){
             UUID uuid = UUID.randomUUID();
             String generatedToken = uuid.toString();
-            String emailText = "https://cloud-saves://reset-password?token="+ generatedToken;
+            String emailText = "cloud-saves://reset-password?token="+ generatedToken;
             String emailHtmlContent = "<html><body>"
                     + "<h1>Password Recovery</h1>"
                     + "<p>You can paste this link to the search bar!</p>"
-                    + "<p><a href=\"" + emailText + "\">" + emailText + "</a></p>"
+                    + "<p><a href=\"" + "http://localhost:8080/auth/redirect?url="+ emailText + "\">" + emailText + "</a></p>"
                     + "</body></html>";
             MailStructure mailStructure = new MailStructure("Password Recovery", emailHtmlContent);
             mailService.sendMail(email,mailStructure);

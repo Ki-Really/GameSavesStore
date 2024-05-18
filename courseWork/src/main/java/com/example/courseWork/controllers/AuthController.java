@@ -13,6 +13,7 @@ import com.example.courseWork.util.validators.personValidator.UniqueEmailValidat
 import com.example.courseWork.util.validators.personValidator.UniqueUsernameValidator;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,6 +22,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.security.Principal;
 import java.util.LinkedList;
 import java.util.List;
@@ -40,6 +42,11 @@ public class AuthController {
         this.passwordRecoveryTokenService = passwordRecoveryTokenService;
         this.uniqueUsernameValidator = uniqueUsernameValidator;
         this.uniqueEmailValidator = uniqueEmailValidator;
+    }
+
+    @GetMapping("/redirect")
+    private void redirect(@RequestParam(value = "url") String redirectTo, HttpServletResponse response) throws IOException {
+        response.sendRedirect(redirectTo);
     }
 
     @PostMapping("/registration")
