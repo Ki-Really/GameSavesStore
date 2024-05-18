@@ -33,8 +33,6 @@ INSERT INTO game_state_parameter_type(type)
 SELECT 'type4'
 WHERE NOT EXISTS (SELECT 1 FROM game_state_parameter_type WHERE type = 'type4');
 
-
-
 INSERT INTO game_state_parameter_type(type)
 SELECT 'time_seconds'
 WHERE NOT EXISTS (SELECT 1 FROM game_state_parameter_type WHERE type = 'time_seconds');

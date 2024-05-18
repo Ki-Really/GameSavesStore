@@ -1,15 +1,20 @@
 package com.example.courseWork.DTO.gameDTO;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+
 import java.util.List;
 
 public class GameRequestDTO {
+
+    @NotEmpty(message="Name of a game should not be empty!")
+    @NotNull(message = "Name of a game should not be null!")
     private String name;
     private String description;
     private List<PathDTO> paths;
     private List<ExtractionPipelineDTO> extractionPipeline;
     private SchemeDTO schema;
-
-
 
     public GameRequestDTO(String name, String description) {
         this.name = name;

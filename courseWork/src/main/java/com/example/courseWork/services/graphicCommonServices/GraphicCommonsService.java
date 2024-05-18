@@ -151,7 +151,8 @@ public class GraphicCommonsService {
 
         if(optionalGraphicCommon.isPresent()){
             GraphicCommon graphicCommon = optionalGraphicCommon.get();
-            GraphicCommonHistogramTimeResponseDataDTO graphicCommonResponseDataDTO = new GraphicCommonHistogramTimeResponseDataDTO();
+            GraphicCommonHistogramTimeResponseDataDTO graphicCommonResponseDataDTO =
+                    new GraphicCommonHistogramTimeResponseDataDTO();
 
 
             List<String> extractedValues = new LinkedList<>();
@@ -192,7 +193,7 @@ public class GraphicCommonsService {
             return graphicCommonResponseDataDTO;
         }
         else{
-            return null;
+            throw new GraphicCommonNotFoundException("Graphic with this id was not found!");
         }
     }
 
@@ -216,13 +217,9 @@ public class GraphicCommonsService {
                     String value = String.valueOf(gameStateValue.getValue());
                     extractedValues.add(value);
                     totalValuesCount++;
-
-                    // Increment count for this value
                     valueCounts.put(value, valueCounts.getOrDefault(value, 0) + 1);
                 }
             }
-
-            // Calculate percentage for each value
             for (Map.Entry<String, Integer> entry : valueCounts.entrySet()) {
                 String value = entry.getKey();
                 int count = entry.getValue();
@@ -235,7 +232,7 @@ public class GraphicCommonsService {
 
             return graphicCommonResponseDataDTO;
         } else {
-            return null;
+            throw new GraphicCommonNotFoundException("Graphic with this id was not found!");
         }
     }
 

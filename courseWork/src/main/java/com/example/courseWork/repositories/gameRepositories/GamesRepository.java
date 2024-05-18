@@ -12,6 +12,6 @@ import java.util.Optional;
 public interface GamesRepository extends JpaRepository<Game,Integer> {
     Optional<Game> findByName(String name);
     Optional<Game> findById(int id);
-    Page<Game> findByNameContainingOrDescriptionContaining(String name, String description, Pageable pageable);
-    //Page<Game> findByPathsPathContainingIgnoreCase(String path,Pageable pageable);
+    Page<Game> findByNameContainingOrDescriptionContaining(String name, String description,
+                                                           Pageable pageable);
 }

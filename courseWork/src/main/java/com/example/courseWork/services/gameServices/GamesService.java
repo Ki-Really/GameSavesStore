@@ -142,7 +142,7 @@ public class GamesService {
         }
     }
 
-    private Game convertGame(GameRequestDTO gameRequestDTO,MultipartFile file){
+    public Game convertGame(GameRequestDTO gameRequestDTO,MultipartFile file){
         Game game = new Game(gameRequestDTO.getName(),gameRequestDTO.getDescription());
 
         List<Path> paths = convertToPath(gameRequestDTO.getPaths(),game);

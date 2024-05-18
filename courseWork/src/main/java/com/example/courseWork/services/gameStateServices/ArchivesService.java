@@ -18,11 +18,13 @@ public class ArchivesService {
 
     private final MinioClient minioClient;
     private final MinioProperties minioProperties;
+
     @Autowired
     public ArchivesService(MinioClient minioClient, MinioProperties minioProperties) {
         this.minioClient = minioClient;
         this.minioProperties = minioProperties;
     }
+
     @Transactional
     public void upload(MultipartFile file,String name){
         try{
@@ -38,6 +40,7 @@ public class ArchivesService {
         }
         putToS3(inputStream,name);
     }
+
     private void createBucket(){
         try{
             boolean found = minioClient.bucketExists(BucketExistsArgs.builder()
@@ -70,7 +73,8 @@ public class ArchivesService {
         try {
             String bucketName = minioProperties.getArchiveBucket();
 
-            String presignedUrl = minioClient.getPresignedObjectUrl(GetPresignedObjectUrlArgs.builder()
+            String presignedUrl = minioClient.getPresignedObjectUrl(GetPresignedObjectUrlArgs
+                    .builder()
                     .bucket(bucketName)
                     .object(name)
                     .method(Method.GET)

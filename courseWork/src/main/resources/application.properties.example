@@ -1,6 +1,6 @@
 #DB properties
 spring.datasource.driver-class-name = org.postgresql.Driver
-spring.datasource.url = jdbc:postgresql://localhost:5555/coursework?currentSchema=cloud_game_saves
+spring.datasource.url = jdbc:postgresql://localhost:5555/coursework
 spring.datasource.username = postgres
 spring.datasource.password = Airbender1
 

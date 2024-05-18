@@ -32,6 +32,4 @@ public class GameDTO {
     public void setGameName(String gameName) {
         this.gameName = gameName;
     }
-
-
 }

@@ -1,18 +1,21 @@
 package com.example.courseWork.controllers;
 
 import com.example.courseWork.DTO.entityDTO.EntitiesResponseDTO;
+import com.example.courseWork.DTO.gameDTO.GameRequestDTO;
 import com.example.courseWork.DTO.gameSaveDTO.GameStateRequestDTO;
 import com.example.courseWork.DTO.gameSaveDTO.GameStateDTO;
 import com.example.courseWork.DTO.gameSaveDTO.GameStatesRequestDTO;
 import com.example.courseWork.models.gameSaveModel.GameState;
 import com.example.courseWork.services.gameStateServices.GameStatesService;
-import com.example.courseWork.util.exceptions.gameException.GameBadRequestException;
 import com.example.courseWork.util.exceptions.gameStateException.GameStateBadRequestException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -21,38 +24,47 @@ import org.springframework.web.multipart.MultipartFile;
 import java.security.Principal;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/game-saves")
 public class GameStatesController {
     private final ObjectMapper objectMapper;
     private final GameStatesService gameStatesService;
+    private final Validator validator;
 
     @Autowired
-    public GameStatesController(ObjectMapper objectMapper, GameStatesService gameStatesService) {
+    public GameStatesController(ObjectMapper objectMapper, GameStatesService gameStatesService, Validator validator) {
         this.objectMapper = objectMapper;
         this.gameStatesService = gameStatesService;
+        this.validator = validator;
     }
 
     @PostMapping
     private ResponseEntity<GameStateDTO> addGameState(@RequestPart("archive") MultipartFile file,
                                                       @RequestParam("gameStateData") String gameStatesData,
-                                                      BindingResult bindingResult, Principal principal) {
-        if(bindingResult.hasErrors()){
-            List<FieldError> errors = bindingResult.getFieldErrors();
-            List<String> stringErrors = new LinkedList<>();
-            for(FieldError error : errors){
-                stringErrors.add(error.getField() + " - " + error.getDefaultMessage()+";");
-            }
-            throw new GameStateBadRequestException("Game state adding failed!", stringErrors);
-        }
+                                                       Principal principal) {
         GameStateRequestDTO addGameStateDTO;
         try {
             addGameStateDTO = objectMapper.readValue(gameStatesData, GameStateRequestDTO.class);
+            Set<ConstraintViolation<GameStateRequestDTO>> violations = validator.validate(addGameStateDTO);
+            BindingResult bindingResult = new BeanPropertyBindingResult(addGameStateDTO, "addGameStateDTO");
+
+            for (ConstraintViolation< GameStateRequestDTO> violation : violations) {
+                String field = violation.getPropertyPath().toString();
+                bindingResult.rejectValue(field,"",violation.getMessage());
+            }
+            if(bindingResult.hasErrors()){
+                List<FieldError> errors = bindingResult.getFieldErrors();
+                List<String> stringErrors = new LinkedList<>();
+                for(FieldError error : errors){
+                    stringErrors.add(error.getField() + " - " + error.getDefaultMessage()+";");
+                }
+                throw new GameStateBadRequestException("Game state adding failed!", stringErrors);
+            }
         } catch (JsonProcessingException e){
             throw new RuntimeException(e);
         }
-
         int gameStateId = gameStatesService.save(addGameStateDTO,file,principal);
 
         GameState gameState = gameStatesService.findById(gameStateId);
@@ -70,30 +82,35 @@ public class GameStatesController {
     @PatchMapping("/{id}")
     private ResponseEntity<GameStateDTO> updateGameState(@RequestPart("archive") MultipartFile file,
                                                @RequestParam("gameStateData") String gameStateData,
-                                               @PathVariable(name ="id") int id, BindingResult bindingResult,
+                                               @PathVariable(name ="id") int id,
                                                Principal principal){
-        if(bindingResult.hasErrors()){
-            List<FieldError> errors = bindingResult.getFieldErrors();
-            List<String> stringErrors = new LinkedList<>();
-            for(FieldError error : errors){
-                stringErrors.add(error.getField() + " - " + error.getDefaultMessage()+";");
-            }
-            throw new GameStateBadRequestException("Game state updating failed!", stringErrors);
-        }
-
         GameStateRequestDTO gameStateRequestDTO;
-
         try {
             gameStateRequestDTO = objectMapper.readValue(gameStateData, GameStateRequestDTO.class);
+            Set<ConstraintViolation<GameStateRequestDTO>> violations = validator.validate(gameStateRequestDTO);
+            BindingResult bindingResult = new BeanPropertyBindingResult(gameStateRequestDTO, "addGameStateDTO");
+
+            for (ConstraintViolation< GameStateRequestDTO> violation : violations) {
+                String field = violation.getPropertyPath().toString();
+                bindingResult.rejectValue(field,"",violation.getMessage());
+            }
+            if(bindingResult.hasErrors()){
+                List<FieldError> errors = bindingResult.getFieldErrors();
+                List<String> stringErrors = new LinkedList<>();
+                for(FieldError error : errors){
+                    stringErrors.add(error.getField() + " - " + error.getDefaultMessage()+";");
+                }
+                throw new GameStateBadRequestException("Game state updating failed!", stringErrors);
+            }
+            gameStatesService.update(gameStateRequestDTO,file,id,principal);
+
+            GameState gameState = gameStatesService.findById(id);
+            GameStateDTO gameStateDTO = gameStatesService.constructGameStateDTO(gameState);
+            return ResponseEntity.ok(gameStateDTO);
+
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
-        gameStatesService.update(gameStateRequestDTO,file,id,principal);
-
-        GameState gameState = gameStatesService.findById(id);
-        GameStateDTO gameStateDTO = gameStatesService.constructGameStateDTO(gameState);
-
-        return ResponseEntity.ok(gameStateDTO);
     }
 
     @GetMapping("/{id}")

@@ -9,15 +9,18 @@ import com.example.courseWork.util.exceptions.gameException.GameNotFoundExceptio
 import com.example.courseWork.util.validators.gameValidator.UniqueGameNameValidator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
+import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.LinkedList;
-import java.util.List;
+
+import java.util.*;
 
 @RestController
 @RequestMapping("/games")
@@ -25,19 +28,27 @@ public class GamesController {
     private final ObjectMapper objectMapper;
     private final GamesService gamesService;
     private final UniqueGameNameValidator uniqueGameNameValidator;
+    private final Validator validator;
 
     @Autowired
-    public GamesController(ObjectMapper objectMapper, GamesService gamesService, UniqueGameNameValidator uniqueGameNameValidator) {
+    public GamesController(ObjectMapper objectMapper, GamesService gamesService, UniqueGameNameValidator uniqueGameNameValidator, Validator validator) {
         this.objectMapper = objectMapper;
         this.gamesService = gamesService;
         this.uniqueGameNameValidator = uniqueGameNameValidator;
+        this.validator = validator;
     }
 
-    @PostMapping
+    /*@PostMapping
     private ResponseEntity<GameDTO> addGame(@RequestPart("image") MultipartFile file,
-                                            @RequestParam("gameData") String gameData, BindingResult bindingResult) {
+                                            @RequestParam("gameData")  String gameData) {
+        GameRequestDTO gameRequestDTO;
+        try {
+            gameRequestDTO = objectMapper.readValue(gameData, GameRequestDTO.class);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
 
-        uniqueGameNameValidator.validate(gameData,bindingResult);
+       *//* uniqueGameNameValidator.validate(gameData,bindingResult);
 
         if(bindingResult.hasErrors()){
             List<FieldError> errors = bindingResult.getFieldErrors();
@@ -46,52 +57,109 @@ public class GamesController {
                 stringErrors.add(error.getField() + " - " + error.getDefaultMessage()+";");
             }
             throw new GameBadRequestException("Game adding failed!", stringErrors);
-        }
+        }*//*
+
+        gamesService.save(gameRequestDTO,file);
+        Game game = gamesService.findByName(gameRequestDTO.getName());
+        GameDTO gameDTO = new GameDTO(game.getId(),game.getName());
+        return ResponseEntity.ok(gameDTO);
+    }*/
+
+    /*@PostMapping
+    private ResponseEntity<GameDTO> addGame(@RequestPart("image") MultipartFile file,
+                                            @Valid @RequestParam("gameData") String gameData,
+                                            BindingResult bindingResult) {
         GameRequestDTO gameRequestDTO;
         try {
             gameRequestDTO = objectMapper.readValue(gameData, GameRequestDTO.class);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
-        gamesService.save(gameRequestDTO,file);
-        Game game = gamesService.findByName(gameRequestDTO.getName());
-        GameDTO gameDTO = new GameDTO(game.getId(),game.getName());
-        return ResponseEntity.ok(gameDTO);
-    }
-
-    @PatchMapping("/{id}")
-    private ResponseEntity<GameDTO> updateGame(@RequestPart(value = "image", required = false) MultipartFile file,
-                                               @RequestParam("gameData") String gameData,
-                                               @PathVariable(name ="id") int id, BindingResult bindingResult) {
+        // Проверяем наличие ошибок валидации
         if(bindingResult.hasErrors()){
             List<FieldError> errors = bindingResult.getFieldErrors();
             List<String> stringErrors = new LinkedList<>();
             for(FieldError error : errors){
                 stringErrors.add(error.getField() + " - " + error.getDefaultMessage()+";");
             }
-            throw new GameBadRequestException("Game updating failed!", stringErrors);
+            throw new GameBadRequestException("Game adding failed!", stringErrors);
         }
+
+        gamesService.save(gameRequestDTO, file);
+        Game game = gamesService.findByName(gameRequestDTO.getName());
+        GameDTO gameDTO = new GameDTO(game.getId(), game.getName());
+        return ResponseEntity.ok(gameDTO);
+    }
+*/
+
+    @PostMapping
+    private ResponseEntity<GameDTO> addGame(@RequestPart("image") MultipartFile file,
+                                            @RequestParam("gameData") String gameData) {
         GameRequestDTO gameRequestDTO;
         try {
             gameRequestDTO = objectMapper.readValue(gameData, GameRequestDTO.class);
+            Set<ConstraintViolation<GameRequestDTO>> violations = validator.validate(gameRequestDTO);
+            BindingResult bindingResult = new BeanPropertyBindingResult(gameRequestDTO, "gameRequestDTO");
+            uniqueGameNameValidator.validate(gameRequestDTO,bindingResult);
+
+            for (ConstraintViolation<GameRequestDTO> violation : violations) {
+                String field = violation.getPropertyPath().toString();
+                bindingResult.rejectValue(field,"",violation.getMessage());
+            }
+
+            if(bindingResult.hasErrors()){
+                List<FieldError> errors = bindingResult.getFieldErrors();
+                List<String> stringErrors = new LinkedList<>();
+                for(FieldError error : errors){
+                    stringErrors.add(error.getField() + " - " + error.getDefaultMessage()+";");
+                }
+                throw new GameBadRequestException("Game adding failed!", stringErrors);
+            }
+            gamesService.save(gameRequestDTO,file);
+            Game game = gamesService.findByName(gameRequestDTO.getName());
+            GameDTO gameDTO = new GameDTO(game.getId(),game.getName());
+            return ResponseEntity.ok(gameDTO);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
-        gamesService.update(gameRequestDTO,file,id);
+    }
 
-        Game game = gamesService.findByName(gameRequestDTO.getName());
-        GameDTO gameDTO = new GameDTO(game.getId(),game.getName());
-        return ResponseEntity.ok(gameDTO);
+    @PatchMapping("/{id}")
+    private ResponseEntity<GameDTO> updateGame(@RequestPart(value = "image", required = false) MultipartFile file,
+                                               @RequestParam("gameData") String gameData,
+                                               @PathVariable(name ="id") int id) {
+        GameRequestDTO gameRequestDTO;
+        try {
+            gameRequestDTO = objectMapper.readValue(gameData, GameRequestDTO.class);
+            Set<ConstraintViolation<GameRequestDTO>> violations = validator.validate(gameRequestDTO);
+            BindingResult bindingResult = new BeanPropertyBindingResult(gameRequestDTO, "gameRequestDTO");
+
+            for (ConstraintViolation<GameRequestDTO> violation : violations) {
+                String field = violation.getPropertyPath().toString();
+                bindingResult.rejectValue(field,"", violation.getMessage());
+            }
+            if(bindingResult.hasErrors()){
+                List<FieldError> errors = bindingResult.getFieldErrors();
+                List<String> stringErrors = new LinkedList<>();
+                for(FieldError error : errors){
+                    stringErrors.add(error.getField() + " - " + error.getDefaultMessage()+";");
+                }
+                throw new GameBadRequestException("Game updating failed!", stringErrors);
+            }
+            gamesService.update(gameRequestDTO,file,id);
+
+            Game game = gamesService.findByName(gameRequestDTO.getName());
+            GameDTO gameDTO = new GameDTO(game.getId(),game.getName());
+            return ResponseEntity.ok(gameDTO);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @DeleteMapping("/{id}")
     private ResponseEntity<HttpStatus> deleteGame(@PathVariable(name ="id") int id) {
         gamesService.deleteById(id);
-        if(gamesService.findOne(id)== null){
-            return ResponseEntity.ok(HttpStatus.OK);
-        }else{
-            throw new GameNotFoundException("Game not found!");
-        }
+        return ResponseEntity.ok(HttpStatus.OK);
     }
 
     @GetMapping

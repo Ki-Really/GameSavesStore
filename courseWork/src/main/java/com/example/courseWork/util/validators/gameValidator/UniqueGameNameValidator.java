@@ -1,5 +1,6 @@
 package com.example.courseWork.util.validators.gameValidator;
 
+import com.example.courseWork.DTO.gameDTO.GameRequestDTO;
 import com.example.courseWork.models.gameModel.Game;
 import com.example.courseWork.services.gameServices.GamesService;
 import org.springframework.stereotype.Component;
@@ -21,9 +22,10 @@ public class UniqueGameNameValidator implements Validator {
 
     @Override
     public void validate(Object target, Errors errors) {
-        Game game = (Game)target;
-        if(gamesService.checkGamePresentByName(game.getName())!=null){
-            errors.rejectValue("name","","Game with this name already exists!");
+        GameRequestDTO gameRequestDTO = (GameRequestDTO) target;
+        if(gamesService.checkGamePresentByName(gameRequestDTO.getName())!=null){
+            errors.rejectValue("name","","Game with this name " +
+                    "already exists!");
         }
     }
 }

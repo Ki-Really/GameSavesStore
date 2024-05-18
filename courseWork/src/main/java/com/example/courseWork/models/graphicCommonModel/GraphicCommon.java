@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 
 @Entity
-@Table(schema ="cloud_game_saves",name = "graphic_common")
+@Table(name = "graphic_common")
 public class GraphicCommon {
     @Id
     @Column(name = "id")
