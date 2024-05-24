@@ -9,6 +9,7 @@ import com.example.courseWork.util.exceptions.gameException.GameBadRequestExcept
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +29,7 @@ public class SharedSavesController{
         this.gameStateSharesService = gameStateSharesService;
     }
 
+    @PreAuthorize("hasRole('ROLE_USER')")
     @PostMapping
     private ResponseEntity<GameStateShareResponseDTO> addGameStateShare(@RequestBody ShareWithDTO shareWithDTO,
                                                                         BindingResult bindingResult){
@@ -45,12 +47,14 @@ public class SharedSavesController{
         return ResponseEntity.ok(gameStateShareResponseDTO);
     }
 
+    @PreAuthorize("hasRole('ROLE_USER')")
     @DeleteMapping("{id}")
     private ResponseEntity<HttpStatus> deleteStateShare(@PathVariable("id") int id){
         gameStateSharesService.deleteById(id);
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('ROLE_USER')")
     @GetMapping("{id}")
     private ResponseEntity<EntitiesResponseDTO<GameStateShareResponseDTO>> getSharedSaves(@PathVariable("id") int id){
         EntitiesResponseDTO<GameStateShareResponseDTO> gameStateSharesResponseDTO = gameStateSharesService.getGameStateShares(id);

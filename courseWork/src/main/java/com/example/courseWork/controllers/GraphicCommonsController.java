@@ -10,6 +10,7 @@ import com.example.courseWork.util.exceptions.graphicCommonException.GraphicComm
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -26,6 +27,7 @@ public class GraphicCommonsController {
     public GraphicCommonsController(GraphicCommonsService graphicCommonsService) {
         this.graphicCommonsService = graphicCommonsService;
     }
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/graphic/common")
     private ResponseEntity<GraphicCommonDTO> addCommonGraphic(@RequestBody GraphicCommonRequestDTO graphicCommonRequestDTO, BindingResult bindingResult){
         if(bindingResult.hasErrors()){
@@ -40,6 +42,7 @@ public class GraphicCommonsController {
         return ResponseEntity.ok(graphicCommonDTO);
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PatchMapping("/graphic/common/{id}")
     private ResponseEntity<GraphicCommonDTO> updateCommonGraphic(
             @PathVariable(name = "id") int id,
@@ -48,18 +51,21 @@ public class GraphicCommonsController {
         return ResponseEntity.ok(graphicCommonDTO);
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/graphic/common/{id}")
     private ResponseEntity<HttpStatus> deleteCommonGraphic(@PathVariable(name = "id") int id) {
         graphicCommonsService.delete(id);
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/graphic/common/{id}")
     private ResponseEntity<GraphicCommonDTO> getCommonGraphic(@PathVariable(name = "id") int id) {
         GraphicCommonDTO graphicCommonDTO = graphicCommonsService.findById(id);
         return ResponseEntity.ok(graphicCommonDTO);
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/graphic/common")
     private ResponseEntity<EntitiesResponseDTO<GraphicCommonDTO>> findCommonParameters(
             @RequestParam(value = "searchQuery",required = false) String searchQuery,
@@ -76,18 +82,7 @@ public class GraphicCommonsController {
         return ResponseEntity.ok(graphicCommonResponseDTO);
     }
 
-    /*@GetMapping("/graphic-data/histogram/common/{id}")
-    private ResponseEntity<GraphicCommonHistogramTimeResponseDataDTO> getHistogramData(@PathVariable(name = "id") int id){
-        GraphicCommonHistogramTimeResponseDataDTO graphicCommonDataDTO = graphicCommonsService.getHistogramTimeData(id);
-        return ResponseEntity.ok(graphicCommonDataDTO);
-    }
-
-    @GetMapping("/graphic-data/pie_chart/common/{id}")
-    private ResponseEntity<GraphicCommonPieChartGenderResponseDataDTO> getPieChartData(@PathVariable(name = "id") int id){
-        GraphicCommonPieChartGenderResponseDataDTO graphicCommonDataDTO = graphicCommonsService.getPieChartGenderData(id);
-        return ResponseEntity.ok(graphicCommonDataDTO);
-    }*/
-
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/graphic-data/common/{id}")
     private ResponseEntity<GraphicDataResponse> getGraphicData(@PathVariable(name = "id") int id) throws Exception {
        GraphicDataResponse graphicDataResponse;

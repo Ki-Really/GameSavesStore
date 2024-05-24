@@ -9,6 +9,7 @@ import com.example.courseWork.models.commonParameters.CommonParameter;
 import com.example.courseWork.models.gameModel.GameStateParameterType;
 import com.example.courseWork.repositories.commonParameterRepositories.CommonParametersRepository;
 import com.example.courseWork.services.gameServices.GameStateParameterTypesService;
+import com.example.courseWork.util.exceptions.commonParameterException.CommonParameterBadRequestException;
 import com.example.courseWork.util.exceptions.commonParameterException.CommonParameterNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,15 +48,20 @@ public class CommonParametersService {
         }
     }
     @Transactional
-    public CommonParameter update(CommonParameterRequestDTO commonParameterRequestDTO, int id){
+    public CommonParameter update(CommonParameterRequestDTO commonParameterRequestDTO, int id) {
         Optional<CommonParameter> optionalCommonParameter = commonParametersRepository.findById(id);
-        if(optionalCommonParameter.isPresent()){
-            CommonParameter updatedCommonParameter = convertToCommonParameter(commonParameterRequestDTO);
-            CommonParameter commonParameterToUpdate = optionalCommonParameter.get();
-            updatedCommonParameter.setId(commonParameterToUpdate.getId());
-            commonParametersRepository.save(updatedCommonParameter);
-            return updatedCommonParameter;
-        }else{
+        if (optionalCommonParameter.isPresent()) {
+            CommonParameter commonParameterForValid = findCommonParameterByLabel(commonParameterRequestDTO.getLabel());
+            if (commonParameterForValid != null && commonParameterForValid.getId() != id) {
+                throw new CommonParameterBadRequestException("Common parameter with this name already exists!", null);
+            } else {
+                CommonParameter updatedCommonParameter = convertToCommonParameter(commonParameterRequestDTO);
+                CommonParameter commonParameterToUpdate = optionalCommonParameter.get();
+                updatedCommonParameter.setId(commonParameterToUpdate.getId());
+                commonParametersRepository.save(updatedCommonParameter);
+                return updatedCommonParameter;
+            }
+        } else {
             throw new CommonParameterNotFoundException("Common parameter not found with this id!");
         }
     }
@@ -128,5 +134,10 @@ public class CommonParametersService {
         gameStateParameterTypeDTO.setId(gameStateParameterType.getId());
         gameStateParameterTypeDTO.setType(gameStateParameterType.getType());
         return gameStateParameterTypeDTO;
+    }
+
+    public CommonParameter findCommonParameterByLabel(String label){
+        Optional<CommonParameter> optionalCommonParameter = commonParametersRepository.findByLabel(label);
+        return optionalCommonParameter.orElse(null);
     }
 }

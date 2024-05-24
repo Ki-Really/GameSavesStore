@@ -7,6 +7,7 @@ import com.example.courseWork.models.authModel.Person;
 import com.example.courseWork.services.authServices.PeopleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,12 +17,14 @@ import java.security.Principal;
 @Controller
 @RequestMapping("/users")
 public class UsersController {
+
     private final PeopleService peopleService;
     @Autowired
     public UsersController(PeopleService peopleService) {
         this.peopleService = peopleService;
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/{id}/block")
     private ResponseEntity<PersonDTO> blockUser(@PathVariable(name ="id") int id) {
         Person person = peopleService.findPersonById(id);
@@ -35,6 +38,7 @@ public class UsersController {
         return ResponseEntity.ok(personDTO);
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/{id}/unblock")
     private ResponseEntity<PersonDTO> unblockUser(@PathVariable(name ="id") int id) {
         Person person = peopleService.findPersonById(id);
@@ -48,6 +52,7 @@ public class UsersController {
         return ResponseEntity.ok(personDTO);
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping
     private ResponseEntity<EntitiesResponseDTO<PersonDTO>> getUsers(@RequestParam(value = "searchQuery") String searchQuery,
                                                          @RequestParam(value = "pageSize") Integer pageSize,

@@ -15,6 +15,7 @@ import jakarta.validation.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -40,6 +41,7 @@ public class GameStatesController {
         this.validator = validator;
     }
 
+    @PreAuthorize("hasRole('ROLE_USER')")
     @PostMapping
     private ResponseEntity<GameStateDTO> addGameState(@RequestPart("archive") MultipartFile file,
                                                       @RequestParam("gameStateData") String gameStatesData,
@@ -73,12 +75,14 @@ public class GameStatesController {
         return ResponseEntity.ok(gameStateDTO);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{id}")
     private ResponseEntity<HttpStatus> deleteGameState(@PathVariable(name ="id") int id,Principal principal){
         gameStatesService.deleteById(id,principal);
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @PatchMapping("/{id}")
     private ResponseEntity<GameStateDTO> updateGameState(@RequestPart("archive") MultipartFile file,
                                                @RequestParam("gameStateData") String gameStateData,
@@ -113,6 +117,7 @@ public class GameStatesController {
         }
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/{id}")
     private ResponseEntity<GameStateDTO> findGameStateById(@PathVariable(name ="id") int id){
         GameState gameState = gameStatesService.findById(id);
@@ -121,7 +126,8 @@ public class GameStatesController {
         return ResponseEntity.ok(gameStateDTO);
     }
 
-    @GetMapping
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping("/admin")
     private ResponseEntity<EntitiesResponseDTO<GameStateDTO>> findAllGameStates(
             @RequestParam(value = "searchQuery") String searchQuery,
             @RequestParam(value = "pageSize") Integer pageSize,
@@ -133,7 +139,8 @@ public class GameStatesController {
         return ResponseEntity.ok(gameStatesDTO);
     }
 
-    @GetMapping("/admin")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    @GetMapping()
     private ResponseEntity<EntitiesResponseDTO<GameStateDTO>> findGameStatesByPerson(
             @RequestParam(value = "searchQuery") String searchQuery,
             @RequestParam(value = "pageSize") Integer pageSize,
@@ -146,6 +153,7 @@ public class GameStatesController {
         return ResponseEntity.ok(gameStatesDTO);
     }
 
+    @PreAuthorize("hasRole('ROLE_USER')")
     @GetMapping("/public")
     private ResponseEntity<EntitiesResponseDTO<GameStateDTO>> findPublicGameStates(
             @RequestParam(value = "searchQuery",required = false) String searchQuery,
@@ -160,6 +168,7 @@ public class GameStatesController {
         return ResponseEntity.ok(gameStatesDTO);
     }
 
+    @PreAuthorize("hasRole('ROLE_USER')")
     @GetMapping("/received-game-state-shares")
     private ResponseEntity<EntitiesResponseDTO<GameStateDTO>> findReceivedGameStates(
             @RequestParam(value = "searchQuery") String searchQuery,

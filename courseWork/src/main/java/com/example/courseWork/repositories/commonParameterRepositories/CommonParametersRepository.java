@@ -6,7 +6,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface CommonParametersRepository extends JpaRepository<CommonParameter,Integer> {
     Page<CommonParameter> findByLabelContainingOrDescriptionContaining(String label, String description, Pageable pageable);
+    Optional<CommonParameter> findByLabel(String label);
 }

@@ -6,6 +6,7 @@ import com.example.courseWork.DTO.gameStateParameterTypeDTO.GameStateParameterTy
 import com.example.courseWork.services.gameServices.GameStateParameterTypesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -20,6 +21,7 @@ public class GameStateParameterTypesController {
         this.gameStateParameterTypesService = gameStateParameterTypesService;
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping
     private ResponseEntity<EntitiesResponseDTO<GameStateParameterTypeDTO>> findGameStateParameterTypes(
             @RequestParam(value = "searchQuery") String searchQuery,
