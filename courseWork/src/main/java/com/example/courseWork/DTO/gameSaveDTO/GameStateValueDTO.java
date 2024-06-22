@@ -10,8 +10,6 @@ public class GameStateValueDTO {
     private String label;
     private String description;
 
-
-
     public GameStateValueDTO(int gameStateParameterId, String value) {
         this.gameStateParameterId = gameStateParameterId;
         this.value = value;

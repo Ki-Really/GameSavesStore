@@ -14,25 +14,30 @@ public class GameStateParameter {
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
     @NotEmpty(message ="Поле ключ игры не должно быть пустым!")
     @Column(name = "key")
     private String key;
+
     @NotEmpty(message ="Название игры не должно быть пустым!")
     @Column(name = "label")
     private String label;
+
     @NotEmpty(message ="Описание игры не должно быть пустым!")
     @Column(name = "description")
     private String description;
 
     @ManyToOne
-    @JoinColumn(name ="fk_scheme_id",referencedColumnName = "id")
-    private Scheme scheme;
+    @JoinColumn(name ="fk_game_id",referencedColumnName = "id")
+    private Game game;
+
     @ManyToOne
     @JoinColumn(name = "fk_game_state_parameter_type_id", referencedColumnName = "id")
     private GameStateParameterType gameStateParameterType;
 
     @OneToMany(mappedBy = "gameStateParameter")
     private List<GameStateValue> gameStateValues;
+
     @ManyToOne(cascade = {CascadeType.PERSIST,CascadeType.MERGE,CascadeType.DETACH})
     @JoinColumn(name = "fk_common_parameter_id",referencedColumnName = "id")
     private CommonParameter commonParameter;
@@ -78,13 +83,7 @@ public class GameStateParameter {
         this.description = description;
     }
 
-    public Scheme getScheme() {
-        return scheme;
-    }
 
-    public void setScheme(Scheme scheme) {
-        this.scheme = scheme;
-    }
     public GameStateParameterType getGameStateParameterType() {
         return gameStateParameterType;
     }
@@ -107,5 +106,13 @@ public class GameStateParameter {
 
     public void setCommonParameter(CommonParameter commonParameter) {
         this.commonParameter = commonParameter;
+    }
+
+    public Game getGame() {
+        return game;
+    }
+
+    public void setGame(Game game) {
+        this.game = game;
     }
 }

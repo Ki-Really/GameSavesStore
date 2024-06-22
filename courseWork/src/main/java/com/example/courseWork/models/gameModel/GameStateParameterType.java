@@ -13,11 +13,14 @@ public class GameStateParameterType {
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
     @NotEmpty(message = "Type should not be empty!")
     @Column(name="type")
     private String type;
+
     @OneToMany(mappedBy = "gameStateParameterType")
     private List<GameStateParameter> gameStateParameters;
+
     @OneToMany(mappedBy = "gameStateParameterType")
     private List<CommonParameter> commonParameters;
 

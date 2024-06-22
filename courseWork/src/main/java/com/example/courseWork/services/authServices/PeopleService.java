@@ -115,7 +115,6 @@ public class PeopleService {
         return person.orElseThrow(() -> new PersonNotFoundException("Person not found with this email:" + email));
     }
 
-    //Method supposed to return null if person not found.
     public Person checkPersonPresentByEmail(String email){
         Optional<Person> person = peopleRepository.findByEmail(email);
         return person.orElse(null);

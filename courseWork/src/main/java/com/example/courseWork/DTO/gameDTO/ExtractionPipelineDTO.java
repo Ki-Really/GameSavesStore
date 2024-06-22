@@ -1,6 +1,5 @@
 package com.example.courseWork.DTO.gameDTO;
 
-import jakarta.persistence.Column;
 
 public class ExtractionPipelineDTO {
     private int id;

@@ -2,19 +2,10 @@ package com.example.courseWork.config;
 
 
 import com.example.courseWork.services.authServices.PersonDetailsService;
-import com.example.courseWork.services.props.MinioProperties;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import io.minio.MinioClient;
-import io.swagger.v3.oas.models.Components;
-import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.security.SecurityRequirement;
-import io.swagger.v3.oas.models.security.SecurityScheme;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -52,13 +43,12 @@ import static org.springframework.security.web.header.writers.ClearSiteDataHeade
 public class SecurityConfig {
 
     private final PersonDetailsService personDetailsService;
-    private final MinioProperties minioProperties;
+
     private final JdbcIndexedSessionRepository sessionRepository;
 
     @Autowired
-    public SecurityConfig(PersonDetailsService personDetailsService, MinioProperties minioProperties, JdbcIndexedSessionRepository sessionRepository) {
+    public SecurityConfig(PersonDetailsService personDetailsService,  JdbcIndexedSessionRepository sessionRepository) {
         this.personDetailsService = personDetailsService;
-        this.minioProperties = minioProperties;
         this.sessionRepository = sessionRepository;
     }
 
@@ -78,50 +68,11 @@ public class SecurityConfig {
     }
 
     @Bean
-    public MinioClient minioClient(){
-        return MinioClient.builder()
-                .endpoint(minioProperties.getUrl())
-                .credentials(minioProperties.getAccessKey(), minioProperties.getSecretKey())
-                .build();
-    }
-
-    @Bean
-    public OpenAPI openAPI(){
-        return new OpenAPI().
-                addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
-                .components(
-                        new Components()
-                            .addSecuritySchemes("bearerAuth",
-                                    new SecurityScheme()
-                                            .type(SecurityScheme.Type.HTTP)
-                                            .scheme("bearer")
-                                            .bearerFormat("JWT")
-                            )
-                )
-                .info(new Info()
-                        .title("GaveSaves")
-                        .description("Demo spring boot app")
-                        .version("1.0")
-                );
-    }
-
-    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http.csrf(AbstractHttpConfigurer::disable)
                 .cors(customizer -> customizer.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/auth/login","/error","/auth/recover-password","/auth/change-password").permitAll()
-                        .requestMatchers(HttpMethod.POST,"/auth/registration").permitAll()
-                        .requestMatchers("/auth/redirect").permitAll()
-                        .requestMatchers("/swagger-ui/**","/v3/api-docs/**").permitAll()
-                        .requestMatchers("/auth/me").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/games").hasAnyRole("USER","ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/games/{id}").hasAnyRole("USER","ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/games/image/{id}").hasAnyRole("USER","ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/users/{id}/block").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST,"/game-saves").hasAnyRole("USER","ADMIN")
-                        .requestMatchers("/games/**").hasRole("ADMIN")
-                        .anyRequest().hasAnyRole("USER","ADMIN")
+                        .anyRequest().permitAll()
                 ).sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
                         .maximumSessions(1)
@@ -156,11 +107,4 @@ public class SecurityConfig {
     public PasswordEncoder getPasswordEncoder(){
         return new BCryptPasswordEncoder();
     }
-
-    @Bean
-    public ObjectMapper objectMapper() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
-        return objectMapper;
     }
-}

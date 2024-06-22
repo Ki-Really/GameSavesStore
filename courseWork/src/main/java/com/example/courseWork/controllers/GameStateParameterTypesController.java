@@ -23,7 +23,7 @@ public class GameStateParameterTypesController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping
-    private ResponseEntity<EntitiesResponseDTO<GameStateParameterTypeDTO>> findGameStateParameterTypes(
+    public ResponseEntity<EntitiesResponseDTO<GameStateParameterTypeDTO>> findGameStateParameterTypes(
             @RequestParam(value = "searchQuery") String searchQuery,
             @RequestParam(value = "pageSize") Integer pageSize,
             @RequestParam(value = "pageNumber") Integer pageNumber){

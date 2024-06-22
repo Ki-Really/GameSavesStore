@@ -1,4 +1,3 @@
-/*
 package com.example.courseWork.config;
 
 
@@ -27,4 +26,3 @@ public class MinioConfig {
                 .build();
     }
 }
-*/

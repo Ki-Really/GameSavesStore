@@ -2,6 +2,7 @@ package com.example.courseWork.models.gameSaveModel;
 
 import com.example.courseWork.models.gameModel.GameStateParameter;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 
 @Entity
@@ -11,9 +12,10 @@ public class GameStateValue {
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    @NotEmpty(message = "Value should not be empty!")
+
     @Column(name="value")
     private String value;
+
     @ManyToOne
     @JoinColumn(name="fk_game_state_parameter_id", referencedColumnName = "id")
     private GameStateParameter gameStateParameter;

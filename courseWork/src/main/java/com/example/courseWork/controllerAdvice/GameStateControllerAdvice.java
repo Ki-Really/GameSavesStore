@@ -35,4 +35,5 @@ public class GameStateControllerAdvice {
         ErrorResponse response = new ErrorResponse(ex.getMessage());
         return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
     }
+
 }

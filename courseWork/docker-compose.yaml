@@ -18,26 +18,3 @@ volumes:
   minio-data:
     driver: local
 
-#  app:
-#    build:
-#      context: .
-#    container_name: cloud_saves
-#    depends_on:
-#      - db
-#      - minio
-#    environment:
-#      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/coursework
-#      - SPRING_DATASOURCE_USERNAME=postgres
-#      - SPRING_DATASOURCE_PASSWORD=Airbender1
-#      - SPRING_JPA_GENERATE_DDL=true
-#    ports:
-#      - '8080:8080'
-
-#  db:
-#    image: postgres:14.4-alpine
-#    environment:
-#      - POSTGRES_DB=coursework
-#      - POSTGRES_USER=postgres
-#      - POSTGRES_PASSWORD=postgres
-#    ports:
-#      - '5555:5432'

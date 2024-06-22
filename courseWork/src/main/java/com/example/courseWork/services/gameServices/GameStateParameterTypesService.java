@@ -27,16 +27,20 @@ public class GameStateParameterTypesService {
 
     public GameStateParameterType findByType(String type){
         Optional<GameStateParameterType> optionalGameStateParameterType = gameStateParameterTypesRepository.findByType(type);
-        return optionalGameStateParameterType.orElseThrow(() -> new GameStateParameterTypeNotFoundException("Game state parameter type not found with type " + type));
+        return optionalGameStateParameterType.orElseThrow(() ->
+                new GameStateParameterTypeNotFoundException("Game state parameter type not found with type " + type));
     }
     public GameStateParameterType findById(int id){
         Optional<GameStateParameterType> optionalGameStateParameterType = gameStateParameterTypesRepository.findById(id);
-        return optionalGameStateParameterType.orElseThrow(() -> new GameStateParameterTypeNotFoundException("Game state parameter type not found with this id!"));
+        return optionalGameStateParameterType.orElseThrow(() ->
+                new GameStateParameterTypeNotFoundException("Game state parameter type not found with this id!"));
     }
     public EntitiesResponseDTO<GameStateParameterTypeDTO> findAll(GameStateParameterTypesRequestDTO gameStateParameterTypesRequestDTO){
         Page<GameStateParameterType> page;
-        if(gameStateParameterTypesRequestDTO.getSearchQuery()!= null && !gameStateParameterTypesRequestDTO.getSearchQuery().isEmpty()){
-            page = gameStateParameterTypesRepository.findByTypeContaining(gameStateParameterTypesRequestDTO.getSearchQuery(), PageRequest.of(
+        if(gameStateParameterTypesRequestDTO.getSearchQuery()!= null &&
+                !gameStateParameterTypesRequestDTO.getSearchQuery().isEmpty()){
+            page = gameStateParameterTypesRepository.findByTypeContaining(
+                    gameStateParameterTypesRequestDTO.getSearchQuery(), PageRequest.of(
                     gameStateParameterTypesRequestDTO.getPageNumber() - 1,
                     gameStateParameterTypesRequestDTO.getPageSize(),
                     Sort.by(Sort.Direction.DESC, "id")

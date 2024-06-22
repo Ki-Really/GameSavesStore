@@ -5,7 +5,6 @@ import com.example.courseWork.DTO.gameDTO.*;
 import com.example.courseWork.models.gameModel.Game;
 import com.example.courseWork.services.gameServices.GamesService;
 import com.example.courseWork.util.exceptions.gameException.GameBadRequestException;
-import com.example.courseWork.util.validators.gameValidator.UniqueGameNameValidator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.ConstraintViolation;
@@ -27,27 +26,25 @@ import java.util.*;
 public class GamesController {
     private final ObjectMapper objectMapper;
     private final GamesService gamesService;
-    private final UniqueGameNameValidator uniqueGameNameValidator;
+
     private final Validator validator;
 
     @Autowired
-    public GamesController(ObjectMapper objectMapper, GamesService gamesService, UniqueGameNameValidator uniqueGameNameValidator, Validator validator) {
+    public GamesController(ObjectMapper objectMapper, GamesService gamesService, Validator validator) {
         this.objectMapper = objectMapper;
         this.gamesService = gamesService;
-        this.uniqueGameNameValidator = uniqueGameNameValidator;
         this.validator = validator;
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping
-    private ResponseEntity<GameDTO> addGame(@RequestPart("image") MultipartFile file,
+    public ResponseEntity<GameDTO> addGame(@RequestPart("image") MultipartFile file,
                                             @RequestParam("gameData") String gameData) {
         GameRequestDTO gameRequestDTO;
         try {
             gameRequestDTO = objectMapper.readValue(gameData, GameRequestDTO.class);
             Set<ConstraintViolation<GameRequestDTO>> violations = validator.validate(gameRequestDTO);
             BindingResult bindingResult = new BeanPropertyBindingResult(gameRequestDTO, "gameRequestDTO");
-            uniqueGameNameValidator.validate(gameRequestDTO,bindingResult);
 
             for (ConstraintViolation<GameRequestDTO> violation : violations) {
                 String field = violation.getPropertyPath().toString();
@@ -74,7 +71,7 @@ public class GamesController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PatchMapping("/{id}")
-    private ResponseEntity<GameDTO> updateGame(@RequestPart(value = "image", required = false) MultipartFile file,
+    public ResponseEntity<GameDTO> updateGame(@RequestPart(value = "image", required = false) MultipartFile file,
                                                @RequestParam("gameData") String gameData,
                                                @PathVariable(name ="id") int id) {
         GameRequestDTO gameRequestDTO;
@@ -95,9 +92,9 @@ public class GamesController {
                 }
                 throw new GameBadRequestException("Game updating failed!", stringErrors);
             }
-            Game game = gamesService.findByName(gameRequestDTO.getName());
-            gamesService.update(gameRequestDTO,file,id);
 
+            gamesService.update(gameRequestDTO,file,id);
+            Game game = gamesService.findByName(gameRequestDTO.getName());
             GameDTO gameDTO = new GameDTO(game.getId(),game.getName());
             return ResponseEntity.ok(gameDTO);
         } catch (JsonProcessingException e) {
@@ -107,14 +104,14 @@ public class GamesController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
-    private ResponseEntity<HttpStatus> deleteGame(@PathVariable(name ="id") int id) {
+    public ResponseEntity<HttpStatus> deleteGame(@PathVariable(name ="id") int id) {
         gamesService.deleteById(id);
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping
-    private ResponseEntity<EntitiesResponseDTO<GameResponseDTO>> findGames(
+    public ResponseEntity<EntitiesResponseDTO<GameResponseDTO>> findGames(
         @RequestParam(value = "searchQuery") String searchQuery,
         @RequestParam(value = "pageSize") Integer pageSize,
         @RequestParam(value = "pageNumber") Integer pageNumber){
@@ -128,35 +125,10 @@ public class GamesController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/{id}")
-    private ResponseEntity<GameResponseDTO> findGameById(@PathVariable(name ="id") int id){
+    public ResponseEntity<GameResponseDTO> findGameById(@PathVariable(name ="id") int id){
         Game game = gamesService.findOne(id);
 
         GameResponseDTO gameResponseDTO = gamesService.constructGame(game);
         return ResponseEntity.ok(gameResponseDTO);
     }
 }
-
-
-
-
-
-/*
-{
-        "name":"name",
-        "description":"description",
-        "paths":[{
-        "path":"path"
-        }],
-        "extractionPipeline": [{
-        "type":"sav-to-json"
-        }],
-        "schema": {
-        "filename":"filename",
-        "fields":[{
-        "key":"key",
-        "type":"type",
-        "label":"label",
-        "description":"description"
-        }]
-        }
-        }*/

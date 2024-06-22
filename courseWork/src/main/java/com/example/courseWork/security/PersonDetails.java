@@ -49,7 +49,7 @@ public class PersonDetails implements UserDetails {
     public boolean isEnabled() {
         return !person.getIsBlocked();
     }
-    //Нужно чтобы получать данные аутентифицированного пользователя.
+
     public Person getPerson(){
         return this.person;
     }

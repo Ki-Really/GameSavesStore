@@ -9,8 +9,6 @@ public class PersonLoginDTO {
     private String username;
 
     @NotEmpty(message ="Поле пароль не должно быть пустым!")
-    /*@Size(min = 3, max = 50, message = "Поле пароль должно быть от 3 до 50 символов в длину!")*/
-
     private String password;
 
     public PersonLoginDTO() {

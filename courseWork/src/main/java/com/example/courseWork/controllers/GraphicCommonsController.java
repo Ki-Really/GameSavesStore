@@ -29,7 +29,7 @@ public class GraphicCommonsController {
     }
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/graphic/common")
-    private ResponseEntity<GraphicCommonDTO> addCommonGraphic(@RequestBody GraphicCommonRequestDTO graphicCommonRequestDTO, BindingResult bindingResult){
+    public ResponseEntity<GraphicCommonDTO> addCommonGraphic(@RequestBody GraphicCommonRequestDTO graphicCommonRequestDTO, BindingResult bindingResult){
         if(bindingResult.hasErrors()){
             List<FieldError> errors = bindingResult.getFieldErrors();
             List<String> stringErrors = new LinkedList<>();
@@ -44,7 +44,7 @@ public class GraphicCommonsController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PatchMapping("/graphic/common/{id}")
-    private ResponseEntity<GraphicCommonDTO> updateCommonGraphic(
+    public ResponseEntity<GraphicCommonDTO> updateCommonGraphic(
             @PathVariable(name = "id") int id,
             @RequestBody GraphicCommonRequestDTO graphicCommonRequestDTO){
         GraphicCommonDTO graphicCommonDTO = graphicCommonsService.update(id,graphicCommonRequestDTO);
@@ -53,21 +53,21 @@ public class GraphicCommonsController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/graphic/common/{id}")
-    private ResponseEntity<HttpStatus> deleteCommonGraphic(@PathVariable(name = "id") int id) {
+    public ResponseEntity<HttpStatus> deleteCommonGraphic(@PathVariable(name = "id") int id) {
         graphicCommonsService.delete(id);
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/graphic/common/{id}")
-    private ResponseEntity<GraphicCommonDTO> getCommonGraphic(@PathVariable(name = "id") int id) {
+    public ResponseEntity<GraphicCommonDTO> getCommonGraphic(@PathVariable(name = "id") int id) {
         GraphicCommonDTO graphicCommonDTO = graphicCommonsService.findById(id);
         return ResponseEntity.ok(graphicCommonDTO);
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/graphic/common")
-    private ResponseEntity<EntitiesResponseDTO<GraphicCommonDTO>> findCommonParameters(
+    public ResponseEntity<EntitiesResponseDTO<GraphicCommonDTO>> findCommonParameters(
             @RequestParam(value = "searchQuery",required = false) String searchQuery,
             @RequestParam(value = "pageSize") Integer pageSize,
             @RequestParam(value = "pageNumber") Integer pageNumber){
@@ -84,7 +84,7 @@ public class GraphicCommonsController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/graphic-data/common/{id}")
-    private ResponseEntity<GraphicDataResponse> getGraphicData(@PathVariable(name = "id") int id) throws Exception {
+    public ResponseEntity<GraphicDataResponse> getGraphicData(@PathVariable(name = "id") int id) throws Exception {
        GraphicDataResponse graphicDataResponse;
        if(graphicCommonsService.findVisualTypeById(id).equals("histogram")){
            graphicDataResponse = graphicCommonsService.getHistogramTimeData(id);

@@ -1,7 +1,5 @@
 package com.example.courseWork.DTO.gameDTO;
 
-import com.example.courseWork.DTO.commonParameterDTO.CommonParameterDTO;
-
 public class GameStateParameterDTO {
     private int id;
 

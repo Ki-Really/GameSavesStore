@@ -1,4 +1,3 @@
-/*
 package com.example.courseWork.config;
 
 import io.swagger.v3.oas.models.Components;
@@ -27,11 +26,10 @@ public class SwaggerConfig {
                                 )
                 )
                 .info(new Info()
-                        .title("GaveSaves")
+                        .title("GameSaves")
                         .description("Demo spring boot app")
                         .version("1.0")
                 );
     }
 
 }
-*/

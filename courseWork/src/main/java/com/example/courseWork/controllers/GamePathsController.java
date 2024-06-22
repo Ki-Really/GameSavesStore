@@ -23,7 +23,7 @@ public class GamePathsController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping
-    private ResponseEntity<EntitiesResponseDTO<GamePathDTO>> findGamePaths(
+    public ResponseEntity<EntitiesResponseDTO<GamePathDTO>> findGamePaths(
             @RequestParam(value = "searchQuery") String searchQuery,
             @RequestParam(value = "pageSize") Integer pageSize,
             @RequestParam(value = "pageNumber") Integer pageNumber){

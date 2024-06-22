@@ -3,7 +3,6 @@ package com.example.courseWork.DTO.gameDTO;
 import java.util.List;
 
 public class SchemeDTO {
-    /*@NotEmpty(message ="Путь не должен быть пустым!")*/
     private int id;
     private String filename;
     private List<GameStateParameterDTO> gameStateParameters;

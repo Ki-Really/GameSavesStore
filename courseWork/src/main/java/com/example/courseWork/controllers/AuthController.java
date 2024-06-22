@@ -46,12 +46,12 @@ public class AuthController {
     }
 
     @GetMapping("/redirect")
-    private void redirect(@RequestParam(value = "url") String redirectTo, HttpServletResponse response) throws IOException {
+    public void redirect(@RequestParam(value = "url") String redirectTo, HttpServletResponse response) throws IOException {
         response.sendRedirect(redirectTo);
     }
 
     @PostMapping("/registration")
-    private ResponseEntity<HttpStatus> create(@RequestBody @Valid Person person, BindingResult bindingResult){
+    public ResponseEntity<HttpStatus> create(@RequestBody @Valid Person person, BindingResult bindingResult){
         uniqueUsernameValidator.validate(person,bindingResult);
         uniqueEmailValidator.validate(person,bindingResult);
 
@@ -67,9 +67,9 @@ public class AuthController {
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
-    @PreAuthorize("!isAuthenticated()")
+    //@PreAuthorize("!isAuthenticated()")
     @PostMapping("/login")
-    private ResponseEntity<SendPersonFromLoginDTO> login(
+    public ResponseEntity<SendPersonFromLoginDTO> login(
         @RequestBody @Valid PersonLoginDTO personLoginDTO,
         BindingResult bindingResult,
         HttpServletRequest request) {
@@ -106,7 +106,7 @@ public class AuthController {
     }
 
     @PostMapping("/recover-password")
-    private ResponseEntity<HttpStatus> recoverPassword(@RequestBody @Valid PersonPasswordRecoveryDTO personPasswordRecoveryDTO){
+    public ResponseEntity<HttpStatus> recoverPassword(@RequestBody @Valid PersonPasswordRecoveryDTO personPasswordRecoveryDTO){
         String email = personPasswordRecoveryDTO.getEmail();
         peopleService.sendMailForChangingPasswordUnauthorized(email);
         return ResponseEntity.ok(HttpStatus.OK);
@@ -114,7 +114,7 @@ public class AuthController {
 
 
     @PostMapping("/change-password")
-    private ResponseEntity<HttpStatus> changePassword(@RequestBody @Valid PersonChangePasswordDTO personChangePasswordDTO){
+    public ResponseEntity<HttpStatus> changePassword(@RequestBody @Valid PersonChangePasswordDTO personChangePasswordDTO){
         if(passwordRecoveryTokenService.findByToken(personChangePasswordDTO.getToken())!= null){
             PasswordRecoveryTokenEntity passwordRecoveryTokenEntity = passwordRecoveryTokenService.findByToken(personChangePasswordDTO.getToken());
             Person personToChangePassword = peopleService.findPersonById(passwordRecoveryTokenEntity.getPerson().getId());
@@ -131,7 +131,7 @@ public class AuthController {
 
     @PreAuthorize("")
     @PostMapping("/auth-change-password")
-    private ResponseEntity<HttpStatus> changePasswordAuth(@RequestBody @Valid PersonAuthChangePasswordDTO personAuthChangePasswordDTO, Principal principal){
+    public ResponseEntity<HttpStatus> changePasswordAuth(@RequestBody @Valid PersonAuthChangePasswordDTO personAuthChangePasswordDTO, Principal principal){
         Person person = peopleService.findOne(principal.getName());
         peopleService.changePasswordForAuthenticated(personAuthChangePasswordDTO,person);
         return ResponseEntity.ok(HttpStatus.OK);

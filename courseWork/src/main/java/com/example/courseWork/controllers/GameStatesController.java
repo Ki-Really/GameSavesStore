@@ -1,7 +1,6 @@
 package com.example.courseWork.controllers;
 
 import com.example.courseWork.DTO.entityDTO.EntitiesResponseDTO;
-import com.example.courseWork.DTO.gameDTO.GameRequestDTO;
 import com.example.courseWork.DTO.gameSaveDTO.GameStateRequestDTO;
 import com.example.courseWork.DTO.gameSaveDTO.GameStateDTO;
 import com.example.courseWork.DTO.gameSaveDTO.GameStatesRequestDTO;
@@ -43,12 +42,13 @@ public class GameStatesController {
 
     @PreAuthorize("hasRole('ROLE_USER')")
     @PostMapping
-    private ResponseEntity<GameStateDTO> addGameState(@RequestPart("archive") MultipartFile file,
+    public ResponseEntity<GameStateDTO> addGameState(@RequestPart("archive") MultipartFile file,
                                                       @RequestParam("gameStateData") String gameStatesData,
                                                        Principal principal) {
         GameStateRequestDTO addGameStateDTO;
         try {
             addGameStateDTO = objectMapper.readValue(gameStatesData, GameStateRequestDTO.class);
+            System.out.println(addGameStateDTO.getGameStateValues().get(0).getValue());
             Set<ConstraintViolation<GameStateRequestDTO>> violations = validator.validate(addGameStateDTO);
             BindingResult bindingResult = new BeanPropertyBindingResult(addGameStateDTO, "addGameStateDTO");
 
@@ -77,14 +77,14 @@ public class GameStatesController {
 
     @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{id}")
-    private ResponseEntity<HttpStatus> deleteGameState(@PathVariable(name ="id") int id,Principal principal){
+    public ResponseEntity<HttpStatus> deleteGameState(@PathVariable(name ="id") int id,Principal principal){
         gameStatesService.deleteById(id,principal);
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
     @PreAuthorize("isAuthenticated()")
     @PatchMapping("/{id}")
-    private ResponseEntity<GameStateDTO> updateGameState(@RequestPart("archive") MultipartFile file,
+    public ResponseEntity<GameStateDTO> updateGameState(@RequestPart("archive") MultipartFile file,
                                                @RequestParam("gameStateData") String gameStateData,
                                                @PathVariable(name ="id") int id,
                                                Principal principal){
@@ -119,8 +119,8 @@ public class GameStatesController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/{id}")
-    private ResponseEntity<GameStateDTO> findGameStateById(@PathVariable(name ="id") int id){
-        GameState gameState = gameStatesService.findById(id);
+    public ResponseEntity<GameStateDTO> findGameStateById(@PathVariable(name ="id") int id,Principal principal){
+        GameState gameState = gameStatesService.findByIdSafe(id,principal);
 
         GameStateDTO gameStateDTO = gameStatesService.constructGameStateDTO(gameState);
         return ResponseEntity.ok(gameStateDTO);
@@ -128,7 +128,7 @@ public class GameStatesController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/admin")
-    private ResponseEntity<EntitiesResponseDTO<GameStateDTO>> findAllGameStates(
+    public ResponseEntity<EntitiesResponseDTO<GameStateDTO>> findAllGameStates(
             @RequestParam(value = "searchQuery") String searchQuery,
             @RequestParam(value = "pageSize") Integer pageSize,
             @RequestParam(value = "pageNumber") Integer pageNumber){
@@ -141,7 +141,7 @@ public class GameStatesController {
 
     @PreAuthorize("hasRole('ROLE_USER')")
     @GetMapping()
-    private ResponseEntity<EntitiesResponseDTO<GameStateDTO>> findGameStatesByPerson(
+    public ResponseEntity<EntitiesResponseDTO<GameStateDTO>> findGameStatesByPerson(
             @RequestParam(value = "searchQuery") String searchQuery,
             @RequestParam(value = "pageSize") Integer pageSize,
             @RequestParam(value = "pageNumber") Integer pageNumber,
@@ -155,7 +155,7 @@ public class GameStatesController {
 
     @PreAuthorize("hasRole('ROLE_USER')")
     @GetMapping("/public")
-    private ResponseEntity<EntitiesResponseDTO<GameStateDTO>> findPublicGameStates(
+    public ResponseEntity<EntitiesResponseDTO<GameStateDTO>> findPublicGameStates(
             @RequestParam(value = "searchQuery",required = false) String searchQuery,
             @RequestParam(value = "pageSize") Integer pageSize,
             @RequestParam(value = "pageNumber") Integer pageNumber,
@@ -170,7 +170,7 @@ public class GameStatesController {
 
     @PreAuthorize("hasRole('ROLE_USER')")
     @GetMapping("/received-game-state-shares")
-    private ResponseEntity<EntitiesResponseDTO<GameStateDTO>> findReceivedGameStates(
+    public ResponseEntity<EntitiesResponseDTO<GameStateDTO>> findReceivedGameStates(
             @RequestParam(value = "searchQuery") String searchQuery,
             @RequestParam(value = "pageSize") Integer pageSize,
             @RequestParam(value = "pageNumber") Integer pageNumber,Principal principal){

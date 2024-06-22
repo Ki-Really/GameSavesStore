@@ -124,46 +124,28 @@ public class GraphicCommonsService {
         return graphicCommonDTO;
     }
 
- /*   public GraphicCommon graphicCommon(int id){
-        graphicCommonsRepository.findById(id);
-    }*/
-/*    public String getVisualType(int id){
-        GraphicCommonHistogramTimeResponseDataDTO graphicCommonHistogramTimeResponseDataDTO = new GraphicCommonHistogramTimeResponseDataDTO();
-        Optional<GraphicCommon> optionalGraphicCommon = graphicCommonsRepository.findById(id);
-
-        if(optionalGraphicCommon.isPresent()){
-
-            GraphicCommon graphicCommon = optionalGraphicCommon.get();
-            String visualType = graphicCommon.getVisualType();
-            if(visualType.equals("histogram")){
-                return "histogram";
-            }
-            if(visualType.equals("pie_chart")){
-                return "pie_chart";
-            }
-        }
-        return null;
-    }*/
-
 
     public GraphicCommonHistogramTimeResponseDataDTO getHistogramTimeData(int id){
         Optional<GraphicCommon> optionalGraphicCommon = graphicCommonsRepository.findById(id);
-
+        // Получаем график, данные которого надо отобразить
         if(optionalGraphicCommon.isPresent()){
             GraphicCommon graphicCommon = optionalGraphicCommon.get();
             GraphicCommonHistogramTimeResponseDataDTO graphicCommonResponseDataDTO =
                     new GraphicCommonHistogramTimeResponseDataDTO();
 
-
             List<String> extractedValues = new LinkedList<>();
             GameStateParameter gameStateParameter;
-
+            // Считаем количество параметров игровых сохранений с общим параметром.
             int gameStateParametersSize = graphicCommon.getCommonParameter().getGameStateParameters().size();
             int gameStateValuesSize;
+            // Проходимся по всем параметрам
             for(int i = 0; i<gameStateParametersSize;i++){
                 gameStateParameter = graphicCommon.getCommonParameter().getGameStateParameters().get(i);
+                // Считаем количество значений в каждом параметре
                 gameStateValuesSize = gameStateParameter.getGameStateValues().size();
+
                 for(int j = 0; j<gameStateValuesSize;j++){
+                    // Извлекаем данные для построения графиков.
                     extractedValues.add(String.valueOf(gameStateParameter.getGameStateValues().get(j).getValue()));
                 }
             }
@@ -188,7 +170,8 @@ public class GraphicCommonsService {
 
             graphicCommonResponseDataDTO.setId(graphicCommon.getId());
             graphicCommonResponseDataDTO.setVisualType(graphicCommon.getVisualType());
-            graphicCommonResponseDataDTO.setCommonParameter(convertToCommonParameterDTO(graphicCommon.getCommonParameter()));
+            graphicCommonResponseDataDTO.setCommonParameter(
+                    convertToCommonParameterDTO(graphicCommon.getCommonParameter()));
             graphicCommonResponseDataDTO.setData(commonHistogramDataDTOList);
             return graphicCommonResponseDataDTO;
         }
@@ -202,9 +185,11 @@ public class GraphicCommonsService {
 
         if(optionalGraphicCommon.isPresent()){
             GraphicCommon graphicCommon = optionalGraphicCommon.get();
-            GraphicCommonPieChartGenderResponseDataDTO graphicCommonResponseDataDTO = new GraphicCommonPieChartGenderResponseDataDTO();
+            GraphicCommonPieChartGenderResponseDataDTO graphicCommonResponseDataDTO =
+                    new GraphicCommonPieChartGenderResponseDataDTO();
             graphicCommonResponseDataDTO.setVisualType(graphicCommon.getVisualType());
-            graphicCommonResponseDataDTO.setCommonParameter(convertToCommonParameterDTO(graphicCommon.getCommonParameter()));
+            graphicCommonResponseDataDTO.setCommonParameter(
+                    convertToCommonParameterDTO(graphicCommon.getCommonParameter()));
 
             List<String> extractedValues = new LinkedList<>();
             List<CommonPieChartDataDTO> commonList = new LinkedList<>();
@@ -244,6 +229,7 @@ public class GraphicCommonsService {
         commonParameterDTO.setDescription(commonParameter.getDescription());
         return commonParameterDTO;
     }
+
     private GameStateParameterTypeDTO convertToGameStateParameterDTO(GameStateParameterType gameStateParameterType){
         GameStateParameterTypeDTO gameStateParameterTypeDTO = new GameStateParameterTypeDTO();
         gameStateParameterTypeDTO.setId(gameStateParameterType.getId());

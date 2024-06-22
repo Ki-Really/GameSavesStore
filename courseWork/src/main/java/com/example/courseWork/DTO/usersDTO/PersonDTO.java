@@ -1,7 +1,5 @@
 package com.example.courseWork.DTO.usersDTO;
 
-import com.example.courseWork.models.authModel.Role;
-
 public class PersonDTO {
     private int id;
     private String username;

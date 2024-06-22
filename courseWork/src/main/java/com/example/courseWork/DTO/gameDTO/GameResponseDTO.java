@@ -11,8 +11,6 @@ public class GameResponseDTO {
     private SchemeResponseDTO schema;
     private String imageUrl;
 
-
-
     public GameResponseDTO(String name, String description) {
         this.name = name;
         this.description = description;
@@ -77,25 +75,3 @@ public class GameResponseDTO {
         this.imageUrl = imageUrl;
     }
 }
-
-
-
-
-/*
-
-name: string: // game name
-        description: string;
-        paths: [{path: string}]; //массив путей
-        extractionPipeline: [{   // шаги при извлечении метаданных
-        type: "sav-to-json" | "extract-from-json" // Будет приходить что то одно из этого
-        }];
-        schema: {           //список полей из Json которые надо извлечь
-        filename: string;
-        fields: [{ //схема для того, чтобы определять какие метаданные извлекать для определенной игры. //Отдельная таблица для fields с айдишниками к таблице со схемами.
-        key: string;
-        type: string;
-        label: string;
-        description: string;
-        }]
-        }
-        image: Blob;*/

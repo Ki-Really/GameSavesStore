@@ -9,9 +9,3 @@ public class CourseWorkApplication {
 		SpringApplication.run(CourseWorkApplication.class, args);
 	}
 }
-/*
-{
-		"username":"testo123",
-		"email":"testoprotesto123321@gmail.com",
-		"password":"123"
-		}*/

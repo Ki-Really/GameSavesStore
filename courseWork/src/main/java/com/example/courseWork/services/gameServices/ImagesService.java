@@ -5,20 +5,15 @@ import com.example.courseWork.models.gameModel.Image;
 import com.example.courseWork.repositories.gameRepositories.ImageRepository;
 import com.example.courseWork.services.props.MinioProperties;
 import io.minio.*;
-import io.minio.errors.*;
 import io.minio.http.Method;
 import jakarta.transaction.Transactional;
-import org.apache.commons.compress.utils.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 @Transactional

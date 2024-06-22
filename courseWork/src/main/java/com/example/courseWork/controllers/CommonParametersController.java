@@ -41,7 +41,7 @@ public class CommonParametersController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping
-    private ResponseEntity<CommonParameterDTO> addCommonParameter(@RequestParam("commonParameterData")
+    public ResponseEntity<CommonParameterDTO> addCommonParameter(@RequestParam("commonParameterData")
                                                                   String commonParameterData) {
 
         CommonParameterRequestDTO commonParameterRequestDTO;
@@ -70,9 +70,10 @@ public class CommonParametersController {
             throw new RuntimeException(e);
         }
     }
+
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
-    private ResponseEntity<HttpStatus> deleteCommonParameter(@PathVariable(name = "id") int id){
+    public ResponseEntity<HttpStatus> deleteCommonParameter(@PathVariable(name = "id") int id){
         commonParametersService.delete(id);
         if(commonParametersService.findById(id) == null){
             return ResponseEntity.ok(HttpStatus.OK);
@@ -80,9 +81,10 @@ public class CommonParametersController {
             throw new CommonParameterDeleteException("Common parameter was not deleted!");
         }
     }
+
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PatchMapping("/{id}")
-    private ResponseEntity<CommonParameterDTO> updateCommonParameter(@RequestParam("commonParameterData") String commonParameterData,
+    public ResponseEntity<CommonParameterDTO> updateCommonParameter(@RequestParam("commonParameterData") String commonParameterData,
                                                                      @PathVariable(name ="id") int id){
         CommonParameterRequestDTO commonParameterRequestDTO;
 
@@ -114,7 +116,7 @@ public class CommonParametersController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping
-    private ResponseEntity<EntitiesResponseDTO<CommonParameterDTO>> findCommonParameters(
+    public ResponseEntity<EntitiesResponseDTO<CommonParameterDTO>> findCommonParameters(
             @RequestParam(value = "searchQuery",required = false) String searchQuery,
             @RequestParam(value = "pageSize") Integer pageSize,
             @RequestParam(value = "pageNumber") Integer pageNumber){

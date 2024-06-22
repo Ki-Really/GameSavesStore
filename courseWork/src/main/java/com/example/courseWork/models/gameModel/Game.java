@@ -14,13 +14,18 @@ public class Game {
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
     @NotEmpty(message ="Название игры не должно быть пустым!")
     @Size(min = 2, max = 50, message = "Название игры должно быть от 2 до 50 символов в длину!")
     @Column(name = "name")
     private String name;
+
     @Column(name = "description")
     @Size(min = 2, max = 255, message = "Описание игры должно быть от 2 до 50 символов в длину!")
     private String description;
+
+    @Column(name = "filename")
+    private String filename;
 
     @OneToMany(mappedBy = "game", cascade = {CascadeType.PERSIST,CascadeType.MERGE,CascadeType.REMOVE,CascadeType.DETACH}, orphanRemoval = true)
     private List<Path> paths;
@@ -28,8 +33,8 @@ public class Game {
     @OneToMany(mappedBy = "game", cascade = {CascadeType.PERSIST,CascadeType.MERGE,CascadeType.REMOVE,CascadeType.DETACH}, orphanRemoval = true)
     private List<ExtractionPipeline> extractionPipelines;
 
-    @OneToOne(mappedBy = "game", cascade = {CascadeType.PERSIST,CascadeType.MERGE,CascadeType.REMOVE,CascadeType.DETACH}, orphanRemoval = true)
-    private Scheme scheme;
+    @OneToMany(mappedBy = "game", cascade = {CascadeType.PERSIST,CascadeType.MERGE,CascadeType.REMOVE,CascadeType.DETACH}, orphanRemoval = true)
+    private List<GameStateParameter> gameStateParameters;
 
     @OneToOne(mappedBy="game", cascade = {CascadeType.PERSIST,CascadeType.MERGE,CascadeType.REMOVE,CascadeType.DETACH})
     private Image image;
@@ -84,18 +89,6 @@ public class Game {
         this.extractionPipelines = extractionPipelines;
     }
 
-    public Scheme getScheme() {
-        return scheme;
-    }
-
-    public void setScheme(Scheme scheme) {
-        this.scheme = scheme;
-    }
-
-    public void addSchemesToGame(Scheme scheme){
-        scheme.setGame(this);
-    }
-
     public Image getImage() {
         return image;
     }
@@ -110,5 +103,21 @@ public class Game {
 
     public void setGameStates(List<GameState> gameStates) {
         this.gameStates = gameStates;
+    }
+
+    public String getFilename() {
+        return filename;
+    }
+
+    public void setFilename(String filename) {
+        this.filename = filename;
+    }
+
+    public List<GameStateParameter> getGameStateParameters() {
+        return gameStateParameters;
+    }
+
+    public void setGameStateParameters(List<GameStateParameter> gameStateParameters) {
+        this.gameStateParameters = gameStateParameters;
     }
 }

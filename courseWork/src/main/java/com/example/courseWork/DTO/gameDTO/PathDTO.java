@@ -1,8 +1,5 @@
 package com.example.courseWork.DTO.gameDTO;
 
-import jakarta.persistence.Column;
-import jakarta.validation.constraints.NotEmpty;
-
 public class PathDTO {
     private int id;
 

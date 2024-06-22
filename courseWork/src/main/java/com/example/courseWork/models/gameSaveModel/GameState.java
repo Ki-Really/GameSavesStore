@@ -17,32 +17,43 @@ public class GameState {
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
     @NotEmpty(message = "Name of game save should not be empty!")
     @Size(min = 2, max = 50, message = "The name of the game save must be from 2 to 50 characters in length!")
     @Column(name = "name")
     private String name;
+
     @Column(name = "local_path")
     @NotEmpty(message = "Local path of game save should not be empty!")
     private String localPath;
+
     @Column(name = "archive_name")
     @NotEmpty(message = "Archive name of game save should not be empty!")
     private String archiveName;
+
     @Column(name = "size_in_bytes")
     private long sizeInBytes;
+
     @Column(name = "is_public")
     private boolean isPublic;
+
     @ManyToOne
     @JoinColumn(name ="fk_person_id",referencedColumnName = "id")
     private Person person;
+
     @ManyToOne
     @JoinColumn(name = "fk_game_id",referencedColumnName = "id")
     private Game game;
+
     @OneToMany(mappedBy="gameState",cascade = {CascadeType.PERSIST,CascadeType.MERGE,CascadeType.REMOVE,CascadeType.DETACH},orphanRemoval = true)
     private List<GameStateValue> gameStateValues;
+
     @Column(name="created_at")
     private LocalDateTime createdAt;
+
     @Column(name="updated_at")
     private LocalDateTime updatedAt;
+
     @Column(name="uploaded_at")
     private LocalDateTime uploadedAt;
 

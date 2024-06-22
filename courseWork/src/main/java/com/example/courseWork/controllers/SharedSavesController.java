@@ -31,7 +31,7 @@ public class SharedSavesController{
 
     @PreAuthorize("hasRole('ROLE_USER')")
     @PostMapping
-    private ResponseEntity<GameStateShareResponseDTO> addGameStateShare(@RequestBody ShareWithDTO shareWithDTO,
+    public ResponseEntity<GameStateShareResponseDTO> addGameStateShare(@RequestBody ShareWithDTO shareWithDTO,
                                                                         BindingResult bindingResult){
         if(bindingResult.hasErrors()){
             List<FieldError> errors = bindingResult.getFieldErrors();
@@ -49,14 +49,14 @@ public class SharedSavesController{
 
     @PreAuthorize("hasRole('ROLE_USER')")
     @DeleteMapping("{id}")
-    private ResponseEntity<HttpStatus> deleteStateShare(@PathVariable("id") int id){
+    public ResponseEntity<HttpStatus> deleteStateShare(@PathVariable("id") int id){
         gameStateSharesService.deleteById(id);
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('ROLE_USER')")
     @GetMapping("{id}")
-    private ResponseEntity<EntitiesResponseDTO<GameStateShareResponseDTO>> getSharedSaves(@PathVariable("id") int id){
+    public ResponseEntity<EntitiesResponseDTO<GameStateShareResponseDTO>> getSharedSaves(@PathVariable("id") int id){
         EntitiesResponseDTO<GameStateShareResponseDTO> gameStateSharesResponseDTO = gameStateSharesService.getGameStateShares(id);
         return ResponseEntity.ok(gameStateSharesResponseDTO);
     }

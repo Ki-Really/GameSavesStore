@@ -8,13 +8,12 @@ import com.example.courseWork.services.authServices.PeopleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 
 
-@Controller
+@RestController
 @RequestMapping("/users")
 public class UsersController {
 
@@ -26,7 +25,7 @@ public class UsersController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/{id}/block")
-    private ResponseEntity<PersonDTO> blockUser(@PathVariable(name ="id") int id) {
+    public ResponseEntity<PersonDTO> blockUser(@PathVariable(name ="id") int id) {
         Person person = peopleService.findPersonById(id);
         peopleService.blockUser(id);
         PersonDTO personDTO = new PersonDTO();
@@ -40,7 +39,7 @@ public class UsersController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/{id}/unblock")
-    private ResponseEntity<PersonDTO> unblockUser(@PathVariable(name ="id") int id) {
+    public ResponseEntity<PersonDTO> unblockUser(@PathVariable(name ="id") int id) {
         Person person = peopleService.findPersonById(id);
         peopleService.unblockUser(id);
         PersonDTO personDTO = new PersonDTO();
@@ -54,7 +53,7 @@ public class UsersController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping
-    private ResponseEntity<EntitiesResponseDTO<PersonDTO>> getUsers(@RequestParam(value = "searchQuery") String searchQuery,
+    public ResponseEntity<EntitiesResponseDTO<PersonDTO>> getUsers(@RequestParam(value = "searchQuery") String searchQuery,
                                                          @RequestParam(value = "pageSize") Integer pageSize,
                                                          @RequestParam(value = "pageNumber") Integer pageNumber, Principal principal){
         PeopleRequestDTO peopleRequestDTO = new PeopleRequestDTO(

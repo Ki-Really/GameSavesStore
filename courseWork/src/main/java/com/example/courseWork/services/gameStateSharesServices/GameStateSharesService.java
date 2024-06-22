@@ -30,6 +30,7 @@ public class GameStateSharesService {
         this.gameStatesService = gameStatesService;
         this.peopleService = peopleService;
     }
+
     @Transactional
     public SharedSave save(ShareWithDTO shareWithDTO){
         SharedSave sharedSave = convertToSharedSave(shareWithDTO);
@@ -39,6 +40,7 @@ public class GameStateSharesService {
         }
         return null;
     }
+
     @Transactional
     public void deleteById(int id){
         Optional<SharedSave> optionalSharedSave = gameStateSharesRepository.findById(id);
@@ -74,11 +76,13 @@ public class GameStateSharesService {
         gameState.getSharedSaves().add(sharedSave);
         return sharedSave;
     }
+
     private GameStateShareResponseDTO convertToGameStateShareResponseDTO(SharedSave sharedSave){
         GameStateShareResponseDTO gameStateShareResponseDTO = new GameStateShareResponseDTO(sharedSave.getId(),
                 sharedSave.getPerson().getUsername());
         return gameStateShareResponseDTO;
     }
+
     public GameStateShareResponseDTO constructResponseDTO(SharedSave sharedSave){
         return new GameStateShareResponseDTO(
                 sharedSave.getPerson().getId(),sharedSave.getPerson().getUsername());

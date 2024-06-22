@@ -24,7 +24,6 @@ public class Person implements Serializable {
     @Column(name = "username", unique = true)
     private String username;
 
-
     @NotEmpty(message ="Поле Email не должно быть пустым!")
     @Size(min = 2, max = 50,message = "Поле Email должно быть от 2 до 50 символов в длину!")
     @Email
@@ -32,6 +31,8 @@ public class Person implements Serializable {
     private String email;
 
     @NotEmpty(message ="Поле пароль не должно быть пустым!")
+    @Size(min = 8, message = "Password should be 8 symbols or more!")
+
     @Column(name = "password")
     private String password;
 

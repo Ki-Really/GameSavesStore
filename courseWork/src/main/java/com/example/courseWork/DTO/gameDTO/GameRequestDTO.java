@@ -1,6 +1,5 @@
 package com.example.courseWork.DTO.gameDTO;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
@@ -15,6 +14,8 @@ public class GameRequestDTO {
     private List<PathDTO> paths;
     private List<ExtractionPipelineDTO> extractionPipeline;
     private SchemeDTO schema;
+    private String filename;
+    private List<GameStateParameterDTO> gameStateParameters;
 
     public GameRequestDTO(String name, String description) {
         this.name = name;
@@ -65,24 +66,3 @@ public class GameRequestDTO {
     }
 }
 
-
-
-
-/*
-
-name: string: // game name
-        description: string;
-        paths: [{path: string}]; //массив путей
-        extractionPipeline: [{   // шаги при извлечении метаданных
-        type: "sav-to-json" | "extract-from-json" // Будет приходить что то одно из этого
-        }];
-        schema: {           //список полей из Json которые надо извлечь
-        filename: string;
-        fields: [{ //схема для того, чтобы определять какие метаданные извлекать для определенной игры. //Отдельная таблица для fields с айдишниками к таблице со схемами.
-        key: string;
-        type: string;
-        label: string;
-        description: string;
-        }]
-        }
-        image: Blob;*/
