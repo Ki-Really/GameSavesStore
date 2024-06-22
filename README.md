@@ -23,6 +23,10 @@ I use postman to check if my code works right. I have every endpoint as a reques
 I use minio S3 for saving images of games and user's saving archives on a server. Data saves into special folders (buckets). They can be extracted and returned to a user.
 ![image](https://github.com/Ki-Really/GameSavesStore/assets/133647432/603a0f1a-9d1a-4212-8a78-53c2191f24d6)
 
+## Database structure
+![image](https://github.com/Ki-Really/GameSavesStore/assets/133647432/6c0900a6-7c15-4856-89a7-bcb4bc9585bd)
+
+
 
 ## Docker
 Here I can run a whole project, but in a fact only Minio store placed in here using docker-compose and Dockerfile files.
